@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
+import { useLanguage } from '@/providers/language-provider';
 import Navbar from '@/components/Navbar';
 import api from '../../lib/api';
 import { Calendar, User, Clock, Users } from 'lucide-react';
@@ -15,6 +16,7 @@ export default function HobbyDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { language } = useLanguage();
 
   const { data: hobby, isLoading } = useQuery({
     queryKey: ['hobby', id],
@@ -40,16 +42,16 @@ export default function HobbyDetailPage() {
     try {
       await api.post(`/lessons/${lessonId}/register`);
       refetchLessons();
-      alert('Successfully registered for the lesson!');
+      alert(language === 'am' ? 'በትምህርቱ በተሳካ ሁኔታ ተመዝግበዋል!' : 'Successfully registered for the lesson!');
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Registration failed');
+      alert(error.response?.data?.error || (language === 'am' ? 'ምዝገባው አልተሳካም' : 'Registration failed'));
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">Loading details...</div>
+        <div className="text-center font-semibold text-gray-500">{language === 'am' ? 'ዝርዝሮችን በመጫን ላይ...' : 'Loading details...'}</div>
       </div>
     );
   }
@@ -58,10 +60,10 @@ export default function HobbyDetailPage() {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
         <div className="text-center max-w-sm px-6 py-8 bg-white rounded-[24px] shadow-sm border border-gray-100">
-          <p className="text-gray-500 font-medium mb-4">Course or activity not found</p>
+          <p className="text-gray-500 font-medium mb-4">{language === 'am' ? 'ኮርሱ ወይም ተግባሩ አልተገኘም' : 'Course or activity not found'}</p>
           <Link href="/hobbies">
-            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] rounded-xl text-white font-bold h-11 px-6">
-              Back to Catalog
+            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] rounded-xl text-[#1F2937] font-bold h-11 px-6">
+              {language === 'am' ? 'ወደ ካታሎግ ይመለሱ' : 'Back to Catalog'}
             </Button>
           </Link>
         </div>
@@ -87,7 +89,7 @@ export default function HobbyDetailPage() {
               )}
               {hobby.ageGroup && (
                 <span className="text-xs font-bold text-gray-500 bg-gray-100 px-3.5 py-1.5 rounded-full uppercase tracking-wider">
-                  Ages {hobby.ageGroup}
+                  {language === 'am' ? `ዕድሜ ${hobby.ageGroup}` : `Ages ${hobby.ageGroup}`}
                 </span>
               )}
             </div>
@@ -103,17 +105,17 @@ export default function HobbyDetailPage() {
 
         <Tabs defaultValue="lessons" className="space-y-8">
           <TabsList className="bg-gray-100/70 p-1.5 rounded-xl border border-gray-100 max-w-md">
-            <TabsTrigger value="lessons" className="rounded-lg py-2.5 font-semibold text-sm">Upcoming Lessons</TabsTrigger>
-            <TabsTrigger value="about" className="rounded-lg py-2.5 font-semibold text-sm">Course Overview</TabsTrigger>
-            {user && <TabsTrigger value="my-progress" className="rounded-lg py-2.5 font-semibold text-sm">My Progress</TabsTrigger>}
+            <TabsTrigger value="lessons" className="rounded-lg py-2.5 font-semibold text-sm">{language === 'am' ? 'የሚቀጥሉ ትምህርቶች' : 'Upcoming Lessons'}</TabsTrigger>
+            <TabsTrigger value="about" className="rounded-lg py-2.5 font-semibold text-sm">{language === 'am' ? 'ስለ ኮርሱ ማጠቃለያ' : 'Course Overview'}</TabsTrigger>
+            {user && <TabsTrigger value="my-progress" className="rounded-lg py-2.5 font-semibold text-sm">{language === 'am' ? 'የእኔ ሂደት' : 'My Progress'}</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="lessons">
             {lessons?.length === 0 ? (
               <Card className="rounded-[24px] border-gray-100 shadow-sm">
                 <CardContent className="text-center py-16">
-                  <p className="text-gray-500 font-medium mb-1">No lessons scheduled currently</p>
-                  <p className="text-sm text-gray-400">Please check back in a few days or contact support.</p>
+                  <p className="text-gray-500 font-medium mb-1">{language === 'am' ? 'በአሁኑ ጊዜ ምንም የታቀዱ ትምህርቶች የሉም' : 'No lessons scheduled currently'}</p>
+                  <p className="text-sm text-gray-400">{language === 'am' ? 'እባክዎን ከጥቂት ቀናት በኋላ ተመልሰው ያረጋግጡ ወይም ድጋፍ ሰጪዎችን ያግኙ።' : 'Please check back in a few days or contact support.'}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -138,19 +140,21 @@ export default function HobbyDetailPage() {
                         </div>
                         <div className="flex items-center gap-2.5 text-sm text-[#6B7280]">
                           <Clock className="h-4.5 w-4.5 text-[#FF7A45]" />
-                          <span>{lesson.durationMinutes} mins</span>
+                          <span>{lesson.durationMinutes} {language === 'am' ? 'ደቂቃ' : 'mins'}</span>
                         </div>
                         <div className="flex items-center gap-2.5 text-sm text-[#6B7280]">
                           <Users className="h-4.5 w-4.5 text-[#FF7A45]" />
-                          <span>{lesson.registrations?.length || 0} / {lesson.maxStudents} joined</span>
+                          <span>{lesson.registrations?.length || 0} / {lesson.maxStudents} {language === 'am' ? 'ተቀላቅለዋል' : 'joined'}</span>
                         </div>
                       </div>
                       <Button 
-                        className="w-full h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl transition-all duration-200"
+                        className="w-full h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl transition-all duration-200"
                         onClick={() => registerForLesson(lesson.id)}
                         disabled={lesson.registrations?.length >= lesson.maxStudents}
                       >
-                        {lesson.registrations?.length >= lesson.maxStudents ? 'Class Capacity Reached' : 'Book Class Spot'}
+                        {lesson.registrations?.length >= lesson.maxStudents 
+                          ? (language === 'am' ? 'ክፍሉ ሞልቷል' : 'Class Capacity Reached') 
+                          : (language === 'am' ? 'ክፍል ያስይዙ' : 'Book Class Spot')}
                       </Button>
                     </CardContent>
                   </Card>
@@ -163,38 +167,38 @@ export default function HobbyDetailPage() {
             <Card className="rounded-[24px] border-gray-100 bg-white p-2 shadow-sm">
               <CardContent className="p-6 space-y-8">
                 <div>
-                  <h3 className="text-xl font-bold text-[#1F2937] mb-3">About this course</h3>
+                  <h3 className="text-xl font-bold text-[#1F2937] mb-3">{language === 'am' ? 'ስለዚህ ኮርስ' : 'About this course'}</h3>
                   <p className="text-base text-[#6B7280] leading-relaxed">{hobby.description}</p>
                 </div>
                 
                 <div className="grid md:grid-cols-2 gap-8 pt-4">
                   <div>
-                    <h4 className="text-lg font-bold text-[#1F2937] mb-3">What you will learn</h4>
+                    <h4 className="text-lg font-bold text-[#1F2937] mb-3">{language === 'am' ? 'ምን ይማራሉ' : 'What you will learn'}</h4>
                     <ul className="space-y-2.5 text-sm text-[#6B7280]">
                       <li className="flex gap-2.5 items-start">
                         <span className="text-[#FF7A45] font-bold">✓</span>
-                        <span>Fundamental skill building and conceptual learning templates</span>
+                        <span>{language === 'am' ? 'መሰረታዊ የክህሎት ግንባታ እና የፅንሰ-ሀሳብ ትምህርት' : 'Fundamental skill building and conceptual learning templates'}</span>
                       </li>
                       <li className="flex gap-2.5 items-start">
                         <span className="text-[#FF7A45] font-bold">✓</span>
-                        <span>Direct practice guidelines accompanied by certified educators</span>
+                        <span>{language === 'am' ? 'በተረጋገጡ አስተማሪዎች የሚመሩ የተግባር መመሪያዎች' : 'Direct practice guidelines accompanied by certified educators'}</span>
                       </li>
                       <li className="flex gap-2.5 items-start">
                         <span className="text-[#FF7A45] font-bold">✓</span>
-                        <span>Comprehensive portfolios and interactive project creations</span>
+                        <span>{language === 'am' ? 'አጠቃላይ የስራ ማቅረቢያዎች እና በይነተገናኝ ፕሮጀክቶች መፍጠር' : 'Comprehensive portfolios and interactive project creations'}</span>
                       </li>
                     </ul>
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-[#1F2937] mb-3">Pre-requisites</h4>
+                    <h4 className="text-lg font-bold text-[#1F2937] mb-3">{language === 'am' ? 'ቅድመ-ሁኔታዎች' : 'Pre-requisites'}</h4>
                     <ul className="space-y-2.5 text-sm text-[#6B7280]">
                       <li className="flex gap-2.5 items-start">
                         <span className="text-[#FF7A45] font-bold">✓</span>
-                        <span>Fully designed for beginners with zero prior experience</span>
+                        <span>{language === 'am' ? 'ምንም ቅድመ ልምድ ለሌላቸው ጀማሪዎች ሙሉ በሙሉ የተነደፈ' : 'Fully designed for beginners with zero prior experience'}</span>
                       </li>
                       <li className="flex gap-2.5 items-start">
                         <span className="text-[#FF7A45] font-bold">✓</span>
-                        <span>Basic study material and notebook supplies for self-practice</span>
+                        <span>{language === 'am' ? 'ለራስ-ልምምድ መሰረታዊ የጥናት ቁሳቁስ እና የማስታወሻ ደብተር' : 'Basic study material and notebook supplies for self-practice'}</span>
                       </li>
                     </ul>
                   </div>
@@ -207,15 +211,15 @@ export default function HobbyDetailPage() {
             <TabsContent value="my-progress">
               <Card className="rounded-[24px] border-gray-100 bg-white p-2 shadow-sm">
                 <CardContent className="p-10 text-center">
-                  <p className="text-[#6B7280] font-medium mb-4">Start booking and attending lessons to view performance insights</p>
+                  <p className="text-[#6B7280] font-medium mb-4">{language === 'am' ? 'የአፈጻጸም ግንዛቤዎችን ለማየት ትምህርቶችን መያዝ እና መከታተል ይጀምሩ' : 'Start booking and attending lessons to view performance insights'}</p>
                   <Button 
-                    className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl h-11 px-6"
+                    className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl h-11 px-6"
                     onClick={() => {
                       const tab = document.querySelector('[value="lessons"]') as HTMLElement;
                       if (tab) tab.click();
                     }}
                   >
-                    Find Lessons
+                    {language === 'am' ? 'ትምህርቶችን ፈልግ' : 'Find Lessons'}
                   </Button>
                 </CardContent>
               </Card>

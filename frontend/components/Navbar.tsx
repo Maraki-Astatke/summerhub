@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-provider';
+import { useLanguage } from '@/providers/language-provider';
 import { useQuery } from '@tanstack/react-query';
 import api from '../app/lib/api';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -48,14 +50,14 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
   };
 
   const navLinks = [
-    { label: 'Home', href: '/' },
-    { label: 'Courses', href: '/hobbies' },
-    { label: 'Lessons', href: '/lessons' },
-    { label: 'Events', href: '/events' },
-    { label: 'Marketplace', href: '/shops' },
-    { label: 'Resources', href: '/resources' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'About', href: '/about' },
+    { label: t('nav.home'), href: '/' },
+    { label: t('nav.courses'), href: '/hobbies' },
+    { label: t('nav.lessons'), href: '/lessons' },
+    { label: t('nav.events'), href: '/events' },
+    { label: t('nav.marketplace'), href: '/shops' },
+    { label: t('nav.resources'), href: '/resources' },
+    { label: t('nav.blog'), href: '/blog' },
+    { label: t('nav.about'), href: '/about' },
   ];
 
   // Helper to check role matching
@@ -104,6 +106,31 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
 
           {/* Desktop CTA Action Buttons */}
           <div className="hidden lg:flex items-center gap-4">
+            
+            {/* Language Switcher */}
+            <div className="flex items-center bg-gray-100/80 rounded-xl p-0.5 border border-gray-200/50 mr-2">
+              <button 
+                onClick={() => setLanguage('en')}
+                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
+                  language === 'en' 
+                    ? 'bg-white text-[#FF7A45] shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-800'
+                }`}
+              >
+                EN
+              </button>
+              <button 
+                onClick={() => setLanguage('am')}
+                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
+                  language === 'am' 
+                    ? 'bg-white text-[#FF7A45] shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-800'
+                }`}
+              >
+                አማ
+              </button>
+            </div>
+
             {user ? (
               <>
                 {/* Cart link for students/scholars */}
@@ -125,7 +152,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                       {user.profile?.firstName || user.email.split('@')[0]}
                     </p>
                     <p className="text-[9px] font-bold text-[#FF7A45] uppercase tracking-wider">
-                      {hasRole('admin') ? 'Admin' : hasRole('teacher') ? 'Teacher' : hasRole('seller') ? 'Seller' : 'Student'}
+                      {hasRole('admin') ? t('nav.admin') : hasRole('teacher') ? t('nav.teacher') : hasRole('seller') ? t('nav.seller') : (language === 'am' ? 'ተማሪ' : 'Student')}
                     </p>
                   </div>
                   
@@ -134,21 +161,21 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                     {hasRole('admin') && (
                       <Link href="/admin">
                         <Button size="sm" variant="ghost" className="h-8 text-xs font-bold text-[#1F2937] hover:text-[#FF7A45] hover:bg-[#FFF2EB] rounded-lg">
-                          Admin
+                          {t('nav.admin')}
                         </Button>
                       </Link>
                     )}
                     {hasRole('teacher') && (
                       <Link href="/teacher">
                         <Button size="sm" variant="ghost" className="h-8 text-xs font-bold text-[#1F2937] hover:text-[#FF7A45] hover:bg-[#FFF2EB] rounded-lg">
-                          Teacher
+                          {t('nav.teacher')}
                         </Button>
                       </Link>
                     )}
                     {hasRole('seller') && (
                       <Link href="/seller">
                         <Button size="sm" variant="ghost" className="h-8 text-xs font-bold text-[#1F2937] hover:text-[#FF7A45] hover:bg-[#FFF2EB] rounded-lg">
-                          Seller
+                          {t('nav.seller')}
                         </Button>
                       </Link>
                     )}
@@ -156,11 +183,11 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                     {/* Default workspace links */}
                     <Link href="/dashboard">
                       <Button size="sm" className="h-8 text-xs font-bold bg-[#1F2937] hover:bg-[#FF7A45] text-white rounded-lg px-3">
-                        Workspace
+                        {t('nav.workspace')}
                       </Button>
                     </Link>
 
-                    <Button size="icon" variant="ghost" onClick={handleLogout} className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                    <Button size="icon" variant="ghost" onClick={handleLogout} className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg" title={t('nav.signOut')}>
                       <LogOut className="w-4 h-4" />
                     </Button>
                   </div>
@@ -170,12 +197,12 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
               <>
                 <Link href="/login">
                   <button className="h-11 px-5 rounded-2xl font-bold text-sm text-gray-700 hover:bg-gray-100 active:scale-98 transition-all">
-                    Login
+                    {t('nav.login')}
                   </button>
                 </Link>
                 <Link href="/register">
                   <button className="h-11 px-6 rounded-2xl bg-[#FF7A45] text-white font-bold text-sm hover:bg-[#ff8f61] active:scale-98 transition-all shadow-md shadow-[#FF7A45]/20">
-                    Get Started
+                    {t('nav.getStarted')}
                   </button>
                 </Link>
               </>
@@ -211,7 +238,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
           
           {user && (
             <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">My Workspace</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('nav.workspace')}</p>
               
               <Link 
                 href="/dashboard" 
@@ -219,7 +246,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                 className="flex items-center gap-3 text-base font-bold text-[#1F2937] hover:text-[#FF7A45]"
               >
                 <LayoutDashboard className="w-5 h-5 text-[#FF7A45]" />
-                Student Workspace
+                {t('dash.myWorkspace')}
               </Link>
 
               {hasRole('admin') && (
@@ -229,7 +256,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                   className="flex items-center gap-3 text-base font-bold text-[#1F2937] hover:text-[#FF7A45]"
                 >
                   <User className="w-5 h-5 text-[#FF7A45]" />
-                  Admin Dashboard
+                  {t('nav.admin')}
                 </Link>
               )}
 
@@ -240,7 +267,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                   className="flex items-center gap-3 text-base font-bold text-[#1F2937] hover:text-[#FF7A45]"
                 >
                   <BookOpen className="w-5 h-5 text-[#FF7A45]" />
-                  Teacher Portal
+                  {t('nav.teacher')}
                 </Link>
               )}
 
@@ -251,7 +278,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                   className="flex items-center gap-3 text-base font-bold text-[#1F2937] hover:text-[#FF7A45]"
                 >
                   <ShoppingBag className="w-5 h-5 text-[#FF7A45]" />
-                  Seller Central
+                  {t('nav.seller')}
                 </Link>
               )}
 
@@ -261,13 +288,41 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                 className="flex items-center gap-3 text-base font-bold text-[#1F2937] hover:text-[#FF7A45]"
               >
                 <MessageSquare className="w-5 h-5 text-[#FF7A45]" />
-                Direct Messages
+                {language === 'am' ? 'መልዕክቶች' : 'Direct Messages'}
               </Link>
             </div>
           )}
         </div>
 
         <div className="py-8 border-t border-gray-100 flex flex-col gap-3">
+          
+          {/* Mobile Language Switcher */}
+          <div className="flex items-center justify-between px-2 mb-4">
+            <span className="text-sm font-semibold text-gray-500">Language / ቋንቋ</span>
+            <div className="flex items-center bg-gray-100 rounded-xl p-0.5 border border-gray-200">
+              <button 
+                onClick={() => setLanguage('en')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  language === 'en' 
+                    ? 'bg-white text-[#FF7A45] shadow-sm' 
+                    : 'text-gray-500'
+                }`}
+              >
+                English
+              </button>
+              <button 
+                onClick={() => setLanguage('am')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  language === 'am' 
+                    ? 'bg-white text-[#FF7A45] shadow-sm' 
+                    : 'text-gray-500'
+                }`}
+              >
+                አማርኛ
+              </button>
+            </div>
+          </div>
+
           {user ? (
             <Button 
               onClick={() => {
@@ -277,18 +332,18 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
               className="w-full h-12 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl flex items-center justify-center gap-2"
             >
               <LogOut className="w-4 h-4" />
-              Sign Out
+              {t('nav.signOut')}
             </Button>
           ) : (
             <div className="grid grid-cols-2 gap-3">
               <Link href="/login" onClick={() => setIsMenuOpen(false)} className="block w-full">
                 <Button variant="outline" className="w-full h-12 rounded-xl font-bold border-gray-200">
-                  Login
+                  {t('nav.login')}
                 </Button>
               </Link>
               <Link href="/register" onClick={() => setIsMenuOpen(false)} className="block w-full">
                 <Button className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold rounded-xl shadow-md shadow-[#FF7A45]/20">
-                  Register
+                  {t('nav.getStarted')}
                 </Button>
               </Link>
             </div>

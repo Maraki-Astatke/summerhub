@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
+import { useLanguage } from '@/providers/language-provider';
 import Navbar from '@/components/Navbar';
 import api from '../lib/api';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
@@ -13,6 +14,7 @@ import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
 export default function CartPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
 
   const { data: cart, isLoading } = useQuery({
@@ -57,11 +59,11 @@ export default function CartPage() {
       <div className="min-h-screen bg-[#FAFAFA] py-20 text-[#1F2937]">
         <div className="max-w-[1440px] mx-auto px-4 text-center max-w-md">
           <ShoppingBag className="h-14 w-14 mx-auto text-[#FF7A45] mb-4 opacity-80" />
-          <h1 className="text-2xl font-bold mb-3">Your Shopping Cart</h1>
-          <p className="text-sm text-[#6B7280] mb-6">Please log in to view items in your cart.</p>
+          <h1 className="text-2xl font-bold mb-3">{language === 'am' ? 'የእርስዎ የግዢ ጋሪ' : 'Your Shopping Cart'}</h1>
+          <p className="text-sm text-[#6B7280] mb-6">{language === 'am' ? 'በጋሪዎ ውስጥ ያሉትን እቃዎች ለማየት እባክዎን ይግቡ።' : 'Please log in to view items in your cart.'}</p>
           <Link href="/login">
-            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold h-11 px-8 rounded-xl">
-              Login to Account
+            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-bold h-11 px-8 rounded-xl">
+              {language === 'am' ? 'ወደ መለያዎ ይግቡ' : 'Login to Account'}
             </Button>
           </Link>
         </div>
@@ -72,7 +74,7 @@ export default function CartPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">Loading your cart...</div>
+        <div className="text-center font-semibold text-gray-500">{language === 'am' ? 'ጋሪዎን በመጫን ላይ...' : 'Loading your cart...'}</div>
       </div>
     );
   }
@@ -82,13 +84,13 @@ export default function CartPage() {
       <div className="min-h-screen bg-[#FAFAFA] py-20 text-[#1F2937]">
         <div className="max-w-[1440px] mx-auto px-4 text-center max-w-md">
           <ShoppingBag className="h-14 w-14 mx-auto text-[#FF7A45] mb-4 opacity-80" />
-          <h1 className="text-2xl font-bold mb-2">Your cart is empty</h1>
+          <h1 className="text-2xl font-bold mb-2">{language === 'am' ? 'ጋሪዎ ባዶ ነው' : 'Your cart is empty'}</h1>
           <p className="text-sm text-[#6B7280] mb-6">
-            Looks like you haven't added any project supplies or course books yet.
+            {language === 'am' ? 'ምንም የፕሮጀክት እቃዎች ወይም የማጣቀሻ መጽሃፎች እስካሁን ያላከሉ ይመስላል።' : "Looks like you haven't added any project supplies or course books yet."}
           </p>
           <Link href="/shops">
-            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold h-11 px-8 rounded-xl">
-              Continue Shopping
+            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-bold h-11 px-8 rounded-xl">
+              {language === 'am' ? 'ግዢዎን ይቀጥሉ' : 'Continue Shopping'}
             </Button>
           </Link>
         </div>
@@ -105,10 +107,10 @@ export default function CartPage() {
           <Link href="/shops">
             <Button variant="ghost" size="sm" className="text-[#6B7280] hover:text-[#FF7A45] font-semibold rounded-xl">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Shop
+              {language === 'am' ? 'ወደ ሱቅ ይመለሱ' : 'Back to Shop'}
             </Button>
           </Link>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2937]">Your Cart</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2937]">{language === 'am' ? 'የእርስዎ ጋሪ' : 'Your Cart'}</h1>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -169,7 +171,7 @@ export default function CartPage() {
                         disabled={removeItemMutation.isPending}
                       >
                         <Trash2 className="h-4 w-4 mr-1.5" />
-                        Remove
+                        {language === 'am' ? 'አስወግድ' : 'Remove'}
                       </Button>
                     </div>
                   </div>
@@ -182,28 +184,28 @@ export default function CartPage() {
           <div>
             <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden sticky top-28">
               <CardHeader className="p-6 pb-4 border-b border-gray-50">
-                <CardTitle className="text-lg font-bold text-[#1F2937]">Order Summary</CardTitle>
+                <CardTitle className="text-lg font-bold text-[#1F2937]">{language === 'am' ? 'የትዕዛዝ ማጠቃለያ' : 'Order Summary'}</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="flex justify-between text-sm font-semibold text-[#6B7280]">
-                  <span>Subtotal ({cart.itemCount} items)</span>
+                  <span>{language === 'am' ? 'ጠቅላላ ንዑስ' : 'Subtotal'} ({cart.itemCount} {language === 'am' ? 'እቃዎች' : 'items'})</span>
                   <span className="text-[#1F2937]">{cart.total} ETB</span>
                 </div>
                 <div className="flex justify-between text-sm font-semibold text-[#6B7280]">
-                  <span>Shipping</span>
-                  <span className="text-green-600">Free</span>
+                  <span>{language === 'am' ? 'ማስረከቢያ' : 'Shipping'}</span>
+                  <span className="text-green-600">{language === 'am' ? 'ነጻ' : 'Free'}</span>
                 </div>
                 <div className="border-t border-gray-100 pt-4">
                   <div className="flex justify-between font-extrabold text-lg text-[#1F2937]">
-                    <span>Total</span>
+                    <span>{language === 'am' ? 'ጠቅላላ' : 'Total'}</span>
                     <span className="text-[#FF7A45]">{cart.total} ETB</span>
                   </div>
                 </div>
                 <Button
-                  className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold rounded-xl transition-all mt-4"
+                  className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-bold rounded-xl transition-all mt-4"
                   onClick={() => router.push('/checkout')}
                 >
-                  Proceed to Checkout
+                  {language === 'am' ? 'ወደ መክፈያ ገጽ ይቀጥሉ' : 'Proceed to Checkout'}
                 </Button>
               </CardContent>
             </Card>

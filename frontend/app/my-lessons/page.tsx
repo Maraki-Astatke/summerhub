@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
+import { useLanguage } from '@/providers/language-provider';
 import api from '../lib/api';
 import VideoCall from '@/components/VideoCall';
 import { Calendar, Clock, User, Video, X } from 'lucide-react';
@@ -16,6 +17,7 @@ import { Calendar, Clock, User, Video, X } from 'lucide-react';
 export default function MyLessonsPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
   const [activeVideoRoom, setActiveVideoRoom] = useState<{ url: string; lessonTitle: string } | null>(null);
 
@@ -34,10 +36,10 @@ export default function MyLessonsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-lessons'] });
-      alert('Unregistered from class successfully.');
+      alert(language === 'am' ? 'ከትምህርቱ ምዝገባ በተሳካ ሁኔታ ተሰርዟል።' : 'Unregistered from class successfully.');
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || 'Failed to cancel registration');
+      alert(error.response?.data?.error || (language === 'am' ? 'ምዝገባውን መሰረዝ አልተሳካም' : 'Failed to cancel registration'));
     },
   });
 
@@ -49,14 +51,14 @@ export default function MyLessonsPage() {
         lessonTitle: response.data.roomName
       });
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to join video call');
+      alert(error.response?.data?.error || (language === 'am' ? 'የቪዲዮ ጥሪውን መገናኘት አልተሳካም' : 'Failed to join video call'));
     }
   };
 
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">Loading your schedule...</div>
+        <div className="text-center font-semibold text-gray-500">{language === 'am' ? 'የጊዜ ሰሌዳዎን በመጫን ላይ...' : 'Loading your schedule...'}</div>
       </div>
     );
   }
@@ -112,7 +114,7 @@ export default function MyLessonsPage() {
                 <h3 className="text-xl font-bold text-[#1F2937] tracking-tight">{lesson.title}</h3>
                 {isActive && (
                   <span className="text-[10px] font-bold bg-green-50 text-green-600 border border-green-150 px-2.5 py-1 rounded-full uppercase tracking-wider animate-pulse">
-                    Live Now
+                    {language === 'am' ? 'አሁን የቀጥታ ስርጭት' : 'Live Now'}
                   </span>
                 )}
               </div>
@@ -121,7 +123,7 @@ export default function MyLessonsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-3 text-xs md:text-sm font-semibold text-[#6B7280]">
                 <div className="flex items-center gap-2">
                   <User className="h-4.5 w-4.5 text-[#FF7A45]" />
-                  <span>Teacher: {lesson.teacher?.profile?.firstName} {lesson.teacher?.profile?.lastName}</span>
+                  <span>{language === 'am' ? 'መምህር፡' : 'Teacher:'} {lesson.teacher?.profile?.firstName} {lesson.teacher?.profile?.lastName}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4.5 w-4.5 text-[#FF7A45]" />
@@ -144,7 +146,7 @@ export default function MyLessonsPage() {
                   onClick={() => joinVideoCall(lesson.id)}
                 >
                   <Video className="h-4 w-4 mr-2" />
-                  Join Live
+                  {language === 'am' ? 'ክፍሉን ይቀላቀሉ' : 'Join Live'}
                 </Button>
               )}
               {!isActive && lessonStart > now && (
@@ -154,13 +156,13 @@ export default function MyLessonsPage() {
                   onClick={() => unregisterMutation.mutate(lesson.id)}
                 >
                   <X className="h-4 w-4 mr-2 text-red-500" />
-                  Cancel Class Spot
+                  {language === 'am' ? 'ምዝገባውን ሰርዝ' : 'Cancel Class Spot'}
                 </Button>
               )}
               {lessonStart < now && lesson.recordingUrl && (
                 <a href={lesson.recordingUrl} target="_blank" rel="noopener noreferrer" className="block w-full">
                   <Button variant="outline" className="w-full h-11 rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold">
-                    Watch Recording
+                    {language === 'am' ? 'ቀረጻውን ይመልከቱ' : 'Watch Recording'}
                   </Button>
                 </a>
               )}
@@ -189,12 +191,12 @@ export default function MyLessonsPage() {
           <div className="flex gap-4">
             <Link href="/dashboard">
               <Button variant="ghost" className="text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45]">
-                Dashboard
+                {language === 'am' ? 'ዳሽቦርድ' : 'Dashboard'}
               </Button>
             </Link>
             <Link href="/lessons">
               <Button variant="ghost" className="text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45]">
-                Browse Lessons
+                {language === 'am' ? 'ትምህርቶችን ያስሱ' : 'Browse Lessons'}
               </Button>
             </Link>
           </div>
@@ -203,24 +205,24 @@ export default function MyLessonsPage() {
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12">
         <div className="mb-10">
-          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block font-sans">Classroom Schedule</span>
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block font-sans">{language === 'am' ? 'የክፍል ጊዜ ሰሌዳ' : 'Classroom Schedule'}</span>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#1F2937] mb-2">
-            My Registered Lessons
+            {language === 'am' ? 'የእኔ የተመዘገቡ ትምህርቶች' : 'My Registered Lessons'}
           </h1>
-          <p className="text-base text-[#6B7280]">Attend live meetings and manage scheduled sessions.</p>
+          <p className="text-base text-[#6B7280]">{language === 'am' ? 'የቀጥታ ስብሰባዎችን ይከታተሉ እና የታቀዱ ክፍሎችን ያስተዳድሩ።' : 'Attend live meetings and manage scheduled sessions.'}</p>
         </div>
 
         {upcomingLessons.length === 0 && activeLessons.length === 0 && pastLessons.length === 0 ? (
           <Card className="rounded-[24px] border-gray-150 bg-white p-2 shadow-sm text-center py-16 max-w-xl mx-auto">
             <CardContent className="space-y-6">
               <Calendar className="h-14 w-14 mx-auto text-[#FF7A45] mb-2 opacity-80" />
-              <h2 className="text-xl font-extrabold text-[#1F2937]">No lessons scheduled yet</h2>
+              <h2 className="text-xl font-extrabold text-[#1F2937]">{language === 'am' ? 'እስካሁን ምንም የታቀደ ትምህርት የለም' : 'No lessons scheduled yet'}</h2>
               <p className="text-sm text-[#6B7280] leading-relaxed max-w-md mx-auto">
-                You haven't registered for any classes. Start exploring learning tracks to book live sessions.
+                {language === 'am' ? 'ለማንኛውም ክፍል እስካሁን አልተመዘገቡም። የቀጥታ ክፍሎችን ለማስያዝ የትምህርት መስኮችን ማሰስ ይጀምሩ።' : "You haven't registered for any classes. Start exploring learning tracks to book live sessions."}
               </p>
               <Link href="/lessons">
-                <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold h-11 px-8 rounded-xl transition-all">
-                  Browse Live Lessons
+                <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-bold h-11 px-8 rounded-xl transition-all">
+                  {language === 'am' ? 'የቀጥታ ትምህርቶችን ያስሱ' : 'Browse Live Lessons'}
                 </Button>
               </Link>
             </CardContent>
@@ -229,13 +231,13 @@ export default function MyLessonsPage() {
           <Tabs defaultValue="upcoming" className="space-y-8">
             <TabsList className="bg-gray-100/70 p-1.5 rounded-xl border border-gray-100 max-w-md">
               <TabsTrigger value="active" className="rounded-lg py-2.5 font-semibold text-sm">
-                Live Now ({activeLessons.length})
+                {language === 'am' ? 'አሁን የቀጥታ ስርጭት' : 'Live Now'} ({activeLessons.length})
               </TabsTrigger>
               <TabsTrigger value="upcoming" className="rounded-lg py-2.5 font-semibold text-sm">
-                Upcoming ({upcomingLessons.length})
+                {language === 'am' ? 'የሚቀጥሉ' : 'Upcoming'} ({upcomingLessons.length})
               </TabsTrigger>
               <TabsTrigger value="past" className="rounded-lg py-2.5 font-semibold text-sm">
-                Past ({pastLessons.length})
+                {language === 'am' ? 'ያለፉ' : 'Past'} ({pastLessons.length})
               </TabsTrigger>
             </TabsList>
 
@@ -243,7 +245,7 @@ export default function MyLessonsPage() {
               {activeLessons.length === 0 ? (
                 <Card className="rounded-[24px] border-gray-100 shadow-sm text-center py-12">
                   <CardContent>
-                    <p className="text-gray-500 font-medium">No live lessons running at this exact time</p>
+                    <p className="text-gray-500 font-medium">{language === 'am' ? 'በዚህ ሰዓት ምንም የቀጥታ ትምህርት የለም' : 'No live lessons running at this exact time'}</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -257,10 +259,10 @@ export default function MyLessonsPage() {
               {upcomingLessons.length === 0 ? (
                 <Card className="rounded-[24px] border-gray-100 shadow-sm text-center py-12">
                   <CardContent>
-                    <p className="text-gray-500 font-medium mb-3">No upcoming lessons registered</p>
+                    <p className="text-gray-500 font-medium mb-3">{language === 'am' ? 'ምንም የሚቀጥሉ ትምህርቶች አልተመዘገቡም' : 'No upcoming lessons registered'}</p>
                     <Link href="/lessons">
                       <Button variant="link" className="text-[#FF7A45] font-semibold hover:underline">
-                        Find live classes
+                        {language === 'am' ? 'የቀጥታ ክፍሎችን ፈልግ' : 'Find live classes'}
                       </Button>
                     </Link>
                   </CardContent>
@@ -276,7 +278,7 @@ export default function MyLessonsPage() {
               {pastLessons.length === 0 ? (
                 <Card className="rounded-[24px] border-gray-100 shadow-sm text-center py-12">
                   <CardContent>
-                    <p className="text-gray-500 font-medium">No history of past sessions found</p>
+                    <p className="text-gray-500 font-medium">{language === 'am' ? 'ምንም ያለፉ ትምህርቶች ታሪክ አልተገኘም' : 'No history of past sessions found'}</p>
                   </CardContent>
                 </Card>
               ) : (

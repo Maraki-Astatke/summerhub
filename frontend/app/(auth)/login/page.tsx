@@ -23,6 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useAuth } from "@/providers/auth-provider";
+import { useLanguage } from "@/providers/language-provider";
 import api from "../../lib/api";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
@@ -30,6 +31,7 @@ import { Eye, EyeOff } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const { language, t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -109,13 +111,13 @@ export default function LoginPage() {
               className="h-10 w-auto object-contain"
             />
           </div>
-          <CardTitle className="text-3xl font-extrabold text-[#1F2937] tracking-tight">Welcome Back</CardTitle>
-          <CardDescription className="text-sm text-[#6B7280]">Login to your HobbyHub Education account</CardDescription>
+          <CardTitle className="text-3xl font-extrabold text-[#1F2937] tracking-tight">{t('auth.welcomeBack')}</CardTitle>
+          <CardDescription className="text-sm text-[#6B7280]">{t('auth.loginDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-semibold text-[#1F2937]">Email</Label>
+              <Label htmlFor="email" className="text-sm font-semibold text-[#1F2937]">{language === 'am' ? 'ኢሜል' : 'Email'}</Label>
               <Input
                 id="email"
                 type="email"
@@ -128,31 +130,31 @@ export default function LoginPage() {
             </div>
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password" className="text-sm font-semibold text-[#1F2937]">Password</Label>
+                <Label htmlFor="password" className="text-sm font-semibold text-[#1F2937]">{t('auth.password')}</Label>
                 <Dialog>
                   <DialogTrigger asChild>
                     <button type="button" className="text-xs font-semibold text-[#FF7A45] hover:underline p-0">
-                      Forgot password?
+                      {t('auth.forgotPassword')}
                     </button>
                   </DialogTrigger>
                   <DialogContent className="rounded-3xl max-w-sm">
                     <DialogHeader>
-                      <DialogTitle className="text-xl font-bold text-[#1F2937]">Reset Password</DialogTitle>
+                      <DialogTitle className="text-xl font-bold text-[#1F2937]">{language === 'am' ? 'የይለፍ ቃል መቀየር' : 'Reset Password'}</DialogTitle>
                       <DialogDescription className="text-sm text-gray-500">
-                        Enter your email and we'll send you a reset link
+                        {language === 'am' ? 'ኢሜልዎን ያስገቡ እና የመቀየሪያ ሊንክ እንልክልዎታለን' : "Enter your email and we'll send you a reset link"}
                       </DialogDescription>
                     </DialogHeader>
                     {resetSent ? (
                       <div className="text-center py-4">
-                        <p className="text-green-600 font-semibold mb-2">Reset link sent!</p>
+                        <p className="text-green-600 font-semibold mb-2">{language === 'am' ? 'የመቀየሪያ ሊንክ ተልኳል!' : 'Reset link sent!'}</p>
                         <p className="text-xs text-gray-500">
-                          Check your email inbox for instructions.
+                          {language === 'am' ? 'ለዝርዝር መመሪያዎች የኢሜልዎን ገቢ ሳጥን ይመልከቱ።' : 'Check your email inbox for instructions.'}
                         </p>
                       </div>
                     ) : (
                       <form onSubmit={handleForgotPassword} className="space-y-4 pt-2">
                         <div className="space-y-1.5">
-                          <Label htmlFor="forgot-email" className="text-sm font-semibold text-[#1F2937]">Email</Label>
+                          <Label htmlFor="forgot-email" className="text-sm font-semibold text-[#1F2937]">{language === 'am' ? 'ኢሜል' : 'Email'}</Label>
                           <Input
                             id="forgot-email"
                             type="email"
@@ -165,10 +167,10 @@ export default function LoginPage() {
                         </div>
                         <Button
                           type="submit"
-                          className="w-full h-11 rounded-xl bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-medium"
+                          className="w-full h-11 rounded-xl bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-medium"
                           disabled={isForgotLoading}
                         >
-                          {isForgotLoading ? "Sending..." : "Send Reset Link"}
+                          {isForgotLoading ? (language === 'am' ? 'በመላክ ላይ...' : 'Sending...') : (language === 'am' ? 'የመቀየሪያ ሊንክ ላክ' : 'Send Reset Link')}
                         </Button>
                       </form>
                     )}
@@ -201,10 +203,10 @@ export default function LoginPage() {
             
             <Button
               type="submit"
-              className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl shadow-md shadow-[#FF7A45]/15 transition-all duration-200 hover:shadow-lg"
+              className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl shadow-md shadow-[#FF7A45]/15 transition-all duration-200 hover:shadow-lg"
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? (language === 'am' ? 'በመግባት ላይ...' : 'Logging in...') : t('nav.login')}
             </Button>
           </form>
 
@@ -214,7 +216,7 @@ export default function LoginPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-white px-3 text-gray-400 font-medium">
-                Or continue with
+                {t('auth.orContinue')}
               </span>
             </div>
           </div>
@@ -244,13 +246,13 @@ export default function LoginPage() {
                 fill="#EA4335"
               />
             </svg>
-            Continue with Google
+            {language === 'am' ? 'በጉግል ቀጥል' : 'Continue with Google'}
           </Button>
 
           <p className="text-center text-sm text-[#6B7280] mt-6">
-            Don't have an account?{" "}
+            {t('auth.noAccount')}{" "}
             <Link href="/register" className="text-[#FF7A45] font-semibold hover:underline">
-              Register
+              {language === 'am' ? 'ይመዝገቡ' : 'Register'}
             </Link>
           </p>
         </CardContent>

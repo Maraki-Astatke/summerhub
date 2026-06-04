@@ -3,6 +3,7 @@ import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "../providers/query-provider";
 import { AuthProvider } from "../providers/auth-provider";
+import { LanguageProvider } from "../providers/language-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ 
@@ -31,8 +32,10 @@ export default function RootLayout({
       <body className={`${poppins.variable} ${inter.variable} antialiased`}>
         <QueryProvider>
           <AuthProvider>
-            {children}
-            <Toaster />
+            <LanguageProvider>
+              {children}
+              <Toaster />
+            </LanguageProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

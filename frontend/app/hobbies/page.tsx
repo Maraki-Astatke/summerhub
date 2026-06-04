@@ -9,8 +9,10 @@ import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import api from '../lib/api';
+import { useLanguage } from '@/providers/language-provider';
 
 export default function HobbiesPage() {
+  const { language } = useLanguage();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [ageGroup, setAgeGroup] = useState('');
@@ -45,18 +47,18 @@ export default function HobbiesPage() {
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32">
         <div className="mb-10">
-          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">Catalog Explorer</span>
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">{language === 'am' ? 'የትምህርት ካታሎግ' : 'Catalog Explorer'}</span>
           <h1 className="text-3xl md:text-4xl lg:text-[48px] font-extrabold tracking-tight text-[#1F2937] mb-3">
-            Explore Learning Tracks
+            {language === 'am' ? 'የትምህርት መስኮችን ያስሱ' : 'Explore Learning Tracks'}
           </h1>
-          <p className="text-base text-[#6B7280]">Discover courses and activities that match your future goals</p>
+          <p className="text-base text-[#6B7280]">{language === 'am' ? 'ከወደፊት ግቦችዎ ጋር የሚስማሙ ኮርሶችን እና እንቅስቃሴዎችን ያግኙ' : 'Discover courses and activities that match your future goals'}</p>
         </div>
 
         {/* Filters */}
         <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm mb-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Input
-              placeholder="Search courses..."
+              placeholder={language === 'am' ? 'ኮርሶችን ይፈልጉ...' : 'Search courses...'}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
@@ -67,7 +69,7 @@ export default function HobbiesPage() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-              <option value="">All Categories</option>
+              <option value="">{language === 'am' ? 'ሁሉም ምድቦች' : 'All Categories'}</option>
               {categories?.map((cat: any) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
@@ -78,9 +80,9 @@ export default function HobbiesPage() {
               value={ageGroup}
               onChange={(e) => setAgeGroup(e.target.value)}
             >
-              <option value="">All Ages</option>
+              <option value="">{language === 'am' ? 'ሁሉም የዕድሜ ክልል' : 'All Ages'}</option>
               {ageGroups.map(age => (
-                <option key={age} value={age}>{age} years</option>
+                <option key={age} value={age}>{age} {language === 'am' ? 'ዓመት' : 'years'}</option>
               ))}
             </select>
 
@@ -93,7 +95,7 @@ export default function HobbiesPage() {
                 setAgeGroup('');
               }}
             >
-              Clear Filters
+              {language === 'am' ? 'ማጣሪያዎችን አጽዳ' : 'Clear Filters'}
             </Button>
           </div>
         </div>
@@ -115,7 +117,7 @@ export default function HobbiesPage() {
           </div>
         ) : hobbiesData?.data?.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-[24px] border border-gray-100">
-            <p className="text-gray-500 font-medium mb-3">No learning tracks found matching filters</p>
+            <p className="text-gray-500 font-medium mb-3">{language === 'am' ? 'ከማጣሪያዎችዎ ጋር የሚስማማ የትምህርት መስክ አልተገኘም' : 'No learning tracks found matching filters'}</p>
             <Button 
               variant="link" 
               className="text-[#FF7A45] font-semibold hover:underline"
@@ -125,7 +127,7 @@ export default function HobbiesPage() {
                 setAgeGroup('');
               }}
             >
-              Clear all filters
+              {language === 'am' ? 'ሁሉንም ማጣሪያዎች አጽዳ' : 'Clear all filters'}
             </Button>
           </div>
         ) : (
@@ -144,7 +146,7 @@ export default function HobbiesPage() {
                   <CardContent className="p-6 pt-0 space-y-4">
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100 text-xs font-semibold">
                       <span className="text-[#6B7280] bg-gray-100 px-2.5 py-1 rounded-lg">
-                        {hobby.ageGroup} years
+                        {hobby.ageGroup} {language === 'am' ? 'ዓመት' : 'years'}
                       </span>
                       {hobby.category && (
                         <span className="text-[#FF7A45] bg-[#FFF2EB] px-2.5 py-1 rounded-lg">
@@ -153,8 +155,8 @@ export default function HobbiesPage() {
                       )}
                     </div>
                     <Link href={`/hobbies/${hobby.id}`} className="block">
-                      <Button className="w-full h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl transition-all duration-200">
-                        Explore track
+                      <Button className="w-full h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl transition-all duration-200">
+                        {language === 'am' ? 'የትምህርት መስኩን ያስሱ' : 'Explore track'}
                       </Button>
                     </Link>
                   </CardContent>
@@ -165,8 +167,8 @@ export default function HobbiesPage() {
             {/* Pagination */}
             {hobbiesData?.pagination?.pages > 1 && (
               <div className="flex justify-center gap-3 mt-12">
-                <Button variant="outline" className="rounded-xl" disabled>Previous</Button>
-                <Button variant="outline" className="rounded-xl">Next</Button>
+                <Button variant="outline" className="rounded-xl" disabled>{language === 'am' ? 'ቀዳሚ' : 'Previous'}</Button>
+                <Button variant="outline" className="rounded-xl">{language === 'am' ? 'ቀጣይ' : 'Next'}</Button>
               </div>
             )}
           </>

@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
+import { useLanguage } from '@/providers/language-provider';
 import Navbar from '@/components/Navbar';
 import api from '../../lib/api';        
 import { Calendar, User, Heart, MessageCircle, ArrowLeft } from 'lucide-react';
@@ -18,6 +19,7 @@ export default function BlogPostPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
   const [comment, setComment] = useState('');
 
@@ -57,7 +59,7 @@ export default function BlogPostPage() {
       queryClient.invalidateQueries({ queryKey: ['blog-post', id] });
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || 'Failed to add comment');
+      alert(error.response?.data?.error || (language === 'am' ? 'አስተያየት ማከል አልተሳካም' : 'Failed to add comment'));
     },
   });
 
@@ -75,7 +77,7 @@ export default function BlogPostPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">Loading article...</div>
+        <div className="text-center font-semibold text-gray-500">{language === 'am' ? 'ጽሑፉን በመጫን ላይ...' : 'Loading article...'}</div>
       </div>
     );
   }
@@ -84,10 +86,10 @@ export default function BlogPostPage() {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
         <div className="text-center max-w-sm px-6 py-8 bg-white rounded-[24px] shadow-sm border border-gray-100">
-          <p className="text-gray-500 font-medium mb-4">Post not found</p>
+          <p className="text-gray-500 font-medium mb-4">{language === 'am' ? 'ጽሑፉ አልተገኘም' : 'Post not found'}</p>
           <Link href="/blog">
-            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] rounded-xl text-white font-bold h-11 px-6">
-              Back to Blog
+            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] rounded-xl text-[#1F2937] font-bold h-11 px-6">
+              {language === 'am' ? 'ወደ ብሎግ ይመለሱ' : 'Back to Blog'}
             </Button>
           </Link>
         </div>
@@ -102,7 +104,7 @@ export default function BlogPostPage() {
       <main className="max-w-4xl mx-auto px-4 py-12 pt-32">
         <Link href="/blog" className="inline-flex items-center text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45] mb-8 transition-colors">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Insights
+          {language === 'am' ? 'ወደ መጣጥፎች ይመለሱ' : 'Back to Insights'}
         </Link>
 
         {/* Post Content */}
@@ -154,7 +156,7 @@ export default function BlogPostPage() {
                     className="rounded-xl border-[#FF7A45]/30 text-[#FF7A45] hover:bg-[#FFF2EB] font-semibold h-11"
                   >
                     <Heart className="h-5 w-5 mr-2 fill-red-500 text-red-500" />
-                    Liked ({post.likeCount || 0})
+                    {language === 'am' ? 'ወደውታል' : 'Liked'} ({post.likeCount || 0})
                   </Button>
                 ) : (
                   <Button 
@@ -163,50 +165,54 @@ export default function BlogPostPage() {
                     className="rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold h-11"
                   >
                     <Heart className="h-5 w-5 mr-2 text-gray-500" />
-                    Like ({post.likeCount || 0})
+                    {language === 'am' ? 'ውደድ' : 'Like'} ({post.likeCount || 0})
                   </Button>
                 )
               ) : (
                 <Button variant="outline" asChild className="rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold h-11">
                   <Link href="/login">
                     <Heart className="h-5 w-5 mr-2 text-gray-500" />
-                    Like ({post.likeCount || 0})
+                    {language === 'am' ? 'ውደድ' : 'Like'} ({post.likeCount || 0})
                   </Link>
                 </Button>
               )}
               <span className="flex items-center gap-2 text-sm font-semibold text-[#6B7280]">
                 <MessageCircle className="h-5 w-5 text-[#FF7A45]" />
-                {post.comments?.length || 0} Comments
+                {post.comments?.length || 0} {language === 'am' ? 'አስተያየቶች' : 'Comments'}
               </span>
             </div>
 
             {/* Comments Section */}
             <div>
-              <h3 className="text-xl font-bold text-[#1F2937] mb-6">Comments</h3>
+              <h3 className="text-xl font-bold text-[#1F2937] mb-6">{language === 'am' ? 'አስተያየቶች' : 'Comments'}</h3>
               
               {/* Add Comment */}
               {user ? (
                 <div className="mb-8">
                   <Textarea
-                    placeholder="Join the discussion... write a comment"
+                    placeholder={language === 'am' ? 'አስተያየትዎን ያጋሩ...' : 'Join the discussion... write a comment'}
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     rows={3}
                     className="mb-3 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45] p-4 text-sm"
                   />
                   <Button 
-                    className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl h-11 px-6 active:scale-98 transition-transform"
+                    className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl h-11 px-6 active:scale-98 transition-transform"
                     onClick={() => commentMutation.mutate(comment)}
                     disabled={!comment.trim() || commentMutation.isPending}
                   >
-                    Post Comment
+                    {language === 'am' ? 'አስተያየት ስጥ' : 'Post Comment'}
                   </Button>
                 </div>
               ) : (
                 <Card className="mb-8 bg-gray-50 border border-gray-150 rounded-2xl">
                   <CardContent className="text-center py-6">
                     <p className="text-sm text-[#6B7280]">
-                      <Link href="/login" className="text-[#FF7A45] font-semibold hover:underline">Login</Link> to write a comment and join the discussion.
+                      {language === 'am' ? 'ለመወያየት እና አስተያየት ለመስጠት እባክዎን በመጀመሪያ ' : 'Please '}
+                      <Link href="/login" className="text-[#FF7A45] font-semibold hover:underline">
+                        {language === 'am' ? 'ይግቡ' : 'Login'}
+                      </Link>
+                      {language === 'am' ? '።' : ' to write a comment and join the discussion.'}
                     </p>
                   </CardContent>
                 </Card>
@@ -215,7 +221,9 @@ export default function BlogPostPage() {
               {/* Comments List */}
               <div className="space-y-4">
                 {post.comments?.length === 0 ? (
-                  <p className="text-[#6B7280] text-center py-10 font-medium text-sm">No comments yet. Be the first to start the conversation!</p>
+                  <p className="text-[#6B7280] text-center py-10 font-medium text-sm">
+                    {language === 'am' ? 'እስካሁን ምንም አስተያየት የለም። የመጀመሪያው አስተያየት ሰጪ ይሁኑ!' : 'No comments yet. Be the first to start the conversation!'}
+                  </p>
                 ) : (
                   post.comments?.map((comment: any) => (
                     <Card key={comment.id} className="rounded-2xl border-gray-100 bg-[#FAFAFA]">
@@ -239,7 +247,7 @@ export default function BlogPostPage() {
                               className="text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold px-2.5 h-8 shrink-0"
                               onClick={() => deleteCommentMutation.mutate(comment.id)}
                             >
-                              Delete
+                              {language === 'am' ? 'አስወግድ' : 'Delete'}
                             </Button>
                           )}
                         </div>

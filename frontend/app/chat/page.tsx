@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/providers/auth-provider';
+import { useLanguage } from '@/providers/language-provider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import io from 'socket.io-client';
@@ -19,6 +20,7 @@ let socket: any;
 export default function ChatPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [message, setMessage] = useState('');
@@ -127,7 +129,7 @@ export default function ChatPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">Loading messages...</div>
+        <div className="text-center font-semibold text-gray-500">{language === 'am' ? 'መልዕክቶችን በመጫን ላይ...' : 'Loading messages...'}</div>
       </div>
     );
   }
@@ -154,7 +156,7 @@ export default function ChatPage() {
           </Link>
           <Link href="/dashboard">
             <Button variant="ghost" className="text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45]">
-              Dashboard
+              {language === 'am' ? 'ዳሽቦርድ' : 'Dashboard'}
             </Button>
           </Link>
         </div>
@@ -165,12 +167,12 @@ export default function ChatPage() {
           {/* Conversations List */}
           <Card className="overflow-hidden border border-gray-100 bg-white rounded-[24px] shadow-sm flex flex-col">
             <CardHeader className="p-6 pb-4 border-b border-gray-50">
-              <CardTitle className="text-lg font-bold text-[#1F2937]">Conversations</CardTitle>
+              <CardTitle className="text-lg font-bold text-[#1F2937]">{language === 'am' ? 'ውይይቶች' : 'Conversations'}</CardTitle>
             </CardHeader>
             <CardContent className="p-2 overflow-y-auto flex-1">
               <div className="space-y-1">
                 {conversations?.length === 0 ? (
-                  <p className="text-center text-[#6B7280] text-sm py-8">No active chats yet</p>
+                  <p className="text-center text-[#6B7280] text-sm py-8">{language === 'am' ? 'እስካሁን ምንም ንቁ ውይይት የለም' : 'No active chats yet'}</p>
                 ) : (
                   conversations?.map((conv: any) => (
                     <div

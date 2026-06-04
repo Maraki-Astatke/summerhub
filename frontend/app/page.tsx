@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../providers/auth-provider';
+import { useLanguage } from '../providers/language-provider';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import api from './lib/api';
@@ -62,6 +63,7 @@ interface PopularTrack {
 
 export default function Home() {
   const { user } = useAuth();
+  const { language, t, setLanguage } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [scrolled, setScrolled] = useState(false);
@@ -96,83 +98,83 @@ export default function Home() {
 
   // Popular tracks data as specified in UI/UX Prompt
   const popularTracks: PopularTrack[] = [
-    { id: '1', name: 'Music', count: '12 Courses', icon: <Music className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
-    { id: '2', name: 'Art & Craft', count: '18 Courses', icon: <Palette className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
-    { id: '3', name: 'Coding', count: '15 Courses', icon: <Code2 className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
-    { id: '4', name: 'Dance', count: '24 Courses', icon: <Sparkles className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
-    { id: '5', name: 'Robotics', count: '10 Courses', icon: <Cpu className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
-    { id: '6', name: 'Photography', count: '8 Courses', icon: <Camera className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
-    { id: '7', name: 'Writing', count: '14 Courses', icon: <PenTool className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
+    { id: '1', name: language === 'am' ? 'ሙዚቃ' : 'Music', count: language === 'am' ? '12 ኮርሶች' : '12 Courses', icon: <Music className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
+    { id: '2', name: language === 'am' ? 'ስዕል እና እደ ጥበብ' : 'Art & Craft', count: language === 'am' ? '18 ኮርሶች' : '18 Courses', icon: <Palette className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
+    { id: '3', name: language === 'am' ? 'ኮዲንግ' : 'Coding', count: language === 'am' ? '15 ኮርሶች' : '15 Courses', icon: <Code2 className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
+    { id: '4', name: language === 'am' ? 'ውዝዋዜ' : 'Dance', count: language === 'am' ? '24 ኮርሶች' : '24 Courses', icon: <Sparkles className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
+    { id: '5', name: language === 'am' ? 'ሮቦቲክስ' : 'Robotics', count: language === 'am' ? '10 ኮርሶች' : '10 Courses', icon: <Cpu className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
+    { id: '6', name: language === 'am' ? 'ፎቶግራፊ' : 'Photography', count: language === 'am' ? '8 ኮርሶች' : '8 Courses', icon: <Camera className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
+    { id: '7', name: language === 'am' ? 'ፅሁፍ' : 'Writing', count: language === 'am' ? '14 ኮርሶች' : '14 Courses', icon: <PenTool className="w-6 h-6 text-[#FF7A45]" />, color: '#FF7A45', bg: 'bg-white border border-gray-100 shadow-sm' },
   ];
 
   // How it works steps
   const steps = [
-    { number: '01', title: 'Take Interest Quiz', description: 'Answer fun questions to discover hobbies that match your personality and age.' },
-    { number: '02', title: 'Learn from Experts', description: 'Join live interactive classes with professional teachers.' },
-    { number: '03', title: 'Track & Achieve', description: 'Track your progress, earn certificates, and unlock achievements.' },
-    { number: '04', title: 'Showcase & Grow', description: 'Share your projects, join events, and win prizes and scholarships.' },
+    { number: '01', title: language === 'am' ? 'የፍላጎት ጥያቄዎችን ይመልሱ' : 'Take Interest Quiz', description: language === 'am' ? 'ከባህሪዎ እና ከእድሜዎ ጋር የሚዛመዱ የትርፍ ጊዜ ፍላጎቶችን ለማግኘት አዝናኝ ጥያቄዎችን ይመልሱ።' : 'Answer fun questions to discover hobbies that match your personality and age.' },
+    { number: '02', title: language === 'am' ? 'ከባለሙያዎች ይማሩ' : 'Learn from Experts', description: language === 'am' ? 'ከባለሙያ መምህራን ጋር በቀጥታ የቀጥታ ክፍሎች ውስጥ ይሳተፉ።' : 'Join live interactive classes with professional teachers.' },
+    { number: '03', title: language === 'am' ? 'ሂደትዎን ይከታተሉ' : 'Track & Achieve', description: language === 'am' ? 'ሂደትዎን ይከታተሉ፣ የምስክር ወረቀቶችን ያግኙ እና ስኬቶችን ይክፈቱ።' : 'Track your progress, earn certificates, and unlock achievements.' },
+    { number: '04', title: language === 'am' ? 'ስራዎን ያሳዩ' : 'Showcase & Grow', description: language === 'am' ? 'ፕሮጀክቶችዎን ያጋሩ፣ በሁነቶች ላይ ይሳተፉ እና ሽልማቶችንና የስኮላርሺፕ ዕድሎችን ያሸንፉ።' : 'Share your projects, join events, and win prizes and scholarships.' },
   ];
 
   // Who is it for cards
   const targets = [
     { 
-      title: 'Students (5-18)', 
-      desc: 'Discover your passion.', 
-      details: 'Learn new skills, earn certificates, and share your work.',
+      title: language === 'am' ? 'ተማሪዎች (5-18)' : 'Students (5-18)', 
+      desc: language === 'am' ? 'ፍላጎትዎን ያግኙ።' : 'Discover your passion.', 
+      details: language === 'am' ? 'አዳዲስ ክህሎቶችን ይማሩ፣ የምስክር ወረቀቶችን ያግኙ እና ስራዎን ያጋሩ።' : 'Learn new skills, earn certificates, and share your work.',
       icon: <GraduationCap className="w-8 h-8 text-[#FF7A45]" /> 
     },
     { 
-      title: 'Parents', 
-      desc: 'Support their growth.', 
-      details: 'Monitor progress, make payments, and get updates on achievements.',
+      title: language === 'am' ? 'ወላጆች' : 'Parents', 
+      desc: language === 'am' ? 'እድገታቸውን ይደግፉ።' : 'Support their growth.', 
+      details: language === 'am' ? 'የልጆችን ሂደት ይከታተሉ፣ ክፍያዎችን ይፈጽሙ እና ስለ ስኬቶቻቸው መረጃዎችን ያግኙ።' : 'Monitor progress, make payments, and get updates on achievements.',
       icon: <Users className="w-8 h-8 text-[#FF7A45]" /> 
     },
     { 
-      title: 'Teachers & Experts', 
-      desc: 'Share your knowledge.', 
-      details: 'Teach live, manage students, earn income, and grow your teaching business.',
+      title: language === 'am' ? 'መምህራን እና ባለሙያዎች' : 'Teachers & Experts', 
+      desc: language === 'am' ? 'እውቀትዎን ያጋሩ።' : 'Share your knowledge.', 
+      details: language === 'am' ? 'የቀጥታ ትምህርት ያስተምሩ፣ ተማሪዎችን ያስተዳድሩ፣ ገቢ ያግኙ እና የማስተማር ስራዎን ያሳድጉ።' : 'Teach live, manage students, earn income, and grow your teaching business.',
       icon: <UserCheck className="w-8 h-8 text-[#FF7A45]" /> 
     },
     { 
-      title: 'Schools', 
-      desc: 'Enrich curriculum.', 
-      details: 'Offer organized programs, track participation, and generate reports.',
+      title: language === 'am' ? 'ትምህርት ቤቶች' : 'Schools', 
+      desc: language === 'am' ? 'ካሪኩለምን ያበልጽጉ።' : 'Enrich curriculum.', 
+      details: language === 'am' ? 'የተደራጁ የክህሎት ማበልፀጊያ ፕሮግራሞችን ያቅርቡ፣ የተሳትፎ ሪፖርቶችን ያግኙ።' : 'Offer organized programs, track participation, and generate reports.',
       icon: <Building2 className="w-8 h-8 text-[#FF7A45]" /> 
     },
   ];
 
   // Everything in One Platform (replaces features)
   const features = [
-    { title: 'Interest Quiz', desc: 'Find hobbies that fit your age and personality traits.', icon: <ClipboardList className="w-6 h-6 text-[#FF7A45]" /> },
-    { title: 'Live Sessions', desc: 'Interact with professional teachers in small-group cohorts.', icon: <Video className="w-6 h-6 text-[#FF7A45]" /> },
-    { title: 'Progress Tracking', desc: 'Gamified dashboards, milestones, and unlockable achievements.', icon: <BarChart2 className="w-6 h-6 text-[#FF7A45]" /> },
-    { title: 'Marketplace', desc: 'Secure project materials, starter kits, and learning books.', icon: <ShoppingBag className="w-6 h-6 text-[#FF7A45]" /> },
-    { title: 'Student Blog', desc: 'Read stories, share your learning logs, and read tutorial tips.', icon: <Newspaper className="w-6 h-6 text-[#FF7A45]" /> },
-    { title: 'Monthly Events', desc: 'Showcase projects, compete in hackathons, and win awards.', icon: <Trophy className="w-6 h-6 text-[#FF7A45]" /> },
-    { title: 'Scholarships', desc: 'Unlock sponsored learning tracks and fully funded programs.', icon: <GraduationCap className="w-6 h-6 text-[#FF7A45]" /> },
+    { title: language === 'am' ? 'የፍላጎት ጥያቄዎች' : 'Interest Quiz', desc: language === 'am' ? 'ከእድሜዎ እና ከስብዕናዎ ጋር የሚስማሙ የትርፍ ጊዜ ክህሎቶችን ያግኙ።' : 'Find hobbies that fit your age and personality traits.', icon: <ClipboardList className="w-6 h-6 text-[#FF7A45]" /> },
+    { title: language === 'am' ? 'የቀጥታ ክፍሎች' : 'Live Sessions', desc: language === 'am' ? 'በአነስተኛ ቡድኖች ውስጥ ከባለሙያ መምህራን ጋር ይገናኙ።' : 'Interact with professional teachers in small-group cohorts.', icon: <Video className="w-6 h-6 text-[#FF7A45]" /> },
+    { title: language === 'am' ? 'የሂደት ክትትል' : 'Progress Tracking', desc: language === 'am' ? 'የሂደት ገበታዎች፣ ደረጃዎች እና ሊከፈቱ የሚችሉ ስኬቶች።' : 'Gamified dashboards, milestones, and unlockable achievements.', icon: <BarChart2 className="w-6 h-6 text-[#FF7A45]" /> },
+    { title: language === 'am' ? 'የገበያ ቦታ' : 'Marketplace', desc: language === 'am' ? 'ለፕሮጀክቶች የሚያስፈልጉ ቁሳቁሶችን፣ የመማሪያ ኪቶችን እና መጽሃፎችን ይግዙ።' : 'Secure project materials, starter kits, and learning books.', icon: <ShoppingBag className="w-6 h-6 text-[#FF7A45]" /> },
+    { title: language === 'am' ? 'የተማሪ ብሎግ' : 'Student Blog', desc: language === 'am' ? 'ታሪኮችን ያንብቡ፣ የመማሪያ ማስታወሻዎችን ያጋሩ እና የመማሪያ ምክሮችን ያግኙ።' : 'Read stories, share your learning logs, and read tutorial tips.', icon: <Newspaper className="w-6 h-6 text-[#FF7A45]" /> },
+    { title: language === 'am' ? 'ወርሃዊ ሁነቶች' : 'Monthly Events', desc: language === 'am' ? 'ፕሮጀክቶችን ያሳዩ፣ በውድድሮች ላይ ይሳተፉ እና ሽልማቶችን ያሸንፉ።' : 'Showcase projects, compete in hackathons, and win awards.', icon: <Trophy className="w-6 h-6 text-[#FF7A45]" /> },
+    { title: language === 'am' ? 'የስኮላርሺፕ ዕድሎች' : 'Scholarships', desc: language === 'am' ? 'በስፖንሰሮች የተሸፈኑ የትምህርት ክፍሎችን እና ሙሉ የገንዘብ ድጋፍ ያላቸውን ፕሮግራሞች ያግኙ።' : 'Unlock sponsored learning tracks and fully funded programs.', icon: <GraduationCap className="w-6 h-6 text-[#FF7A45]" /> },
   ];
 
   // Testimonials
   const testimonials = [
     {
       name: 'Mekdes A.',
-      role: 'Parent',
+      role: language === 'am' ? 'ወላጅ' : 'Parent',
       stars: 5,
-      text: 'HobbyHub helped my daughter discover her love for art. The teachers are amazing and make learning fun.',
+      text: language === 'am' ? 'ሆቢሀብ ልጄ ለስዕል ጥበብ ያላትን ፍቅር እንድታገኝ ረድቷታል። መምህራኖቹ በጣም ጥሩ እና ትምህርቱን አስደሳች ያደርጉታል።' : 'HobbyHub helped my daughter discover her love for art. The teachers are amazing and make learning fun.',
       image: '/logo.png'
     },
     {
       name: 'Samuel T.',
-      role: 'Student',
+      role: language === 'am' ? 'ተማሪ' : 'Student',
       stars: 5,
-      text: 'I learned coding and built my first app! The live classes are fun and easy to follow.',
+      text: language === 'am' ? 'ኮዲንግ ተምሬ የመጀመሪያውን መተግበሪያዬን ሰራሁ! የቀጥታ ክፍሎቹ በጣም አስደሳች እና ለመከታተል ቀላል ናቸው።' : 'I learned coding and built my first app! The live classes are fun and easy to follow.',
       image: '/logo.png'
     },
     {
       name: 'Mr. Tesfaye',
-      role: 'School Administrator',
+      role: language === 'am' ? 'የትምህርት ቤት አስተዳዳሪ' : 'School Administrator',
       stars: 5,
-      text: "Managing extracurricular programs is now so easy with HobbyHub's school dashboard.",
+      text: language === 'am' ? 'በትምህርት ቤታችን ውስጥ የትርፍ ጊዜ ስራዎችን እና ማበልፀጊያ ፕሮግራሞችን በሆቢሀብ የትምህርት ቤት ዳሽቦርድ ማስተዳደር በጣም ቀላል ሆኗል።' : "Managing extracurricular programs is now so easy with HobbyHub's school dashboard.",
       image: '/logo.png'
     }
   ];
@@ -193,23 +195,25 @@ export default function Home() {
             {/* Left Hero Details */}
             <div className="lg:col-span-6 flex flex-col items-start text-left">
               <h1 className="text-4xl md:text-5xl lg:text-[64px] lg:leading-[72px] font-extrabold text-[#1F2937] tracking-tight mb-6">
-                Discover. Learn. <br />
-                <span className="text-[#FF7A45]">Create. Shine.</span>
+                {language === 'am' ? 'ያግኙ። ይማሩ።' : 'Discover. Learn.'} <br />
+                <span className="text-[#FF7A45]">{language === 'am' ? 'ይፍጠሩ። ያብሩ።' : 'Create. Shine.'}</span>
               </h1>
               
               <p className="text-base md:text-lg lg:text-[18px] text-[#6B7280] leading-relaxed mb-8 max-w-xl">
-                HobbyHub Education helps students discover their ideal hobbies, learn from experts, track progress, and showcase their talents.
+                {language === 'am' 
+                  ? 'ሆቢሀብ ኢዱኬሽን ተማሪዎች ተስማሚ የትርፍ ጊዜ ፍላጎቶቻቸውን እንዲያገኙ፣ ከባለሙያዎች እንዲማሩ፣ ሂደታቸውን እንዲከታተሉ እና ክህሎቶቻቸውን እንዲያሳዩ ይረዳል።' 
+                  : 'HobbyHub Education helps students discover their ideal hobbies, learn from experts, track progress, and showcase their talents.'}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mb-12">
                 <Link href="/register" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#FF7A45] text-white font-bold hover:bg-[#ff8f61] hover:scale-103 active:scale-98 transition-all duration-200 shadow-lg shadow-[#FF7A45]/30">
-                    Get Started
+                  <button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#FF7A45] text-[#1F2937] font-bold hover:bg-[#ff8f61] hover:scale-103 active:scale-98 transition-all duration-200 shadow-lg shadow-[#FF7A45]/30">
+                    {t('nav.getStarted')}
                   </button>
                 </Link>
                 <Link href="/hobbies" className="w-full sm:w-auto">
                   <button className="w-full sm:w-auto h-14 px-10 rounded-2xl border border-[#FF7A45] text-[#FF7A45] hover:bg-[#FF7A45]/5 font-bold transition-all">
-                    Take Interest Quiz
+                    {language === 'am' ? 'የፍላጎት ጥያቄዎችን ይመልሱ' : 'Take Interest Quiz'}
                   </button>
                 </Link>
               </div>
@@ -220,25 +224,25 @@ export default function Home() {
                   <div className="w-10 h-10 rounded-xl bg-orange-100/50 flex items-center justify-center text-[#FF7A45]">
                     <UserCheck className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-bold text-[#1F2937]">Expert Teachers</span>
+                  <span className="text-xs font-bold text-[#1F2937]">{language === 'am' ? 'ባለሙያ መምህራን' : 'Expert Teachers'}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-orange-100/50 flex items-center justify-center text-[#FF7A45]">
                     <Video className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-bold text-[#1F2937]">Live Classes</span>
+                  <span className="text-xs font-bold text-[#1F2937]"> {language === 'am' ? 'የቀጥታ ክፍሎች' : 'Live Classes'}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-orange-100/50 flex items-center justify-center text-[#FF7A45]">
                     <Award className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-bold text-[#1F2937]">Certificates</span>
+                  <span className="text-xs font-bold text-[#1F2937]">{language === 'am' ? 'ሰርተፊኬቶች' : 'Certificates'}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-orange-100/50 flex items-center justify-center text-[#FF7A45]">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-bold text-[#1F2937]">Safe & Secure</span>
+                  <span className="text-xs font-bold text-[#1F2937]">{language === 'am' ? 'ደህንነቱ የተጠበቀ' : 'Safe & Secure'}</span>
                 </div>
               </div>
             </div>
@@ -272,11 +276,11 @@ export default function Home() {
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14">
           <div className="flex items-center justify-between mb-12">
             <h2 className="text-2xl md:text-3xl lg:text-[36px] font-extrabold text-[#1F2937] tracking-tight">
-              Popular Hobby Categories
+              {language === 'am' ? 'ተወዳጅ የትርፍ ጊዜ ምድቦች' : 'Popular Hobby Categories'}
             </h2>
             <div className="flex gap-4 items-center">
               <Link href="/hobbies" className="text-sm font-bold text-[#FF7A45] hover:text-[#ff8f61] transition-colors">
-                View all
+                {language === 'am' ? 'ሁሉንም አሳይ' : 'View all'}
               </Link>
               <div className="flex gap-2">
                 <button 
@@ -348,7 +352,7 @@ export default function Home() {
             {/* Right 4-step Process */}
             <div className="lg:col-span-7 flex flex-col items-start pl-0 lg:pl-8">
               <h2 className="text-2xl md:text-3xl lg:text-[40px] font-extrabold text-[#1F2937] tracking-tight mb-8">
-                How HobbyHub Works
+                {language === 'am' ? 'ሆቢሀብ እንዴት ይሰራል?' : 'How HobbyHub Works'}
               </h2>
               
               <div className="flex flex-col gap-8 w-full">
@@ -374,7 +378,7 @@ export default function Home() {
       <section className="py-20 bg-white">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 text-center">
           <h2 className="text-2xl md:text-3xl lg:text-[36px] font-extrabold text-[#1F2937] tracking-tight mb-12">
-            Who is HobbyHub For?
+            {language === 'am' ? 'ሆቢሀብ ለማን ነው?' : 'Who is HobbyHub For?'}
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -399,10 +403,12 @@ export default function Home() {
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-2xl md:text-3xl lg:text-[36px] font-extrabold text-[#1F2937] tracking-tight mb-4">
-              Everything in One Platform
+              {language === 'am' ? 'ሁሉም በአንድ መድረክ' : 'Everything in One Platform'}
             </h2>
             <p className="text-base text-[#6B7280]">
-              Discover, learn, and grow using our comprehensive features built for creative development.
+              {language === 'am' 
+                ? 'ለፈጠራ እድገት በተዘጋጁት አጠቃላይ ባህሪያቶቻችን በመጠቀም ይወቁ፣ ይማሩ እና ያድጉ።' 
+                : 'Discover, learn, and grow using our comprehensive features built for creative development.'}
             </p>
           </div>
 
@@ -427,10 +433,10 @@ export default function Home() {
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14">
           <div className="flex items-center justify-between mb-12">
             <h2 className="text-2xl md:text-3xl lg:text-[36px] font-extrabold text-[#1F2937] tracking-tight">
-              What People Say
+              {language === 'am' ? 'የተማሪዎቻችን ምስክርነት' : 'What People Say'}
             </h2>
             <Link href="/testimonials" className="text-sm font-bold text-[#FF7A45] hover:text-[#ff8f61] transition-colors">
-              View all
+              {language === 'am' ? 'ሁሉንም አሳይ' : 'View all'}
             </Link>
           </div>
 
@@ -484,15 +490,15 @@ export default function Home() {
 
             <div className="max-w-2xl relative z-10">
               <h2 className="text-3xl md:text-5xl font-extrabold text-[#1F2937] tracking-tight leading-tight mb-4">
-                Join HobbyHub Education Today!
+                {language === 'am' ? 'ዛሬውኑ የሆቢሀብ አባል ይሁኑ!' : 'Join HobbyHub Education Today!'}
               </h2>
               <p className="text-base md:text-lg text-[#6B7280] leading-relaxed mb-8 max-w-lg mx-auto">
-                Discover your passion. Learn new skills. Build your future.
+                {language === 'am' ? 'ፍላጎትዎን ያግኙ። አዳዲስ ክህሎቶችን ይማሩ። የወደፊት ህይወትዎን ይገንቡ።' : 'Discover your passion. Learn new skills. Build your future.'}
               </p>
               
               <Link href="/register">
                 <button className="h-14 px-10 rounded-2xl bg-[#FF7A45] text-white font-bold hover:bg-[#ff8f61] hover:scale-103 active:scale-98 transition-all duration-200 shadow-lg shadow-[#FF7A45]/30">
-                  Sign Up Now
+                  {language === 'am' ? 'አሁን ይመዝገቡ' : 'Sign Up Now'}
                 </button>
               </Link>
             </div>
@@ -518,7 +524,7 @@ export default function Home() {
                 />
               </div>
               <p className="text-sm text-[#9CA3AF] leading-relaxed max-w-sm">
-                Empowering Ethiopian students to discover, learn, and shine through hobbies.
+                {t('footer.desc')}
               </p>
               <div className="flex gap-4 mt-2">
                 <a href="#" className="p-2 rounded-lg bg-gray-800 text-[#9CA3AF] hover:text-[#FF7A45] hover:bg-gray-700 transition-colors">
@@ -538,31 +544,37 @@ export default function Home() {
 
             {/* Column 1: Quick Links */}
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">Quick Links</h4>
+              <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">
+                {language === 'am' ? 'ፈጣን ሊንኮች' : 'Quick Links'}
+              </h4>
               <ul className="flex flex-col gap-4">
-                <li><Link href="/" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">Home</Link></li>
-                <li><Link href="/hobbies" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">Courses</Link></li>
-                <li><Link href="/events" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">Events</Link></li>
-                <li><Link href="/blog" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="/about" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{t('nav.home')}</Link></li>
+                <li><Link href="/hobbies" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{t('nav.courses')}</Link></li>
+                <li><Link href="/events" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{t('nav.events')}</Link></li>
+                <li><Link href="/blog" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{t('nav.blog')}</Link></li>
+                <li><Link href="/about" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{t('nav.about')}</Link></li>
               </ul>
             </div>
 
             {/* Column 2: Support */}
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">Support</h4>
+              <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">
+                {language === 'am' ? 'ድጋፍ' : 'Support'}
+              </h4>
               <ul className="flex flex-col gap-4">
-                <li><Link href="/help" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="/contact" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">Contact Us</Link></li>
-                <li><Link href="/privacy" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">Terms of Use</Link></li>
-                <li><Link href="/faq" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">FAQ</Link></li>
+                <li><Link href="/help" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{language === 'am' ? 'የእርዳታ ማዕከል' : 'Help Center'}</Link></li>
+                <li><Link href="/contact" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{language === 'am' ? 'አግኙን' : 'Contact Us'}</Link></li>
+                <li><Link href="/privacy" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{language === 'am' ? 'የግላዊነት ፖሊሲ' : 'Privacy Policy'}</Link></li>
+                <li><Link href="/terms" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{language === 'am' ? 'የአጠቃቀም ደንቦች' : 'Terms of Use'}</Link></li>
+                <li><Link href="/faq" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{language === 'am' ? 'ተደጋጋሚ ጥያቄዎች (FAQ)' : 'FAQ'}</Link></li>
               </ul>
             </div>
 
             {/* Column 3: Contact & Language */}
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">Contact</h4>
+              <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">
+                {language === 'am' ? 'አድራሻ' : 'Contact'}
+              </h4>
               <ul className="flex flex-col gap-4 mb-6">
                 <li className="flex items-center gap-2 text-sm text-[#9CA3AF]">
                   <Phone className="w-4 h-4 text-[#FF7A45]" />
@@ -574,15 +586,25 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-2 text-sm text-[#9CA3AF]">
                   <MapPin className="w-4 h-4 text-[#FF7A45]" />
-                  <span>Addis Ababa, Ethiopia</span>
+                  <span>{language === 'am' ? 'አዲስ አበባ፣ ኢትዮጵያ' : 'Addis Ababa, Ethiopia'}</span>
                 </li>
               </ul>
               
               <div className="flex gap-2">
-                <button className="px-3 py-1.5 rounded-lg bg-[#FF7A45] text-white text-xs font-bold">
+                <button 
+                  onClick={() => setLanguage('en')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    language === 'en' ? 'bg-[#FF7A45] text-[#1F2937]' : 'bg-gray-800 text-[#9CA3AF] hover:text-white'
+                  }`}
+                >
                   English
                 </button>
-                <button className="px-3 py-1.5 rounded-lg bg-gray-800 text-[#9CA3AF] hover:text-white text-xs font-bold transition-colors">
+                <button 
+                  onClick={() => setLanguage('am')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    language === 'am' ? 'bg-[#FF7A45] text-[#1F2937]' : 'bg-gray-800 text-[#9CA3AF] hover:text-white'
+                  }`}
+                >
                   አማርኛ
                 </button>
               </div>
@@ -593,11 +615,11 @@ export default function Home() {
           {/* Copyright Area */}
           <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs text-[#9CA3AF]">
-              © {new Date().getFullYear()} HobbyHub Education. All rights reserved.
+              © {new Date().getFullYear()} HobbyHub Education. {language === 'am' ? 'መብቱ በህግ የተጠበቀ ነው።' : 'All rights reserved.'}
             </p>
             <div className="flex gap-6">
-              <Link href="/terms" className="text-xs text-[#9CA3AF] hover:text-white transition-colors">Terms of Use</Link>
-              <Link href="/privacy" className="text-xs text-[#9CA3AF] hover:text-white transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="text-xs text-[#9CA3AF] hover:text-white transition-colors">{language === 'am' ? 'የአጠቃቀም ደንቦች' : 'Terms of Use'}</Link>
+              <Link href="/privacy" className="text-xs text-[#9CA3AF] hover:text-white transition-colors">{language === 'am' ? 'የግላዊነት ፖሊሲ' : 'Privacy Policy'}</Link>
             </div>
           </div>
 

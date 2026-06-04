@@ -9,12 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
+import { useLanguage } from '@/providers/language-provider';
 import api from '../lib/api';
 import { Package, Calendar, Clock, Eye } from 'lucide-react';
 
 export default function OrdersPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
+  const { language } = useLanguage();
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders'],
@@ -28,7 +30,7 @@ export default function OrdersPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">Loading your orders...</div>
+        <div className="text-center font-semibold text-gray-500">{language === 'am' ? 'ትዕዛዞችዎን በመጫን ላይ...' : 'Loading your orders...'}</div>
       </div>
     );
   }
@@ -57,12 +59,12 @@ export default function OrdersPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Pending';
-      case 'approved_by_parent': return 'Approved by Parent';
-      case 'paid': return 'Paid';
-      case 'shipped': return 'Shipped';
-      case 'delivered': return 'Delivered';
-      case 'cancelled': return 'Cancelled';
+      case 'pending': return language === 'am' ? 'በጥበቃ ላይ' : 'Pending';
+      case 'approved_by_parent': return language === 'am' ? 'በወላጅ የጸደቀ' : 'Approved by Parent';
+      case 'paid': return language === 'am' ? 'የተከፈለ' : 'Paid';
+      case 'shipped': return language === 'am' ? 'የተላከ' : 'Shipped';
+      case 'delivered': return language === 'am' ? 'የደረሰ' : 'Delivered';
+      case 'cancelled': return language === 'am' ? 'የተሰረዘ' : 'Cancelled';
       default: return status;
     }
   };
@@ -74,7 +76,7 @@ export default function OrdersPage() {
           <div className="flex-1 space-y-3">
             <div className="flex items-center gap-3">
               <Package className="h-5 w-5 text-gray-400" />
-              <span className="font-bold text-sm text-[#1F2937]">Order #{order.id}</span>
+              <span className="font-bold text-sm text-[#1F2937]">{language === 'am' ? 'ትዕዛዝ ቁጥር' : 'Order'} #{order.id}</span>
               <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${getStatusColor(order.status)}`}>
                 {getStatusText(order.status)}
               </span>
@@ -93,12 +95,12 @@ export default function OrdersPage() {
           <div className="w-full md:w-auto shrink-0 flex flex-col md:items-end gap-3 border-t md:border-t-0 pt-4 md:pt-0">
             <div>
               <p className="text-2xl font-extrabold text-[#FF7A45]">{order.totalAmount} ETB</p>
-              <p className="text-xs font-semibold text-[#6B7280]">{order.items?.length || 0} items purchased</p>
+              <p className="text-xs font-semibold text-[#6B7280]">{order.items?.length || 0} {language === 'am' ? 'እቃዎች ተገዝተዋል' : 'items purchased'}</p>
             </div>
             <Link href={`/orders/${order.id}`} className="block w-full md:w-auto">
               <Button variant="outline" size="sm" className="w-full md:w-auto h-10 rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50 font-bold text-xs">
                 <Eye className="h-3.5 w-3.5 mr-1.5" />
-                View Details
+                {language === 'am' ? 'ዝርዝር እይ' : 'View Details'}
               </Button>
             </Link>
           </div>
@@ -110,7 +112,7 @@ export default function OrdersPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">Loading orders...</div>
+        <div className="text-center font-semibold text-gray-500">{language === 'am' ? 'ትዕዛዞችን በመጫን ላይ...' : 'Loading orders...'}</div>
       </div>
     );
   }
@@ -133,12 +135,12 @@ export default function OrdersPage() {
           <div className="flex gap-4">
             <Link href="/dashboard">
               <Button variant="ghost" className="text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45]">
-                Dashboard
+                {language === 'am' ? 'ዳሽቦርድ' : 'Dashboard'}
               </Button>
             </Link>
             <Link href="/profile">
               <Button variant="ghost" className="text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45]">
-                Profile
+                {language === 'am' ? 'ፕሮፋይል' : 'Profile'}
               </Button>
             </Link>
           </div>
@@ -147,22 +149,22 @@ export default function OrdersPage() {
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12">
         <div className="mb-10">
-          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block font-sans">Purchase History</span>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#1F2937] mb-2">My Orders</h1>
-          <p className="text-base text-[#6B7280]">Track and manage your order statements.</p>
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block font-sans">{language === 'am' ? 'የግዢ ታሪክ' : 'Purchase History'}</span>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#1F2937] mb-2">{language === 'am' ? 'የእኔ ትዕዛዞች' : 'My Orders'}</h1>
+          <p className="text-base text-[#6B7280]">{language === 'am' ? 'የእርስዎን የትዕዛዝ ሁኔታ ይከታተሉ እና ያስተዳድሩ።' : 'Track and manage your order statements.'}</p>
         </div>
 
         {orders?.length === 0 ? (
           <Card className="rounded-[24px] border-gray-150 bg-white p-2 shadow-sm text-center py-16 max-w-xl mx-auto">
             <CardContent className="space-y-6">
               <Package className="h-14 w-14 mx-auto text-[#FF7A45] mb-2 opacity-80" />
-              <h2 className="text-xl font-semibold mb-2 text-[#1F2937]">No orders yet</h2>
+              <h2 className="text-xl font-semibold mb-2 text-[#1F2937]">{language === 'am' ? 'እስካሁን ምንም ትዕዛዝ የለም' : 'No orders yet'}</h2>
               <p className="text-sm text-[#6B7280] leading-relaxed max-w-md mx-auto">
-                You haven't ordered any supplies or track additions yet.
+                {language === 'am' ? 'እስካሁን ምንም የማስተማሪያ ቁሳቁስ ወይም ተጨማሪ ዕቃዎችን አላዘዙም።' : "You haven't ordered any supplies or track additions yet."}
               </p>
               <Link href="/shops">
-                <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold h-11 px-8 rounded-xl transition-all">
-                  Start Shopping
+                <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-bold h-11 px-8 rounded-xl transition-all">
+                  {language === 'am' ? 'ግዢ ጀምር' : 'Start Shopping'}
                 </Button>
               </Link>
             </CardContent>
@@ -170,11 +172,11 @@ export default function OrdersPage() {
         ) : (
           <Tabs defaultValue="all" className="space-y-8">
             <TabsList className="bg-gray-100/70 p-1.5 rounded-xl border border-gray-100 max-w-lg">
-              <TabsTrigger value="all" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">All ({orders?.length || 0})</TabsTrigger>
-              <TabsTrigger value="pending" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">Pending ({pendingOrders.length})</TabsTrigger>
-              <TabsTrigger value="processing" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">Processing ({processingOrders.length})</TabsTrigger>
-              <TabsTrigger value="completed" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">Completed ({completedOrders.length})</TabsTrigger>
-              <TabsTrigger value="cancelled" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">Cancelled ({cancelledOrders.length})</TabsTrigger>
+              <TabsTrigger value="all" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">{language === 'am' ? 'ሁሉም' : 'All'} ({orders?.length || 0})</TabsTrigger>
+              <TabsTrigger value="pending" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">{language === 'am' ? 'በጥበቃ ላይ' : 'Pending'} ({pendingOrders.length})</TabsTrigger>
+              <TabsTrigger value="processing" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">{language === 'am' ? 'በማቀናበር ላይ' : 'Processing'} ({processingOrders.length})</TabsTrigger>
+              <TabsTrigger value="completed" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">{language === 'am' ? 'የተጠናቀቁ' : 'Completed'} ({completedOrders.length})</TabsTrigger>
+              <TabsTrigger value="cancelled" className="rounded-lg py-2.5 font-semibold text-xs md:text-sm">{language === 'am' ? 'የተሰረዙ' : 'Cancelled'} ({cancelledOrders.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="all" className="space-y-4">

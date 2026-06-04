@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
+import { useLanguage } from '@/providers/language-provider';
 import Navbar from '@/components/Navbar';
 import api from '../lib/api';
 import { Calendar, User, Clock, Users } from 'lucide-react';
 
 export default function LessonsPage() {
   const { user } = useAuth();
+  const { language } = useLanguage();
   const [search, setSearch] = useState('');
   const [hobbyId, setHobbyId] = useState('');
 
@@ -40,15 +42,15 @@ export default function LessonsPage() {
 
   const registerForLesson = async (lessonId: number) => {
     if (!user) {
-      alert('Please login to register for lessons');
+      alert(language === 'am' ? 'እባክዎን ለትምህርት ለመመዝገብ በመጀመሪያ ይግቡ' : 'Please login to register for lessons');
       return;
     }
     try {
       await api.post(`/lessons/${lessonId}/register`);
       refetch();
-      alert('Successfully registered!');
+      alert(language === 'am' ? 'በተሳካ ሁኔታ ተመዝግበዋል!' : 'Successfully registered!');
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Registration failed');
+      alert(error.response?.data?.error || (language === 'am' ? 'ምዝገባው አልተሳካም' : 'Registration failed'));
     }
   };
 
@@ -59,18 +61,18 @@ export default function LessonsPage() {
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32">
         <div className="mb-10">
-          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block font-sans">Live Classes</span>
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block font-sans">{language === 'am' ? 'የቀጥታ ስርጭት ክፍሎች' : 'Live Classes'}</span>
           <h1 className="text-3xl md:text-4xl lg:text-[48px] font-extrabold tracking-tight text-[#1F2937] mb-3">
-            Interactive Live Lessons
+            {language === 'am' ? 'በይነተገናኝ የቀጥታ ትምህርቶች' : 'Interactive Live Lessons'}
           </h1>
-          <p className="text-base text-[#6B7280]">Join real-time classrooms with professional HobbyHub certified educators.</p>
+          <p className="text-base text-[#6B7280]">{language === 'am' ? 'በሆቢሀብ ከተረጋገጡ ባለሙያ መምህራን ጋር የእውነተኛ ጊዜ የቀጥታ ክፍሎችን ይቀላቀሉ።' : 'Join real-time classrooms with professional HobbyHub certified educators.'}</p>
         </div>
 
         {/* Filters */}
         <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm mb-10">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
-              placeholder="Search classes..."
+              placeholder={language === 'am' ? 'ክፍሎችን ይፈልጉ...' : 'Search classes...'}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
@@ -81,7 +83,7 @@ export default function LessonsPage() {
               value={hobbyId}
               onChange={(e) => setHobbyId(e.target.value)}
             >
-              <option value="">All Learning Tracks</option>
+              <option value="">{language === 'am' ? 'ሁሉም የትምህርት መስኮች' : 'All Learning Tracks'}</option>
               {hobbies?.map((hobby: any) => (
                 <option key={hobby.id} value={hobby.id}>{hobby.name}</option>
               ))}
@@ -95,7 +97,7 @@ export default function LessonsPage() {
                 setHobbyId('');
               }}
             >
-              Clear Filters
+              {language === 'am' ? 'ማጣሪያዎችን አጽዳ' : 'Clear Filters'}
             </Button>
           </div>
         </div>
@@ -113,7 +115,7 @@ export default function LessonsPage() {
           </div>
         ) : lessonsData?.data?.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-[24px] border border-gray-100 shadow-sm">
-            <p className="text-gray-500 font-medium mb-3">No live lessons found</p>
+            <p className="text-gray-500 font-medium mb-3">{language === 'am' ? 'ምንም የቀጥታ ትምህርት አልተገኘም' : 'No live lessons found'}</p>
             <Button 
               variant="link" 
               className="text-[#FF7A45] font-semibold hover:underline"
@@ -122,7 +124,7 @@ export default function LessonsPage() {
                 setHobbyId('');
               }}
             >
-              Clear all filters
+              {language === 'am' ? 'ሁሉንም ማጣሪያዎች አጽዳ' : 'Clear all filters'}
             </Button>
           </div>
         ) : (
@@ -143,7 +145,7 @@ export default function LessonsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-3 text-xs md:text-sm font-semibold text-[#6B7280]">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-[#FF7A45]" />
-                        <span>Teacher: {lesson.teacher?.profile?.firstName} {lesson.teacher?.profile?.lastName}</span>
+                        <span>{language === 'am' ? 'መምህር፡' : 'Teacher:'} {lesson.teacher?.profile?.firstName} {lesson.teacher?.profile?.lastName}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-[#FF7A45]" />
@@ -151,11 +153,11 @@ export default function LessonsPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-[#FF7A45]" />
-                        <span>{lesson.durationMinutes} minutes</span>
+                        <span>{lesson.durationMinutes} {language === 'am' ? 'ደቂቃ' : 'minutes'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="h-4 w-4 text-[#FF7A45]" />
-                        <span>{lesson.registrations?.length || 0} / {lesson.maxStudents} enrolled</span>
+                        <span>{lesson.registrations?.length || 0} / {lesson.maxStudents} {language === 'am' ? 'ተመዝግበዋል' : 'enrolled'}</span>
                       </div>
                     </div>
                   </div>
@@ -164,9 +166,11 @@ export default function LessonsPage() {
                     <Button 
                       onClick={() => registerForLesson(lesson.id)}
                       disabled={lesson.registrations?.length >= lesson.maxStudents}
-                      className="w-full md:w-auto h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl px-6"
+                      className="w-full md:w-auto h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl px-6"
                     >
-                      {lesson.registrations?.length >= lesson.maxStudents ? 'Class Full' : 'Register Class Spot'}
+                      {lesson.registrations?.length >= lesson.maxStudents 
+                        ? (language === 'am' ? 'ክፍሉ ሞልቷል' : 'Class Full') 
+                        : (language === 'am' ? 'ክፍል ያስይዙ' : 'Register Class Spot')}
                     </Button>
                   </div>
                 </div>
@@ -178,8 +182,8 @@ export default function LessonsPage() {
         {/* Pagination */}
         {lessonsData?.pagination?.pages > 1 && (
           <div className="flex justify-center gap-3 mt-12">
-            <Button variant="outline" className="rounded-xl" disabled>Previous</Button>
-            <Button variant="outline" className="rounded-xl">Next</Button>
+            <Button variant="outline" className="rounded-xl" disabled>{language === 'am' ? 'ቀዳሚ' : 'Previous'}</Button>
+            <Button variant="outline" className="rounded-xl">{language === 'am' ? 'ቀጣይ' : 'Next'}</Button>
           </div>
         )}
       </main>

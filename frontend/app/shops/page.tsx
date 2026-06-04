@@ -8,12 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
+import { useLanguage } from '@/providers/language-provider';
 import Navbar from '@/components/Navbar';
 import api from '../lib/api';
 import { ShoppingCart, Star } from 'lucide-react';
 
 export default function ShopPage() {
   const { user } = useAuth();
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
@@ -49,11 +51,11 @@ export default function ShopPage() {
       return response.data;
     },
     onSuccess: () => {
-      alert('Added to cart successfully!');
+      alert(language === 'am' ? 'በስኬት ወደ ጋሪ ታክሏል!' : 'Added to cart successfully!');
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || 'Failed to add to cart');
+      alert(error.response?.data?.error || (language === 'am' ? 'ወደ ጋሪ ማከል አልተሳካም' : 'Failed to add to cart'));
     },
   });
 
@@ -63,18 +65,22 @@ export default function ShopPage() {
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32">
         <div className="mb-10">
-          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">Academy Marketplace</span>
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">{language === 'am' ? 'የአካዳሚ መገበያያ' : 'Academy Marketplace'}</span>
           <h1 className="text-3xl md:text-4xl lg:text-[48px] font-extrabold tracking-tight text-[#1F2937] mb-3">
-            Shop Hobby & Learning Kits
+            {language === 'am' ? 'የትምህርት እና የትርፍ ጊዜ ዕቃዎችን ይግዙ' : 'Shop Hobby & Learning Kits'}
           </h1>
-          <p className="text-base text-[#6B7280]">Procure standard textbook supplies, educational materials, and kits.</p>
+          <p className="text-base text-[#6B7280]">
+            {language === 'am' 
+              ? 'መደበኛ የመማሪያ መጽሐፍትን፣ የትምህርት ቁሳቁሶችን እና የተግባር መስሪያ እቃዎችን እዚህ ያግኙ።' 
+              : 'Procure standard textbook supplies, educational materials, and kits.'}
+          </p>
         </div>
 
         {/* Filters */}
         <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm mb-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
             <Input
-              placeholder="Search products..."
+              placeholder={language === 'am' ? 'ዕቃዎችን ፈልግ...' : 'Search products...'}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
@@ -85,14 +91,14 @@ export default function ShopPage() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-              <option value="">All Categories</option>
+              <option value="">{language === 'am' ? 'ሁሉም ክፍሎች' : 'All Categories'}</option>
               {categories?.map((cat: any) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
 
             <Input
-              placeholder="Min Price (ETB)"
+              placeholder={language === 'am' ? 'ዝቅተኛው ዋጋ (ብር)' : 'Min Price (ETB)'}
               type="number"
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
@@ -100,7 +106,7 @@ export default function ShopPage() {
             />
 
             <Input
-              placeholder="Max Price (ETB)"
+              placeholder={language === 'am' ? 'ከፍተኛው ዋጋ (ብር)' : 'Max Price (ETB)'}
               type="number"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
@@ -117,7 +123,7 @@ export default function ShopPage() {
                 setMaxPrice('');
               }}
             >
-              Clear Filters
+              {language === 'am' ? 'ማጣሪያዎችን አጽዳ' : 'Clear Filters'}
             </Button>
           </div>
         </div>
@@ -135,7 +141,7 @@ export default function ShopPage() {
           </div>
         ) : productsData?.data?.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-[24px] border border-gray-100 shadow-sm">
-            <p className="text-gray-500 font-medium mb-3">No products found matching filters</p>
+            <p className="text-gray-500 font-medium mb-3">{language === 'am' ? 'ከማጣሪያው ጋር የሚዛመድ ምንም ዕቃ አልተገኘም' : 'No products found matching filters'}</p>
             <Button 
               variant="link" 
               className="text-[#FF7A45] font-semibold hover:underline"
@@ -146,7 +152,7 @@ export default function ShopPage() {
                 setMaxPrice('');
               }}
             >
-              Clear all filters
+              {language === 'am' ? 'ሁሉንም ማጣሪያዎች አጽዳ' : 'Clear all filters'}
             </Button>
           </div>
         ) : (
@@ -168,9 +174,9 @@ export default function ShopPage() {
                         {product.price} ETB
                       </span>
                       {product.stockCount > 0 ? (
-                        <span className="text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-lg">In Stock</span>
+                        <span className="text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-lg">{language === 'am' ? 'በክምችት ላይ ያለ' : 'In Stock'}</span>
                       ) : (
-                        <span className="text-xs font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-lg">Out of Stock</span>
+                        <span className="text-xs font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-lg">{language === 'am' ? 'ያለቀ' : 'Out of Stock'}</span>
                       )}
                     </div>
                     
@@ -186,11 +192,11 @@ export default function ShopPage() {
                     )}
                     
                     <Button 
-                      className="w-full h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl transition-all duration-200"
+                      className="w-full h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl transition-all duration-200"
                       onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })}
                       disabled={product.stockCount === 0}
                     >
-                      Add to Cart
+                      {language === 'am' ? 'ወደ ጋሪ ጨምር' : 'Add to Cart'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -200,8 +206,8 @@ export default function ShopPage() {
             {/* Pagination */}
             {productsData?.pagination?.pages > 1 && (
               <div className="flex justify-center gap-3 mt-12">
-                <Button variant="outline" className="rounded-xl" disabled>Previous</Button>
-                <Button variant="outline" className="rounded-xl">Next</Button>
+                <Button variant="outline" className="rounded-xl" disabled>{language === 'am' ? 'ቀዳሚ' : 'Previous'}</Button>
+                <Button variant="outline" className="rounded-xl">{language === 'am' ? 'ቀጣይ' : 'Next'}</Button>
               </div>
             )}
           </>
