@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -72,8 +73,8 @@ export default function CheckoutPage() {
 
   if (authLoading || cartLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">Loading...</div>
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <div className="text-center font-semibold text-gray-500">Preparing checkout details...</div>
       </div>
     );
   }
@@ -85,11 +86,13 @@ export default function CheckoutPage() {
 
   if (!cart?.items || cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4 text-center">
+      <div className="min-h-screen bg-[#FAFAFA] py-20 text-[#1F2937]">
+        <div className="max-w-[1440px] mx-auto px-4 text-center max-w-md">
           <h1 className="text-2xl font-bold mb-4">Cart is Empty</h1>
           <Link href="/shops">
-            <Button>Continue Shopping</Button>
+            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold h-11 px-8 rounded-xl">
+              Go to Marketplace
+            </Button>
           </Link>
         </div>
       </div>
@@ -97,86 +100,99 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub</Link>
-          <div className="flex gap-4">
-            <Link href="/cart">
-              <Button variant="ghost">Back to Cart</Button>
-            </Link>
-          </div>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
+      {/* Sticky Header */}
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center focus:outline-none">
+            <Image 
+              src="/logo.png" 
+              alt="HobbyHub Education" 
+              width={150} 
+              height={38} 
+              priority 
+              className="h-9 w-auto object-contain"
+            />
+          </Link>
+          <Link href="/cart">
+            <Button variant="ghost" className="text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45]">
+              Back to Cart
+            </Button>
+          </Link>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="flex items-center gap-4 mb-6">
+      <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 max-w-4xl">
+        <div className="flex items-center gap-4 mb-8">
           <Link href="/cart">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-[#6B7280] hover:text-[#FF7A45] font-semibold rounded-xl">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Cart
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold">Checkout</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2937]">Checkout</h1>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-6">
-            <form onSubmit={handleSubmit}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Shipping Address</CardTitle>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
+                <CardHeader className="p-6 pb-4 border-b border-gray-50">
+                  <CardTitle className="text-lg font-bold text-[#1F2937]">Shipping Address</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div>
-                    <Label htmlFor="address">Delivery Address</Label>
+                <CardContent className="p-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="address" className="text-xs font-bold text-gray-500 uppercase tracking-wider">Delivery Address</Label>
                     <Input
                       id="address"
-                      placeholder="Your full address"
+                      placeholder="Your street name, building number, city"
                       value={shippingAddress}
                       onChange={(e) => setShippingAddress(e.target.value)}
                       required
+                      className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      We'll deliver your items to this address
+                    <p className="text-xs text-[#6B7280]">
+                      We will deliver your physical resource materials and kits directly to this location.
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Payment Method</CardTitle>
+              <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
+                <CardHeader className="p-6 pb-4 border-b border-gray-50">
+                  <CardTitle className="text-lg font-bold text-[#1F2937]">Payment Method</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
-                    <div className="flex items-center space-x-3 border rounded-lg p-3">
-                      <RadioGroupItem value="chapa" id="chapa" />
-                      <Label htmlFor="chapa" className="flex items-center gap-2 cursor-pointer flex-1">
-                        <CreditCard className="h-5 w-5" />
+                <CardContent className="p-6">
+                  <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-4">
+                    <div className="flex items-center space-x-3 border border-gray-100 rounded-xl p-4 bg-[#FAFAFA] hover:bg-white transition-all cursor-pointer">
+                      <RadioGroupItem value="chapa" id="chapa" className="text-[#FF7A45] focus:ring-[#FF7A45]" />
+                      <Label htmlFor="chapa" className="flex items-center gap-3 cursor-pointer flex-1">
+                        <CreditCard className="h-5 w-5 text-[#FF7A45]" />
                         <div>
-                          <p className="font-medium">Chapa</p>
-                          <p className="text-xs text-gray-500">Pay with Chapa (Telebirr, CBEBirr, Card)</p>
+                          <p className="font-bold text-sm text-[#1F2937]">Chapa Gateway</p>
+                          <p className="text-xs text-[#6B7280]">Pay with Telebirr, CBEBirr, Cards, etc.</p>
                         </div>
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 border rounded-lg p-3">
-                      <RadioGroupItem value="stripe" id="stripe" />
-                      <Label htmlFor="stripe" className="flex items-center gap-2 cursor-pointer flex-1">
-                        <Building2 className="h-5 w-5" />
+                    
+                    <div className="flex items-center space-x-3 border border-gray-100 rounded-xl p-4 bg-[#FAFAFA] hover:bg-white transition-all cursor-pointer">
+                      <RadioGroupItem value="stripe" id="stripe" className="text-[#FF7A45] focus:ring-[#FF7A45]" />
+                      <Label htmlFor="stripe" className="flex items-center gap-3 cursor-pointer flex-1">
+                        <Building2 className="h-5 w-5 text-[#FF7A45]" />
                         <div>
-                          <p className="font-medium">Stripe</p>
-                          <p className="text-xs text-gray-500">Pay with Credit/Debit Card</p>
+                          <p className="font-bold text-sm text-[#1F2937]">Stripe Card</p>
+                          <p className="text-xs text-[#6B7280]">Pay securely with International Credit/Debit Card</p>
                         </div>
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 border rounded-lg p-3">
-                      <RadioGroupItem value="telebirr" id="telebirr" />
-                      <Label htmlFor="telebirr" className="flex items-center gap-2 cursor-pointer flex-1">
-                        <Smartphone className="h-5 w-5" />
+
+                    <div className="flex items-center space-x-3 border border-gray-100 rounded-xl p-4 bg-[#FAFAFA] hover:bg-white transition-all cursor-pointer">
+                      <RadioGroupItem value="telebirr" id="telebirr" className="text-[#FF7A45] focus:ring-[#FF7A45]" />
+                      <Label htmlFor="telebirr" className="flex items-center gap-3 cursor-pointer flex-1">
+                        <Smartphone className="h-5 w-5 text-[#FF7A45]" />
                         <div>
-                          <p className="font-medium">Telebirr</p>
-                          <p className="text-xs text-gray-500">Pay with Telebirr mobile money</p>
+                          <p className="font-bold text-sm text-[#1F2937]">Direct Telebirr</p>
+                          <p className="text-xs text-[#6B7280]">Pay via mobile money wallet transfer</p>
                         </div>
                       </Label>
                     </div>
@@ -186,41 +202,41 @@ export default function CheckoutPage() {
 
               <Button 
                 type="submit" 
-                className="w-full bg-purple-600 hover:bg-purple-700"
+                className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold rounded-xl transition-all shadow-md shadow-[#FF7A45]/15"
                 disabled={isProcessing || !shippingAddress}
               >
-                {isProcessing ? 'Processing...' : `Place Order - ${cart.total} ETB`}
+                {isProcessing ? 'Processing order...' : `Place Order - ${cart.total} ETB`}
               </Button>
             </form>
           </div>
 
           <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+            <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden sticky top-28">
+              <CardHeader className="p-6 pb-4 border-b border-gray-50">
+                <CardTitle className="text-lg font-bold text-[#1F2937]">Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="max-h-64 overflow-auto space-y-2">
+              <CardContent className="p-6 space-y-4">
+                <div className="max-h-64 overflow-auto space-y-3 pr-2">
                   {cart.items.map((item: any) => (
-                    <div key={item.productId} className="flex justify-between text-sm">
-                      <span>{item.product.name} x{item.quantity}</span>
-                      <span>{item.product.price * item.quantity} ETB</span>
+                    <div key={item.productId} className="flex justify-between text-xs font-semibold text-[#6B7280]">
+                      <span className="max-w-[70%]">{item.product.name} <span className="text-[#FF7A45]">x{item.quantity}</span></span>
+                      <span className="text-[#1F2937]">{item.product.price * item.quantity} ETB</span>
                     </div>
                   ))}
                 </div>
-                <div className="border-t pt-3">
-                  <div className="flex justify-between">
+                <div className="border-t border-gray-100 pt-4 space-y-2">
+                  <div className="flex justify-between text-sm font-semibold text-[#6B7280]">
                     <span>Subtotal</span>
-                    <span>{cart.total} ETB</span>
+                    <span className="text-[#1F2937]">{cart.total} ETB</span>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-500">
+                  <div className="flex justify-between text-sm font-semibold text-[#6B7280]">
                     <span>Shipping</span>
-                    <span>Free</span>
+                    <span className="text-green-600">Free</span>
                   </div>
-                  <div className="border-t mt-3 pt-3">
-                    <div className="flex justify-between font-bold text-lg">
+                  <div className="border-t border-gray-100 mt-3 pt-3">
+                    <div className="flex justify-between font-extrabold text-lg text-[#1F2937]">
                       <span>Total</span>
-                      <span>{cart.total} ETB</span>
+                      <span className="text-[#FF7A45]">{cart.total} ETB</span>
                     </div>
                   </div>
                 </div>

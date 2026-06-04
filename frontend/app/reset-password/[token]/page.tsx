@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -46,16 +47,18 @@ export default function ResetPasswordPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-green-600">Password Reset Success!</CardTitle>
-            <CardDescription>Your password has been changed</CardDescription>
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] text-[#1F2937] p-4">
+        <Card className="w-full max-w-md border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
+          <CardHeader className="text-center p-6 pb-4">
+            <CardTitle className="text-2xl font-extrabold text-green-600">Success!</CardTitle>
+            <CardDescription className="text-sm text-[#6B7280]">Your password has been changed</CardDescription>
           </CardHeader>
-          <CardContent className="text-center">
-            <p className="mb-4">You can now login with your new password</p>
+          <CardContent className="text-center p-6 pt-0 space-y-6">
+            <p className="text-sm text-[#6B7280]">You can now log in with your new password details.</p>
             <Link href="/login">
-              <Button>Go to Login</Button>
+              <Button className="w-full bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold h-11 rounded-xl">
+                Go to Login
+              </Button>
             </Link>
           </CardContent>
         </Card>
@@ -64,16 +67,26 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Reset Password</CardTitle>
-          <CardDescription>Enter your new password</CardDescription>
+    <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] text-[#1F2937] p-4">
+      <Card className="w-full max-w-md border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
+        <CardHeader className="text-center p-6 pb-4">
+          <Link href="/" className="inline-flex justify-center mb-4">
+            <Image 
+              src="/logo.png" 
+              alt="HobbyHub Education" 
+              width={160} 
+              height={40} 
+              priority 
+              className="h-10 w-auto object-contain"
+            />
+          </Link>
+          <CardTitle className="text-2xl font-extrabold text-[#1F2937]">Reset Password</CardTitle>
+          <CardDescription className="text-sm text-[#6B7280]">Enter your new password below</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 pt-0">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="password">New Password</Label>
+            <div className="space-y-2">
+              <Label htmlFor="password font-semibold text-xs text-gray-500 uppercase tracking-wider">New Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -81,11 +94,13 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
-              <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
+              <p className="text-xs text-[#6B7280]">Minimum 8 characters</p>
             </div>
-            <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+            
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword font-semibold text-xs text-gray-500 uppercase tracking-wider">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -93,9 +108,15 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
             </div>
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={isLoading}>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-bold h-11 rounded-xl transition-all mt-4" 
+              disabled={isLoading}
+            >
               {isLoading ? 'Resetting...' : 'Reset Password'}
             </Button>
           </form>

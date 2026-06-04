@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -124,7 +125,11 @@ export default function ChatPage() {
   };
 
   if (authLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <div className="text-center font-semibold text-gray-500">Loading messages...</div>
+      </div>
+    );
   }
 
   if (!user) {
@@ -133,49 +138,63 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Chat</Link>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
+      {/* Sticky Header */}
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center focus:outline-none">
+            <Image 
+              src="/logo.png" 
+              alt="HobbyHub Education" 
+              width={150} 
+              height={38} 
+              priority 
+              className="h-9 w-auto object-contain"
+            />
+          </Link>
           <Link href="/dashboard">
-            <Button variant="ghost">Dashboard</Button>
+            <Button variant="ghost" className="text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45]">
+              Dashboard
+            </Button>
           </Link>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
+      <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-8">
         <div className="grid md:grid-cols-3 gap-6 h-[80vh]">
           {/* Conversations List */}
-          <Card className="overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle>Conversations</CardTitle>
+          <Card className="overflow-hidden border border-gray-100 bg-white rounded-[24px] shadow-sm flex flex-col">
+            <CardHeader className="p-6 pb-4 border-b border-gray-50">
+              <CardTitle className="text-lg font-bold text-[#1F2937]">Conversations</CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
-              <div className="space-y-1 max-h-[calc(80vh-80px)] overflow-y-auto">
+            <CardContent className="p-2 overflow-y-auto flex-1">
+              <div className="space-y-1">
                 {conversations?.length === 0 ? (
-                  <p className="text-center text-gray-500 py-8">No conversations yet</p>
+                  <p className="text-center text-[#6B7280] text-sm py-8">No active chats yet</p>
                 ) : (
                   conversations?.map((conv: any) => (
                     <div
                       key={conv.user.id}
-                      className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-                        selectedUser?.id === conv.user.id ? 'bg-purple-50 border-l-4 border-purple-600' : ''
+                      className={`flex items-center gap-3.5 p-3.5 cursor-pointer rounded-2xl transition-all duration-200 ${
+                        selectedUser?.id === conv.user.id 
+                          ? 'bg-[#FFF2EB] text-[#FF7A45]' 
+                          : 'hover:bg-gray-50 text-gray-700'
                       }`}
                       onClick={() => setSelectedUser(conv.user)}
                     >
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-purple-100 text-purple-600">
+                      <Avatar className="h-10 w-10 border border-white shadow-sm">
+                        <AvatarFallback className="bg-[#FF7A45] text-white font-bold">
                           {conv.user.profile?.firstName?.[0] || conv.user.email[0].toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">
+                        <p className="font-bold text-sm text-[#1F2937] truncate">
                           {conv.user.profile?.firstName} {conv.user.profile?.lastName}
                         </p>
-                        <p className="text-sm text-gray-500 truncate">{conv.user.email}</p>
+                        <p className="text-xs text-[#6B7280] truncate">{conv.user.email}</p>
                       </div>
                       {conv.unreadCount > 0 && (
-                        <span className="bg-purple-600 text-white text-xs rounded-full px-2 py-1">
+                        <span className="bg-[#FF7A45] text-white text-[10px] font-bold rounded-full px-2 py-0.5">
                           {conv.unreadCount}
                         </span>
                       )}
@@ -187,66 +206,74 @@ export default function ChatPage() {
           </Card>
 
           {/* Chat Area */}
-          <Card className="md:col-span-2 overflow-hidden flex flex-col">
+          <Card className="md:col-span-2 overflow-hidden border border-gray-100 bg-white rounded-[24px] shadow-sm flex flex-col h-full">
             {selectedUser ? (
               <>
-                <CardHeader className="border-b pb-3">
+                <CardHeader className="p-6 border-b border-gray-50 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarFallback className="bg-purple-100 text-purple-600">
+                    <Avatar className="border border-white shadow-sm">
+                      <AvatarFallback className="bg-[#FF7A45] text-white font-bold">
                         {selectedUser.profile?.firstName?.[0] || selectedUser.email[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <CardTitle className="text-lg">
+                      <CardTitle className="text-base font-bold text-[#1F2937]">
                         {selectedUser.profile?.firstName} {selectedUser.profile?.lastName}
                       </CardTitle>
                       {typingUser === selectedUser.id && (
-                        <p className="text-xs text-gray-500">Typing...</p>
+                        <p className="text-xs text-green-500 font-semibold animate-pulse">Typing...</p>
                       )}
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-y-auto p-4 space-y-3">
+                
+                <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
                   {messages.map((msg: any) => (
                     <div
                       key={msg.id}
                       className={`flex ${msg.senderId === user.id ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-lg p-3 ${
+                        className={`max-w-[70%] rounded-2xl p-4 shadow-sm ${
                           msg.senderId === user.id
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-[#FF7A45] text-white rounded-tr-none'
+                            : 'bg-white text-[#1F2937] border border-gray-100 rounded-tl-none'
                         }`}
                       >
-                        <p className="text-sm">{msg.content}</p>
-                        <p className="text-xs opacity-70 mt-1">
-                          {new Date(msg.createdAt).toLocaleTimeString()}
+                        <p className="text-sm leading-relaxed">{msg.content}</p>
+                        <p className="text-[10px] opacity-75 mt-1.5 font-semibold text-right">
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                     </div>
                   ))}
                   <div ref={messagesEndRef} />
                 </CardContent>
-                <form onSubmit={handleSendMessage} className="p-4 border-t flex gap-2">
+                
+                <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-100 flex gap-3 bg-white">
                   <Input
-                    placeholder="Type a message..."
+                    placeholder="Type your message here..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyUp={handleTyping}
-                    className="flex-1"
+                    className="flex-1 h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
                   />
-                  <Button type="submit" disabled={sendMessageMutation.isPending}>
+                  <Button 
+                    type="submit" 
+                    disabled={sendMessageMutation.isPending}
+                    className="bg-[#FF7A45] hover:bg-[#ff8f61] h-11 w-11 p-0 rounded-xl flex items-center justify-center shrink-0"
+                  >
                     <Send className="h-4 w-4" />
                   </Button>
                 </form>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <User className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-500">Select a conversation to start chatting</p>
+              <div className="flex-1 flex items-center justify-center bg-gray-50/20">
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-[#FFF2EB] flex items-center justify-center text-[#FF7A45] mx-auto shadow-sm">
+                    <User className="h-7 w-7" />
+                  </div>
+                  <p className="text-sm font-semibold text-[#6B7280]">Select a contact to begin messaging.</p>
                 </div>
               </div>
             )}

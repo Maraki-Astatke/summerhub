@@ -19,7 +19,7 @@ export default function SellerDashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,39 +60,55 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Create an Account</CardTitle>
-          <CardDescription>Join HobbyHub and start your learning journey</CardDescription>
+    <div className="min-h-screen flex items-center justify-center bg-[#FFF2EB] py-16 px-4 relative overflow-hidden">
+      {/* Decorative Blob */}
+      <div className="absolute top-[-10%] right-[-10%] w-[350px] h-[350px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-70 z-0 pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-70 z-0 pointer-events-none" />
+
+      <Card className="w-full max-w-md border border-[#FF7A45]/10 rounded-[24px] shadow-xl shadow-[#FF7A45]/5 bg-white relative z-10 p-2">
+        <CardHeader className="text-center pb-4">
+          <div className="mx-auto flex justify-center mb-4">
+            <Image 
+              src="/logo.png" 
+              alt="HobbyHub Education" 
+              width={160} 
+              height={40} 
+              priority 
+              className="h-10 w-auto object-contain"
+            />
+          </div>
+          <CardTitle className="text-3xl font-extrabold text-[#1F2937] tracking-tight">Create Account</CardTitle>
+          <CardDescription className="text-sm text-[#6B7280]">Join HobbyHub Education and start your learning journey</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="firstName">First Name</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="firstName" className="text-sm font-semibold text-[#1F2937]">First Name</Label>
                 <Input
                   id="firstName"
                   placeholder="John"
                   value={formData.firstName}
                   onChange={handleChange}
                   required
+                  className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
                 />
               </div>
-              <div>
-                <Label htmlFor="lastName">Last Name</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="lastName" className="text-sm font-semibold text-[#1F2937]">Last Name</Label>
                 <Input
                   id="lastName"
                   placeholder="Doe"
                   value={formData.lastName}
                   onChange={handleChange}
                   required
+                  className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
                 />
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="email">Email</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-sm font-semibold text-[#1F2937]">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -99,12 +116,13 @@ export default function RegisterPage() {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
-              <p className="text-xs text-gray-500 mt-1">Only Gmail, Yahoo, or iCloud allowed</p>
+              <p className="text-[11px] text-gray-400 font-medium">Only Gmail, Yahoo, or iCloud allowed</p>
             </div>
 
-            <div>
-              <Label htmlFor="phone">Phone Number</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="phone" className="text-sm font-semibold text-[#1F2937]">Phone Number</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -112,12 +130,13 @@ export default function RegisterPage() {
                 value={formData.phone}
                 onChange={handleChange}
                 required
+                className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
-              <p className="text-xs text-gray-500 mt-1">Ethiopian format: 09XXXXXXXX or 07XXXXXXXX</p>
+              <p className="text-[11px] text-gray-400 font-medium">Ethiopian format: 09XXXXXXXX or 07XXXXXXXX</p>
             </div>
 
-            <div>
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-sm font-semibold text-[#1F2937]">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -125,12 +144,13 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
-              <p className="text-xs text-gray-500 mt-1">Min 8 characters with uppercase, lowercase, number, special character</p>
+              <p className="text-[11px] text-gray-400 font-medium leading-tight">Min 8 characters with uppercase, lowercase, number, special char</p>
             </div>
 
-            <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword" className="text-sm font-semibold text-[#1F2937]">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -138,17 +158,22 @@ export default function RegisterPage() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
+                className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
             </div>
 
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl shadow-md shadow-[#FF7A45]/15 transition-all duration-200 hover:shadow-lg mt-2" 
+              disabled={isLoading}
+            >
               {isLoading ? 'Creating account...' : 'Register'}
             </Button>
           </form>
 
-          <p className="text-center text-sm text-gray-600 mt-6">
+          <p className="text-center text-sm text-[#6B7280] mt-6">
             Already have an account?{' '}
-            <Link href="/login" className="text-purple-600 hover:underline">
+            <Link href="/login" className="text-[#FF7A45] font-semibold hover:underline">
               Login
             </Link>
           </p>

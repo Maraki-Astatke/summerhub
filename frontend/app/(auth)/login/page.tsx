@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -91,16 +92,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Login to your HobbyHub account</CardDescription>
+    <div className="min-h-screen flex items-center justify-center bg-[#FFF2EB] p-4 relative overflow-hidden">
+      {/* Decorative Blob */}
+      <div className="absolute top-[-10%] right-[-10%] w-[350px] h-[350px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-70 z-0 pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-70 z-0 pointer-events-none" />
+
+      <Card className="w-full max-w-md border border-[#FF7A45]/10 rounded-[24px] shadow-xl shadow-[#FF7A45]/5 bg-white relative z-10 p-2">
+        <CardHeader className="text-center pb-4">
+          <div className="mx-auto flex justify-center mb-4">
+            <Image 
+              src="/logo.png" 
+              alt="HobbyHub Education" 
+              width={160} 
+              height={40} 
+              priority 
+              className="h-10 w-auto object-contain"
+            />
+          </div>
+          <CardTitle className="text-3xl font-extrabold text-[#1F2937] tracking-tight">Welcome Back</CardTitle>
+          <CardDescription className="text-sm text-[#6B7280]">Login to your HobbyHub Education account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-sm font-semibold text-[#1F2937]">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -108,10 +123,58 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
             </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <Label htmlFor="password" className="text-sm font-semibold text-[#1F2937]">Password</Label>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button type="button" className="text-xs font-semibold text-[#FF7A45] hover:underline p-0">
+                      Forgot password?
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="rounded-3xl max-w-sm">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-bold text-[#1F2937]">Reset Password</DialogTitle>
+                      <DialogDescription className="text-sm text-gray-500">
+                        Enter your email and we'll send you a reset link
+                      </DialogDescription>
+                    </DialogHeader>
+                    {resetSent ? (
+                      <div className="text-center py-4">
+                        <p className="text-green-600 font-semibold mb-2">Reset link sent!</p>
+                        <p className="text-xs text-gray-500">
+                          Check your email inbox for instructions.
+                        </p>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleForgotPassword} className="space-y-4 pt-2">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="forgot-email" className="text-sm font-semibold text-[#1F2937]">Email</Label>
+                          <Input
+                            id="forgot-email"
+                            type="email"
+                            placeholder="you@example.com"
+                            value={forgotEmail}
+                            onChange={(e) => setForgotEmail(e.target.value)}
+                            required
+                            className="rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
+                          />
+                        </div>
+                        <Button
+                          type="submit"
+                          className="w-full h-11 rounded-xl bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-medium"
+                          disabled={isForgotLoading}
+                        >
+                          {isForgotLoading ? "Sending..." : "Send Reset Link"}
+                        </Button>
+                      </form>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </div>
               <div className="relative">
                 <Input
                   id="password"
@@ -120,7 +183,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="pr-10"
+                  className="pr-10 h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
                 />
                 <button
                   type="button"
@@ -128,61 +191,17 @@ export default function LoginPage() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
+                    <EyeOff className="h-5 w-5" />
                   ) : (
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-5 w-5" />
                   )}
                 </button>
               </div>
             </div>
-            <div className="text-right">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="link" className="text-sm text-gray-500 p-0">
-                    Forgot password?
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Reset Password</DialogTitle>
-                    <DialogDescription>
-                      Enter your email and we'll send you a reset link
-                    </DialogDescription>
-                  </DialogHeader>
-                  {resetSent ? (
-                    <div className="text-center py-4">
-                      <p className="text-green-600 mb-4">Reset link sent!</p>
-                      <p className="text-sm text-gray-500">
-                        Check your email for the reset link
-                      </p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleForgotPassword} className="space-y-4">
-                      <div>
-                        <Label htmlFor="forgot-email">Email</Label>
-                        <Input
-                          id="forgot-email"
-                          type="email"
-                          value={forgotEmail}
-                          onChange={(e) => setForgotEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={isForgotLoading}
-                      >
-                        {isForgotLoading ? "Sending..." : "Send Reset Link"}
-                      </Button>
-                    </form>
-                  )}
-                </DialogContent>
-              </Dialog>
-            </div>
+            
             <Button
               type="submit"
-              className="w-full bg-purple-600 hover:bg-purple-700"
+              className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl shadow-md shadow-[#FF7A45]/15 transition-all duration-200 hover:shadow-lg"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
@@ -191,10 +210,10 @@ export default function LoginPage() {
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t"></div>
+              <div className="w-full border-t border-gray-150"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">
+              <span className="bg-white px-3 text-gray-400 font-medium">
                 Or continue with
               </span>
             </div>
@@ -202,12 +221,12 @@ export default function LoginPage() {
 
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full h-12 rounded-xl border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold"
             onClick={() =>
               (window.location.href = "http://localhost:5001/api/auth/google")
             }
           >
-            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+            <svg className="mr-2.5 h-5 w-5" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 fill="#4285F4"
@@ -228,9 +247,9 @@ export default function LoginPage() {
             Continue with Google
           </Button>
 
-          <p className="text-center text-sm text-gray-600 mt-6">
+          <p className="text-center text-sm text-[#6B7280] mt-6">
             Don't have an account?{" "}
-            <Link href="/register" className="text-purple-600 hover:underline">
+            <Link href="/register" className="text-[#FF7A45] font-semibold hover:underline">
               Register
             </Link>
           </p>

@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
+import Navbar from '@/components/Navbar';
 import api from '../lib/api';
-import { Calendar, User, Clock, Users, MapPin } from 'lucide-react';
+import { Calendar, User, Clock, Users } from 'lucide-react';
 
 export default function LessonsPage() {
   const { user } = useAuth();
@@ -52,46 +53,35 @@ export default function LessonsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub</Link>
-          <div className="flex gap-4">
-            <Link href="/hobbies">
-              <Button variant="ghost">Hobbies</Button>
-            </Link>
-            {user ? (
-              <Link href="/dashboard">
-                <Button>Dashboard</Button>
-              </Link>
-            ) : (
-              <Link href="/login">
-                <Button>Login</Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
+      {/* Sticky Header */}
+      <Navbar alwaysWhite={true} />
 
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-2">Live Lessons</h1>
-        <p className="text-gray-600 mb-8">Join interactive sessions with expert teachers</p>
+      <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32">
+        <div className="mb-10">
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block font-sans">Live Classes</span>
+          <h1 className="text-3xl md:text-4xl lg:text-[48px] font-extrabold tracking-tight text-[#1F2937] mb-3">
+            Interactive Live Lessons
+          </h1>
+          <p className="text-base text-[#6B7280]">Join real-time classrooms with professional HobbyHub certified educators.</p>
+        </div>
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-sm mb-8">
-          <div className="grid md:grid-cols-3 gap-4">
+        <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
-              placeholder="Search lessons..."
+              placeholder="Search classes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
             />
             
             <select 
-              className="border rounded-md px-3 py-2"
+              className="h-11 border border-gray-200 rounded-xl px-4 py-2 text-sm text-[#1F2937] bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7A45] focus:border-transparent transition-all"
               value={hobbyId}
               onChange={(e) => setHobbyId(e.target.value)}
             >
-              <option value="">All Hobbies</option>
+              <option value="">All Learning Tracks</option>
               {hobbies?.map((hobby: any) => (
                 <option key={hobby.id} value={hobby.id}>{hobby.name}</option>
               ))}
@@ -99,6 +89,7 @@ export default function LessonsPage() {
 
             <Button 
               variant="outline" 
+              className="h-11 rounded-xl border-gray-200 hover:bg-gray-50 text-sm font-semibold text-gray-700 active:scale-98 transition-transform duration-100"
               onClick={() => {
                 setSearch('');
                 setHobbyId('');
@@ -111,54 +102,71 @@ export default function LessonsPage() {
 
         {/* Results */}
         {isLoading ? (
-          <div className="text-center py-12">Loading...</div>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, idx) => (
+              <div key={idx} className="bg-white rounded-[24px] border border-gray-100 p-8 space-y-4 animate-pulse">
+                <div className="h-6 bg-gray-200 rounded-md w-1/3" />
+                <div className="h-4 bg-gray-150 rounded w-full" />
+                <div className="h-4 bg-gray-150 rounded w-5/6" />
+              </div>
+            ))}
+          </div>
         ) : lessonsData?.data?.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No upcoming lessons found</p>
-            <Button variant="link" onClick={() => {
-              setSearch('');
-              setHobbyId('');
-            }}>Clear filters</Button>
+          <div className="text-center py-16 bg-white rounded-[24px] border border-gray-100 shadow-sm">
+            <p className="text-gray-500 font-medium mb-3">No live lessons found</p>
+            <Button 
+              variant="link" 
+              className="text-[#FF7A45] font-semibold hover:underline"
+              onClick={() => {
+                setSearch('');
+                setHobbyId('');
+              }}
+            >
+              Clear all filters
+            </Button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {lessonsData?.data?.map((lesson: any) => (
-              <Card key={lesson.id}>
-                <div className="flex flex-col md:flex-row justify-between p-6">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold mb-2">{lesson.title}</h3>
-                    <p className="text-gray-600 mb-4">{lesson.description}</p>
+              <Card key={lesson.id} className="border border-gray-100 bg-white rounded-[24px] hover:shadow-lg transition-all duration-300 overflow-hidden shadow-sm">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 md:p-8 gap-6">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <span className="text-[11px] font-bold text-[#FF7A45] bg-[#FFF2EB] px-3 py-1 rounded-full uppercase tracking-wider">
+                        {lesson.hobby?.name}
+                      </span>
+                    </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-500">
+                    <h3 className="text-2xl font-bold text-[#1F2937] tracking-tight">{lesson.title}</h3>
+                    <p className="text-sm text-[#6B7280] leading-relaxed max-w-3xl">{lesson.description}</p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-3 text-xs md:text-sm font-semibold text-[#6B7280]">
                       <div className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
+                        <User className="h-4 w-4 text-[#FF7A45]" />
                         <span>Teacher: {lesson.teacher?.profile?.firstName} {lesson.teacher?.profile?.lastName}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(lesson.dateTime).toLocaleString()}</span>
+                        <Calendar className="h-4 w-4 text-[#FF7A45]" />
+                        <span>{new Date(lesson.dateTime).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
+                        <Clock className="h-4 w-4 text-[#FF7A45]" />
                         <span>{lesson.durationMinutes} minutes</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
+                        <Users className="h-4 w-4 text-[#FF7A45]" />
                         <span>{lesson.registrations?.length || 0} / {lesson.maxStudents} enrolled</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-purple-600 font-medium">{lesson.hobby?.name}</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="mt-4 md:mt-0 md:ml-6 flex items-center">
+                  <div className="w-full md:w-auto shrink-0 self-stretch md:self-center flex items-center">
                     <Button 
                       onClick={() => registerForLesson(lesson.id)}
                       disabled={lesson.registrations?.length >= lesson.maxStudents}
-                      className="w-full md:w-auto"
+                      className="w-full md:w-auto h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl px-6"
                     >
-                      {lesson.registrations?.length >= lesson.maxStudents ? 'Class Full' : 'Register Now'}
+                      {lesson.registrations?.length >= lesson.maxStudents ? 'Class Full' : 'Register Class Spot'}
                     </Button>
                   </div>
                 </div>
@@ -169,9 +177,9 @@ export default function LessonsPage() {
 
         {/* Pagination */}
         {lessonsData?.pagination?.pages > 1 && (
-          <div className="flex justify-center gap-2 mt-8">
-            <Button variant="outline" disabled>Previous</Button>
-            <Button variant="outline">Next</Button>
+          <div className="flex justify-center gap-3 mt-12">
+            <Button variant="outline" className="rounded-xl" disabled>Previous</Button>
+            <Button variant="outline" className="rounded-xl">Next</Button>
           </div>
         )}
       </main>

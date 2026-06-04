@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import session from 'express-session';
@@ -30,8 +32,6 @@ import roleRoutes from './routes/roles.js';
 import googleAuthRoutes from './routes/google-auth.js';
 import paymentRoutes from './routes/payment.js';
 import prisma from './lib/prisma.js';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;

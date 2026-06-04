@@ -41,7 +41,7 @@ export default function VideoCall({ roomUrl, userName, onLeave }: VideoCallProps
           setIsLoading(false);
         }
 
-        frame.on('left-event', () => {
+        frame.on('left-meeting', () => {
           if (isMounted) {
             onLeave();
           }

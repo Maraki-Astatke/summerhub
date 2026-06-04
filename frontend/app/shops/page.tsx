@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
+import Navbar from '@/components/Navbar';
 import api from '../lib/api';
 import { ShoppingCart, Star } from 'lucide-react';
 
@@ -48,7 +49,7 @@ export default function ShopPage() {
       return response.data;
     },
     onSuccess: () => {
-      alert('Added to cart!');
+      alert('Added to cart successfully!');
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onError: (error: any) => {
@@ -57,47 +58,30 @@ export default function ShopPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub</Link>
-          <div className="flex gap-4 items-center">
-            <Link href="/cart">
-              <Button variant="ghost" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/hobbies">
-              <Button variant="ghost">Hobbies</Button>
-            </Link>
-            {user ? (
-              <Link href="/dashboard">
-                <Button>Dashboard</Button>
-              </Link>
-            ) : (
-              <Link href="/login">
-                <Button>Login</Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
+      <Navbar alwaysWhite={true} />
 
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-2">Marketplace</h1>
-        <p className="text-gray-600 mb-8">Shop for hobby supplies and equipment</p>
+      <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32">
+        <div className="mb-10">
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">Academy Marketplace</span>
+          <h1 className="text-3xl md:text-4xl lg:text-[48px] font-extrabold tracking-tight text-[#1F2937] mb-3">
+            Shop Hobby & Learning Kits
+          </h1>
+          <p className="text-base text-[#6B7280]">Procure standard textbook supplies, educational materials, and kits.</p>
+        </div>
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-sm mb-8">
-          <div className="grid md:grid-cols-5 gap-4">
+        <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
             <Input
               placeholder="Search products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
             />
             
             <select 
-              className="border rounded-md px-3 py-2"
+              className="h-11 border border-gray-200 rounded-xl px-4 py-2 text-sm text-[#1F2937] bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7A45] focus:border-transparent transition-all"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
@@ -108,21 +92,24 @@ export default function ShopPage() {
             </select>
 
             <Input
-              placeholder="Min Price"
+              placeholder="Min Price (ETB)"
               type="number"
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
+              className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
             />
 
             <Input
-              placeholder="Max Price"
+              placeholder="Max Price (ETB)"
               type="number"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
+              className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
             />
 
             <Button 
               variant="outline" 
+              className="h-11 rounded-xl border-gray-200 hover:bg-gray-50 text-sm font-semibold text-gray-700 active:scale-98 transition-transform"
               onClick={() => {
                 setSearch('');
                 setCategory('');
@@ -137,51 +124,69 @@ export default function ShopPage() {
 
         {/* Results */}
         {isLoading ? (
-          <div className="text-center py-12">Loading...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, idx) => (
+              <div key={idx} className="bg-white rounded-[24px] border border-gray-100 p-6 space-y-4 animate-pulse">
+                <div className="h-44 bg-gray-200 rounded-2xl w-full" />
+                <div className="h-6 bg-gray-200 rounded-md w-2/3" />
+                <div className="h-4 bg-gray-150 rounded w-full" />
+              </div>
+            ))}
+          </div>
         ) : productsData?.data?.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No products found</p>
-            <Button variant="link" onClick={() => {
-              setSearch('');
-              setCategory('');
-              setMinPrice('');
-              setMaxPrice('');
-            }}>Clear filters</Button>
+          <div className="text-center py-16 bg-white rounded-[24px] border border-gray-100 shadow-sm">
+            <p className="text-gray-500 font-medium mb-3">No products found matching filters</p>
+            <Button 
+              variant="link" 
+              className="text-[#FF7A45] font-semibold hover:underline"
+              onClick={() => {
+                setSearch('');
+                setCategory('');
+                setMinPrice('');
+                setMaxPrice('');
+              }}
+            >
+              Clear all filters
+            </Button>
           </div>
         ) : (
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {productsData?.data?.map((product: any) => (
-                <Card key={product.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle>{product.name}</CardTitle>
-                    <CardDescription>{product.description?.substring(0, 80)}...</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <span className="text-2xl font-bold text-purple-600">
+                <Card key={product.id} className="border border-gray-100 bg-white rounded-[24px] hover:translate-y-[-6px] hover:shadow-xl hover:shadow-[#FF7A45]/5 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-sm">
+                  <div className="p-6 pb-2">
+                    <CardTitle className="text-xl font-bold text-[#1F2937] leading-snug tracking-tight mb-2">
+                      {product.name}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-[#6B7280] leading-relaxed">
+                      {product.description?.substring(0, 95)}...
+                    </CardDescription>
+                  </div>
+                  <CardContent className="p-6 pt-0 space-y-4">
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <span className="text-xl font-extrabold text-[#FF7A45]">
                         {product.price} ETB
                       </span>
                       {product.stockCount > 0 ? (
-                        <span className="ml-2 text-sm text-green-600">In Stock</span>
+                        <span className="text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-lg">In Stock</span>
                       ) : (
-                        <span className="ml-2 text-sm text-red-600">Out of Stock</span>
+                        <span className="text-xs font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-lg">Out of Stock</span>
                       )}
                     </div>
                     
                     {product.reviews && product.reviews.length > 0 && (
-                      <div className="flex items-center gap-1 mb-4">
+                      <div className="flex items-center gap-1">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / product.reviews.length) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
+                          <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / product.reviews.length) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
                         ))}
-                        <span className="text-sm text-gray-500 ml-1">
+                        <span className="text-xs text-gray-500 font-semibold ml-1">
                           ({product.reviews.length})
                         </span>
                       </div>
                     )}
                     
                     <Button 
-                      className="w-full"
+                      className="w-full h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-white font-semibold rounded-xl transition-all duration-200"
                       onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })}
                       disabled={product.stockCount === 0}
                     >
@@ -194,9 +199,9 @@ export default function ShopPage() {
 
             {/* Pagination */}
             {productsData?.pagination?.pages > 1 && (
-              <div className="flex justify-center gap-2 mt-8">
-                <Button variant="outline" disabled>Previous</Button>
-                <Button variant="outline">Next</Button>
+              <div className="flex justify-center gap-3 mt-12">
+                <Button variant="outline" className="rounded-xl" disabled>Previous</Button>
+                <Button variant="outline" className="rounded-xl">Next</Button>
               </div>
             )}
           </>
