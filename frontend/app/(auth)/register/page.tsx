@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -110,7 +110,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-semibold text-[#1F2937]">{language === 'am' ? 'ኢሜል' : 'Email'}</Label>
+              <Label htmlFor="email" className="text-sm font-semibold text-[#1F2937]">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -120,11 +120,11 @@ export default function RegisterPage() {
                 required
                 className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
-              <p className="text-[11px] text-gray-400 font-medium">{language === 'am' ? 'ጂሜል፣ ያሁ፣ ወይም አይክላውድ ብቻ ነው የሚፈቀደው' : 'Only Gmail, Yahoo, or iCloud allowed'}</p>
+              <p className="text-[11px] text-gray-400 font-medium">Only Gmail, Yahoo, or iCloud allowed</p>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="phone" className="text-sm font-semibold text-[#1F2937]">{language === 'am' ? 'ስልክ ቁጥር' : 'Phone Number'}</Label>
+              <Label htmlFor="phone" className="text-sm font-semibold text-[#1F2937]">Phone Number</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -134,7 +134,7 @@ export default function RegisterPage() {
                 required
                 className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
-              <p className="text-[11px] text-gray-400 font-medium">{language === 'am' ? 'የኢትዮጵያ ስልክ ቅርጸት፡ 09XXXXXXXX ወይም 07XXXXXXXX' : 'Ethiopian format: 09XXXXXXXX or 07XXXXXXXX'}</p>
+              <p className="text-[11px] text-gray-400 font-medium">Ethiopian format: 09XXXXXXXX or 07XXXXXXXX</p>
             </div>
 
             <div className="space-y-1.5">
@@ -148,11 +148,11 @@ export default function RegisterPage() {
                 required
                 className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
               />
-              <p className="text-[11px] text-gray-400 font-medium leading-tight">{language === 'am' ? 'ቢያንስ 8 ፊደላት (ትልቅ፣ ትንሽ፣ ቁጥር፣ እና ልዩ ምልክት ያካተተ)' : 'Min 8 characters with uppercase, lowercase, number, special char'}</p>
+              <p className="text-[11px] text-gray-400 font-medium leading-tight">Min 8 characters with uppercase, lowercase, number, special char</p>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="confirmPassword" className="text-sm font-semibold text-[#1F2937]">{language === 'am' ? 'የይለፍ ቃል ማረጋገጫ' : 'Confirm Password'}</Label>
+              <Label htmlFor="confirmPassword" className="text-sm font-semibold text-[#1F2937]">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -169,7 +169,7 @@ export default function RegisterPage() {
               className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl shadow-md shadow-[#FF7A45]/15 transition-all duration-200 hover:shadow-lg mt-2" 
               disabled={isLoading}
             >
-              {isLoading ? (language === 'am' ? 'በመፍጠር ላይ...' : 'Creating account...') : (language === 'am' ? 'ይመዝገቡ' : 'Register')}
+              {isLoading ? 'Creating account...' : 'Register'}
             </Button>
           </form>
 

@@ -11,14 +11,12 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
-import { useLanguage } from '@/providers/language-provider';
 import api from '../lib/api';
 import { ArrowLeft, CreditCard, Building2, Smartphone } from 'lucide-react';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const { language } = useLanguage();
   const [paymentMethod, setPaymentMethod] = useState('chapa');
   const [shippingAddress, setShippingAddress] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -43,7 +41,7 @@ export default function CheckoutPage() {
           const paymentResponse = await api.post(`/payment/initiate/${order.id}`);
           window.location.href = paymentResponse.data.checkoutUrl;
         } catch (error: any) {
-          alert(error.response?.data?.error || (language === 'am' ? 'ክፍያውን መጀመር አልተሳካም' : 'Payment initiation failed'));
+          alert(error.response?.data?.error || 'Payment initiation failed');
           setIsProcessing(false);
         }
       } else {
@@ -51,7 +49,7 @@ export default function CheckoutPage() {
       }
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || (language === 'am' ? 'ትዕዛዝ መፈጸም አልተሳካም' : 'Checkout failed'));
+      alert(error.response?.data?.error || 'Checkout failed');
       setIsProcessing(false);
     },
   });
@@ -60,7 +58,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     
     if (!shippingAddress) {
-      alert(language === 'am' ? 'እባክዎን የማድረሻ አድራሻ ያስገቡ' : 'Please enter shipping address');
+      alert('Please enter shipping address');
       return;
     }
 
@@ -76,7 +74,7 @@ export default function CheckoutPage() {
   if (authLoading || cartLoading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">{language === 'am' ? 'የመክፈያ ዝርዝሮችን በመጫን ላይ...' : 'Preparing checkout details...'}</div>
+        <div className="text-center font-semibold text-gray-500">Preparing checkout details...</div>
       </div>
     );
   }
@@ -90,10 +88,10 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen bg-[#FAFAFA] py-20 text-[#1F2937]">
         <div className="max-w-[1440px] mx-auto px-4 text-center max-w-md">
-          <h1 className="text-2xl font-bold mb-4">{language === 'am' ? 'ጋሪዎ ባዶ ነው' : 'Cart is Empty'}</h1>
+          <h1 className="text-2xl font-bold mb-4">Cart is Empty</h1>
           <Link href="/shops">
             <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-bold h-11 px-8 rounded-xl">
-              {language === 'am' ? 'ወደ ሱቅ ይሂዱ' : 'Go to Marketplace'}
+              Go to Marketplace
             </Button>
           </Link>
         </div>
@@ -103,7 +101,6 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
-      {/* Sticky Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center focus:outline-none">
@@ -118,7 +115,7 @@ export default function CheckoutPage() {
           </Link>
           <Link href="/cart">
             <Button variant="ghost" className="text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45]">
-              {language === 'am' ? 'ወደ ጋሪ ይመለሱ' : 'Back to Cart'}
+              Back to Cart
             </Button>
           </Link>
         </div>
@@ -129,10 +126,10 @@ export default function CheckoutPage() {
           <Link href="/cart">
             <Button variant="ghost" size="sm" className="text-[#6B7280] hover:text-[#FF7A45] font-semibold rounded-xl">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              {language === 'am' ? 'ወደ ጋሪ ይመለሱ' : 'Back to Cart'}
+              Back to Cart
             </Button>
           </Link>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2937]">{language === 'am' ? 'ክፍያ መፈጸም' : 'Checkout'}</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2937]">Checkout</h1>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -140,21 +137,21 @@ export default function CheckoutPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
                 <CardHeader className="p-6 pb-4 border-b border-gray-50">
-                  <CardTitle className="text-lg font-bold text-[#1F2937]">{language === 'am' ? 'የማድረሻ አድራሻ' : 'Shipping Address'}</CardTitle>
+                  <CardTitle className="text-lg font-bold text-[#1F2937]">Shipping Address</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="space-y-2">
-                    <Label htmlFor="address" className="text-xs font-bold text-gray-500 uppercase tracking-wider">{language === 'am' ? 'የማድረሻ አድራሻ' : 'Delivery Address'}</Label>
+                    <Label htmlFor="address" className="text-xs font-bold text-gray-500 uppercase tracking-wider">Delivery Address</Label>
                     <Input
                       id="address"
-                      placeholder={language === 'am' ? 'የጎዳና ስም፣ የህንጻ ቁጥር፣ ከተማ' : 'Your street name, building number, city'}
+                      placeholder="Your street name, building number, city"
                       value={shippingAddress}
                       onChange={(e) => setShippingAddress(e.target.value)}
                       required
                       className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45]"
                     />
                     <p className="text-xs text-[#6B7280]">
-                      {language === 'am' ? 'የእርስዎን አካላዊ የጥናት ቁሳቁሶች እና ዕቃዎች በቀጥታ ወደዚህ ቦታ እናደርሳለን።' : 'We will deliver your physical resource materials and kits directly to this location.'}
+                      We will deliver your physical resource materials and kits directly to this location.
                     </p>
                   </div>
                 </CardContent>
@@ -162,7 +159,7 @@ export default function CheckoutPage() {
 
               <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
                 <CardHeader className="p-6 pb-4 border-b border-gray-50">
-                  <CardTitle className="text-lg font-bold text-[#1F2937]">{language === 'am' ? 'የክፍያ አማራጭ' : 'Payment Method'}</CardTitle>
+                  <CardTitle className="text-lg font-bold text-[#1F2937]">Payment Method</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-4">
@@ -171,8 +168,8 @@ export default function CheckoutPage() {
                       <Label htmlFor="chapa" className="flex items-center gap-3 cursor-pointer flex-1">
                         <CreditCard className="h-5 w-5 text-[#FF7A45]" />
                         <div>
-                          <p className="font-bold text-sm text-[#1F2937]">{language === 'am' ? 'የቻፓ ክፍያ' : 'Chapa Gateway'}</p>
-                          <p className="text-xs text-[#6B7280]">{language === 'am' ? 'በቴሌብር፣ በሲቢኢብር፣ በካርድ ወዘተ ይክፈሉ' : 'Pay with Telebirr, CBEBirr, Cards, etc.'}</p>
+                          <p className="font-bold text-sm text-[#1F2937]">Chapa Gateway</p>
+                          <p className="text-xs text-[#6B7280]">Pay with Telebirr, CBEBirr, Cards, etc.</p>
                         </div>
                       </Label>
                     </div>
@@ -182,8 +179,8 @@ export default function CheckoutPage() {
                       <Label htmlFor="stripe" className="flex items-center gap-3 cursor-pointer flex-1">
                         <Building2 className="h-5 w-5 text-[#FF7A45]" />
                         <div>
-                          <p className="font-bold text-sm text-[#1F2937]">{language === 'am' ? 'በስትራይፕ ካርድ' : 'Stripe Card'}</p>
-                          <p className="text-xs text-[#6B7280]">{language === 'am' ? 'በአለም አቀፍ የክሬዲት/ዴቢት ካርድ በአስተማማኝ ሁኔታ ይክፈሉ' : 'Pay securely with International Credit/Debit Card'}</p>
+                          <p className="font-bold text-sm text-[#1F2937]">Stripe Card</p>
+                          <p className="text-xs text-[#6B7280]">Pay securely with International Credit/Debit Card</p>
                         </div>
                       </Label>
                     </div>
@@ -193,8 +190,8 @@ export default function CheckoutPage() {
                       <Label htmlFor="telebirr" className="flex items-center gap-3 cursor-pointer flex-1">
                         <Smartphone className="h-5 w-5 text-[#FF7A45]" />
                         <div>
-                          <p className="font-bold text-sm text-[#1F2937]">{language === 'am' ? 'ቀጥታ ቴሌብር' : 'Direct Telebirr'}</p>
-                          <p className="text-xs text-[#6B7280]">{language === 'am' ? 'በሞባይል ገንዘብ የኪስ ማስተላለፊያ ይክፈሉ' : 'Pay via mobile money wallet transfer'}</p>
+                          <p className="font-bold text-sm text-[#1F2937]">Direct Telebirr</p>
+                          <p className="text-xs text-[#6B7280]">Pay via mobile money wallet transfer</p>
                         </div>
                       </Label>
                     </div>
@@ -207,9 +204,7 @@ export default function CheckoutPage() {
                 className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-bold rounded-xl transition-all shadow-md shadow-[#FF7A45]/15"
                 disabled={isProcessing || !shippingAddress}
               >
-                {isProcessing 
-                  ? (language === 'am' ? 'ትዕዛዙን በማቀናበር ላይ...' : 'Processing order...') 
-                  : `${language === 'am' ? 'ትዕዛዝ ፈጽም' : 'Place Order'} - ${cart.total} ETB`}
+                {isProcessing ? 'Processing order...' : `Place Order - ${cart.total} ETB`}
               </Button>
             </form>
           </div>
@@ -217,7 +212,7 @@ export default function CheckoutPage() {
           <div>
             <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden sticky top-28">
               <CardHeader className="p-6 pb-4 border-b border-gray-50">
-                <CardTitle className="text-lg font-bold text-[#1F2937]">{language === 'am' ? 'የትዕዛዝ ማጠቃለያ' : 'Order Summary'}</CardTitle>
+                <CardTitle className="text-lg font-bold text-[#1F2937]">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="max-h-64 overflow-auto space-y-3 pr-2">
@@ -230,16 +225,16 @@ export default function CheckoutPage() {
                 </div>
                 <div className="border-t border-gray-100 pt-4 space-y-2">
                   <div className="flex justify-between text-sm font-semibold text-[#6B7280]">
-                    <span>{language === 'am' ? 'ንዑስ ጠቅላላ' : 'Subtotal'}</span>
+                    <span>Subtotal</span>
                     <span className="text-[#1F2937]">{cart.total} ETB</span>
                   </div>
                   <div className="flex justify-between text-sm font-semibold text-[#6B7280]">
-                    <span>{language === 'am' ? 'ማስረከቢያ' : 'Shipping'}</span>
-                    <span className="text-green-600">{language === 'am' ? 'ነጻ' : 'Free'}</span>
+                    <span>Shipping</span>
+                    <span className="text-green-600">Free</span>
                   </div>
                   <div className="border-t border-gray-100 mt-3 pt-3">
                     <div className="flex justify-between font-extrabold text-lg text-[#1F2937]">
-                      <span>{language === 'am' ? 'ጠቅላላ' : 'Total'}</span>
+                      <span>Total</span>
                       <span className="text-[#FF7A45]">{cart.total} ETB</span>
                     </div>
                   </div>

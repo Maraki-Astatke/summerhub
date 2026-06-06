@@ -1,0 +1,141 @@
+{
+"nav": {
+  "home": "መነሻ",
+  "courses": "ኮርሶች",
+  "lessons": "ትምህርቶች",
+  "events": "ዝግጅቶች",
+  "blog": "ብሎግ",
+  "about": "ስለእኛ",
+  "getStarted": "ጀምር",
+  "login": "ግባ",
+  "admin": "አስተዳዳሪ",
+  "teacher": "አስተማሪ",
+  "seller": "ሻጭ",
+  "workspace": "የስራ ቦታ",
+  "signOut": "ውጣ"
+},
+  "button": {
+    "viewAll": "ሁሉንም ተመልከት",
+    "takeQuiz": "ፈተና ውሰድ",
+    "signUp": "ተመዝገብ"
+  },
+  "hero": {
+    "title": "ፍላጎትህን ከ",
+    "titleHighlight": "HobbyHub",
+    "subtitle": "ከኤክስፐርት አስተማሪዎች ተማር፣ በቀጥታ ስርጭት ትምህርቶች ተካፈል እና ችሎታህን ለዓለም አሳይ።"
+  },
+  "badges": {
+    "expertTeachers": "ኤክስፐርት አስተማሪዎች",
+    "liveClasses": "የቀጥታ ስርጭት ትምህርቶች",
+    "certificates": "ሰርተፊኬቶች",
+    "safeSecure": "ደህንነቱ የተጠበቀ"
+  },
+  "categories": {
+    "title": "ታዋቂ ዘርፎችን ያስሱ",
+    "music": "ሙዚቃ",
+    "art": "ሥዕል",
+    "coding": "ፕሮግራሚንግ",
+    "dance": "ዳንስ",
+    "robotics": "ሮቦቲክስ",
+    "photography": "ፎቶግራፊ",
+    "writing": "ጽሁፍ"
+  },
+  "howItWorks": {
+    "title": "እንዴት ይሰራል"
+  },
+  "step1": {
+    "title": "ፈተና ውሰድ",
+    "desc": "በስማርት ምዘና ፍላጎቶችህን ለይ"
+  },
+  "step2": {
+    "title": "የትርፍ ጊዜ ማሳለፊያህን ምረጥ",
+    "desc": "ከመቶዎች እንቅስቃሴዎች መካከል የሚወደውን ምረጥ"
+  },
+  "step3": {
+    "title": "ከኤክስፐርቶች ጋር ተማር",
+    "desc": "ከባለሙያ አስተማሪዎች ጋር በቀጥታ ስርጭት ተካፈል"
+  },
+  "step4": {
+    "title": "ችሎታህን አሳይ",
+    "desc": "ስራህን አጋራ እና ሰርተፊኬት አግኝ"
+  },
+  "whoIsFor": {
+    "title": "ለማን ነው?"
+  },
+  "target": {
+    "students": {
+      "title": "ተማሪዎች",
+      "details": "አዳዲስ የትርፍ ጊዜ ማሳለፊያዎችን ለይ እና የህይወት ክህሎቶችን ገንባ"
+    },
+    "parents": {
+      "title": "ወላጆች",
+      "details": "የልጅዎን እድገት ይከታተሉ እና ግዢዎችን ያጽድቁ"
+    },
+    "teachers": {
+      "title": "አስተማሪዎች",
+      "details": "እውቀትዎን ያጋሩ እና ገቢ ያግኙ"
+    },
+    "schools": {
+      "title": "ትምህርት ቤቶች",
+      "details": "መርሃ ግብራችንን በመጠቀም ሥርዓተ ትምህርትዎን ያበለጽጉ"
+    }
+  },
+  "platform": {
+    "title": "ሁሉም በአንድ መድረክ ላይ",
+    "subtitle": "ለመማር፣ ለማደግ እና ለመሳካት የሚጠቅሙ መሳሪያዎች"
+  },
+  "features": {
+    "quiz": {
+      "title": "ስማርት ፈተና"
+    },
+    "live": {
+      "title": "የቀጥታ ስርጭት ትምህርቶች"
+    },
+    "progress": {
+      "title": "እድገትን ተከታተል"
+    },
+    "marketplace": {
+      "title": "ገበያ"
+    },
+    "blog": {
+      "title": "ብሎግ"
+    },
+    "events": {
+      "title": "ዝግጅቶች"
+    },
+    "scholarships": {
+      "title": "ስኮላርሺፕ"
+    }
+  },
+  "testimonials": {
+    "title": "ማህበረሰባችን ምን ይላል",
+    "parent": "ወላጅ",
+    "student": "ተማሪ",
+    "admin": "የትምህርት ቤት አስተዳዳሪ",
+    "mekdes": {
+      "text": "ልጄ በHobbyHub በኩል ለስዕል ያላትን ፍቅር አገኘች። አስተማሪዎቹ በጣም ጥሩ ናቸው!"
+    },
+    "samuel": {
+      "text": "ፕሮግራሚንግ ተማርኩ እና የመጀመሪያ ድረ-ገጼን ሰራሁ። ይህ መድረክ ህይወቴን ቀይሮታል!"
+    },
+    "tesfaye": {
+      "text": "HobbyHub ተማሪዎቻችን ችሎታቸውን እንዲያገኙ እና እንዲያዳብሩ አስችሏቸዋል።"
+    }
+  },
+  "cta": {
+    "title": "ጉዞህን ለመጀመር ዝግጁ ነህ?",
+    "subtitle": "በሺዎች ከሚቆጠሩ ተማሪዎች ጋር ፍላጎታቸውን ከሚያገኙ ተቀላቀል"
+  },
+  "footer": {
+    "desc": "የትርፍ ጊዜ ማሳለፊያዎችን ለይ፣ ተማር፣ ፍጠር እና ብልጭ በል ከHobbyHub ጋር።",
+    "quickLinks": "ፈጣን አገናኞች",
+    "support": "ድጋፍ",
+    "contact": "አግኙን",
+    "helpCenter": "የእርዳታ ማዕከል",
+    "contactUs": "አግኙን",
+    "privacy": "የግላዊነት ፖሊሲ",
+    "terms": "የአገልግሎት ውሎች",
+    "address": "አዲስ አበባ፣ ኢትዮጵያ",
+    "rights": "መብቱ በህግ የተጠበቀ ነው"
+  }
+}

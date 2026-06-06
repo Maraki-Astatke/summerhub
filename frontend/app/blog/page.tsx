@@ -8,14 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
-import { useLanguage } from '@/providers/language-provider';
 import Navbar from '@/components/Navbar';
 import api from '../lib/api';
 import { Calendar, User, Heart, MessageCircle } from 'lucide-react';
 
 export default function BlogPage() {
   const { user } = useAuth();
-  const { language } = useLanguage();
   const [search, setSearch] = useState('');
 
   const { data: postsData, isLoading } = useQuery({
@@ -38,19 +36,19 @@ export default function BlogPage() {
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32">
         {/* Banner */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">{language === 'am' ? 'የትምህርት ብሎግ' : 'Academy Blog'}</span>
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">Academy Blog</span>
           <h1 className="text-3xl md:text-4xl lg:text-[48px] font-extrabold tracking-tight text-[#1F2937] mb-4">
-            {language === 'am' ? 'የሆቢሀብ መረጃዎች እና ታሪኮች' : 'HobbyHub Insights & Stories'}
+            HobbyHub Insights & Stories
           </h1>
           <p className="text-base text-[#6B7280]">
-            {language === 'am' ? 'ከመማሪያ ማህበረሰባችን የተመረጡ የባለሙያ መጣጥፎች፣ መረጃዎች እና አነቃቂ ታሪኮች።' : 'Expert resources, updates, and inspirational stories from our learning community.'}
+            Expert resources, updates, and inspirational stories from our learning community.
           </p>
         </div>
 
         {/* Search and Action bar */}
         <div className="flex flex-col sm:flex-row justify-center items-center max-w-lg mx-auto mb-12 gap-3">
           <Input
-            placeholder={language === 'am' ? 'ጽሑፎችን ፈልግ...' : 'Search articles...'}
+            placeholder="Search articles..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45] w-full"
@@ -58,7 +56,7 @@ export default function BlogPage() {
           {user && (
             <Link href="/blog/create" className="w-full sm:w-auto shrink-0">
               <Button className="w-full sm:w-auto h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl px-6">
-                {language === 'am' ? 'ብሎግ ጻፍ' : 'Write Post'}
+                Write Post
               </Button>
             </Link>
           )}
@@ -78,11 +76,11 @@ export default function BlogPage() {
           </div>
         ) : postsData?.data?.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-[24px] border border-gray-100">
-            <p className="text-gray-500 font-medium mb-3">{language === 'am' ? 'ምንም ጽሑፍ አልተገኘም' : 'No articles found'}</p>
+            <p className="text-gray-500 font-medium mb-3">No articles found</p>
             {user && (
               <Link href="/blog/create">
                 <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl h-11 px-6">
-                  {language === 'am' ? 'የመጀመሪያውን ብሎግ ጻፍ' : 'Write the first post'}
+                  Write the first post
                 </Button>
               </Link>
             )}
@@ -140,7 +138,7 @@ export default function BlogPage() {
                   </div>
                   <Link href={`/blog/${post.id}`}>
                     <Button variant="outline" size="sm" className="rounded-xl font-semibold border-gray-200 text-[#1F2937] hover:bg-gray-50 text-xs">
-                      {language === 'am' ? 'ጽሑፉን አንብብ' : 'Read Article'}
+                      Read Article
                     </Button>
                   </Link>
                 </CardContent>
@@ -153,10 +151,10 @@ export default function BlogPage() {
         {postsData?.pagination?.pages > 1 && (
           <div className="flex justify-center gap-3 mt-12">
             <Button variant="outline" className="rounded-xl" disabled>
-              {language === 'am' ? 'ቀዳሚ' : 'Previous'}
+              Previous
             </Button>
             <Button variant="outline" className="rounded-xl">
-              {language === 'am' ? 'ቀጣይ' : 'Next'}
+              Next
             </Button>
           </div>
         )}

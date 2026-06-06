@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/providers/auth-provider';
-import { useLanguage } from '@/providers/language-provider';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { BookOpen, ShoppingBag, Award, Calendar, LogOut, Trophy, MessageCircle } from 'lucide-react';
@@ -16,9 +15,7 @@ import Image from 'next/image';
 export default function DashboardPage() {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { language } = useLanguage();
 
-  // Redirect teachers to teacher dashboard
   useEffect(() => {
     if (user?.roles?.includes('teacher')) {
       router.push('/teacher');
@@ -76,7 +73,7 @@ export default function DashboardPage() {
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm font-semibold text-[#6B7280]">
-              {language === 'am' ? 'እንኳን ደህና መጡ፣ ' : 'Welcome, '}<span className="text-[#1F2937]">{user.profile?.firstName || user.email}</span>
+              Welcome, <span className="text-[#1F2937]">{user.profile?.firstName || user.email}</span>
             </span>
             <Button 
               variant="ghost" 
@@ -85,7 +82,7 @@ export default function DashboardPage() {
               className="text-[#6B7280] hover:text-[#FF7A45] rounded-xl font-semibold"
             >
               <LogOut className="h-4 w-4 mr-2" />
-              {language === 'am' ? 'ውጣ' : 'Logout'}
+              Logout
             </Button>
           </div>
         </div>
@@ -93,9 +90,9 @@ export default function DashboardPage() {
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12">
         <div className="mb-10">
-          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">{language === 'am' ? 'የተማሪ የስራ ቦታ' : 'Student Workspace'}</span>
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">Student Workspace</span>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#1F2937]">
-            {language === 'am' ? 'የእኔ ዳሽቦርድ' : 'My Dashboard'}
+            My Dashboard
           </h1>
         </div>
 
@@ -104,7 +101,7 @@ export default function DashboardPage() {
           <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm">
             <CardHeader className="p-6 pb-2">
               <CardTitle className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                {language === 'am' ? 'የተገኙ የትምህርት መስኮች' : 'Tracks Discovered'}
+                Tracks Discovered
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 pt-0">
@@ -116,7 +113,7 @@ export default function DashboardPage() {
           <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm">
             <CardHeader className="p-6 pb-2">
               <CardTitle className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                {language === 'am' ? 'የተወሰዱ ትምህርቶች' : 'Lessons Taken'}
+                Lessons Taken
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 pt-0">
@@ -128,7 +125,7 @@ export default function DashboardPage() {
           <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm">
             <CardHeader className="p-6 pb-2">
               <CardTitle className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                {language === 'am' ? 'የብሎግ ጽሁፎች' : 'Blog Posts'}
+                Blog Posts
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 pt-0">
@@ -140,7 +137,7 @@ export default function DashboardPage() {
           <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm">
             <CardHeader className="p-6 pb-2">
               <CardTitle className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                {language === 'am' ? 'ትዕዛዞች' : 'Orders'}
+                Orders
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 pt-0">
@@ -153,20 +150,20 @@ export default function DashboardPage() {
 
         <Tabs defaultValue="progress" className="space-y-8">
           <TabsList className="bg-gray-100/70 p-1.5 rounded-xl border border-gray-100 max-w-md">
-            <TabsTrigger value="progress" className="rounded-lg py-2.5 font-semibold text-sm">{language === 'am' ? 'የእኔ ሂደት' : 'My Progress'}</TabsTrigger>
-            <TabsTrigger value="certificates" className="rounded-lg py-2.5 font-semibold text-sm">{language === 'am' ? 'ሰርተፊኬቶች' : 'Certificates'}</TabsTrigger>
-            <TabsTrigger value="recommendations" className="rounded-lg py-2.5 font-semibold text-sm">{language === 'am' ? 'ምክረ ሀሳቦች' : 'Recommendations'}</TabsTrigger>
+            <TabsTrigger value="progress" className="rounded-lg py-2.5 font-semibold text-sm">My Progress</TabsTrigger>
+            <TabsTrigger value="certificates" className="rounded-lg py-2.5 font-semibold text-sm">Certificates</TabsTrigger>
+            <TabsTrigger value="recommendations" className="rounded-lg py-2.5 font-semibold text-sm">Recommendations</TabsTrigger>
           </TabsList>
 
           <TabsContent value="progress">
             <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
               <CardHeader className="p-6 pb-4">
-                <CardTitle className="text-xl font-bold text-[#1F2937]">{language === 'am' ? 'የትምህርት ሂደት' : 'Learning Progress'}</CardTitle>
-                <CardDescription className="text-sm text-[#6B7280]">{language === 'am' ? 'የነቃ ኮርሶችዎን እና የማጠናቀቂያ ሁኔታዎን ይከታተሉ።' : 'Track your active courses and completion status.'}</CardDescription>
+                <CardTitle className="text-xl font-bold text-[#1F2937]">Learning Progress</CardTitle>
+                <CardDescription className="text-sm text-[#6B7280]">Track your active courses and completion status.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 pt-0 space-y-4">
                 {progress?.allHobbies?.length === 0 ? (
-                  <p className="text-sm text-gray-400 py-6 text-center">{language === 'am' ? 'ምንም የነቃ ኮርስ የለም። ለመጀመር ከታች ያሉትን ክፍሎች ያስሱ!' : 'No active courses. Explore classes below to begin!'}</p>
+                  <p className="text-sm text-gray-400 py-6 text-center">No active courses. Explore classes below to begin!</p>
                 ) : (
                   progress?.allHobbies?.map((item: any) => (
                     <div
@@ -202,13 +199,13 @@ export default function DashboardPage() {
           <TabsContent value="certificates">
             <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
               <CardHeader className="p-6 pb-4">
-                <CardTitle className="text-xl font-bold text-[#1F2937]">{language === 'am' ? 'የእርስዎ ሰርተፊኬቶች' : 'Your Certificates'}</CardTitle>
-                <CardDescription className="text-sm text-[#6B7280]">{language === 'am' ? 'በተሳካ ሁኔታ ያጠናቀቋቸው ትምህርቶች እና የትምህርት መስኮች።' : "Lessons and tracks you've completed successfully."}</CardDescription>
+                <CardTitle className="text-xl font-bold text-[#1F2937]">Your Certificates</CardTitle>
+                <CardDescription className="text-sm text-[#6B7280]">Lessons and tracks you've completed successfully.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 pt-0">
                 {certificates?.length === 0 ? (
                   <p className="text-[#6B7280] text-center py-12 text-sm font-medium">
-                    {language === 'am' ? 'እስካሁን ምንም ሰርተፊኬት አላገኙም። ሰርተፊኬት ለማግኘት የቀጥታ ስርጭት ትምህርቶችን ይከታተሉ!' : 'No certificates earned yet. Attend live lessons to get certified!'}
+                    No certificates earned yet. Attend live lessons to get certified!
                   </p>
                 ) : (
                   <div className="space-y-3">
@@ -229,7 +226,7 @@ export default function DashboardPage() {
                           className="rounded-xl border-gray-200 text-xs font-bold hover:bg-gray-50 h-9"
                           onClick={() => alert('Downloading certificate...')}
                         >
-                          {language === 'am' ? 'አውርድ' : 'Download'}
+                          Download
                         </Button>
                       </div>
                     ))}
@@ -242,17 +239,17 @@ export default function DashboardPage() {
           <TabsContent value="recommendations">
             <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
               <CardHeader className="p-6 pb-4">
-                <CardTitle className="text-xl font-bold text-[#1F2937]">{language === 'am' ? 'ለእርስዎ የሚመከሩ' : 'Recommended for You'}</CardTitle>
-                <CardDescription className="text-sm text-[#6B7280]">{language === 'am' ? 'በመገለጫ ግብዓቶችዎ ላይ የተመሰረቱ ግላዊ የትምህርት መስኮች።' : 'Personalized tracks based on your profile inputs.'}</CardDescription>
+                <CardTitle className="text-xl font-bold text-[#1F2937]">Recommended for You</CardTitle>
+                <CardDescription className="text-sm text-[#6B7280]">Personalized tracks based on your profile inputs.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 pt-0">
                 {!progress?.quizCompleted ? (
                   <div className="text-center py-12 space-y-4">
                     <p className="text-[#6B7280] text-sm font-medium">
-                      {language === 'am' ? 'ግላዊ የትምህርት መስክ ምክሮችን ለማግኘት የእኛን የሙያ ፍላጎት ጥያቄዎች ይመልሱ።' : 'Take our career interest quiz to get personalized track suggestions.'}
+                      Take our career interest quiz to get personalized track suggestions.
                     </p>
                     <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-bold h-11 px-6 rounded-xl">
-                      {language === 'am' ? 'የፍላጎት ጥያቄዎችን ይመልሱ' : 'Take Interest Quiz'}
+                      Take Interest Quiz
                     </Button>
                   </div>
                 ) : (
@@ -276,7 +273,7 @@ export default function DashboardPage() {
 
         {/* Quick Actions */}
         <div className="mt-12">
-          <h3 className="text-lg font-bold text-[#1F2937] mb-6">{language === 'am' ? 'ፈጣን ድርጊቶች' : 'Quick Actions'}</h3>
+          <h3 className="text-lg font-bold text-[#1F2937] mb-6">Quick Actions</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             <Button
               variant="outline"
@@ -284,7 +281,7 @@ export default function DashboardPage() {
               onClick={() => router.push('/hobbies')}
             >
               <BookOpen className="h-5 w-5 text-[#FF7A45]" />
-              <span>{language === 'am' ? 'ካታሎግ ያስሱ' : 'Browse Catalog'}</span>
+              <span>Browse Catalog</span>
             </Button>
             <Button
               variant="outline"
@@ -292,7 +289,7 @@ export default function DashboardPage() {
               onClick={() => router.push('/my-lessons')}
             >
               <Calendar className="h-5 w-5 text-[#FF7A45]" />
-              <span>{language === 'am' ? 'የእኔ ትምህርቶች' : 'My Lessons'}</span>
+              <span>My Lessons</span>
             </Button>
             <Button
               variant="outline"
@@ -300,7 +297,7 @@ export default function DashboardPage() {
               onClick={() => router.push('/shops')}
             >
               <ShoppingBag className="h-5 w-5 text-[#FF7A45]" />
-              <span>{language === 'am' ? 'ሱቅ ይጎብኙ' : 'Visit Shop'}</span>
+              <span>Visit Shop</span>
             </Button>
             <Button
               variant="outline"
@@ -308,7 +305,7 @@ export default function DashboardPage() {
               onClick={() => router.push('/events')}
             >
               <Trophy className="h-5 w-5 text-[#FF7A45]" />
-              <span>{language === 'am' ? 'የችሎታ ውድድሮች' : 'Talent Events'}</span>
+              <span>Talent Events</span>
             </Button>
             <Button
               variant="outline"
@@ -316,7 +313,7 @@ export default function DashboardPage() {
               onClick={() => router.push('/chat')}
             >
               <MessageCircle className="h-5 w-5 text-[#FF7A45]" />
-              <span>{language === 'am' ? 'መልዕክቶች' : 'Messages'}</span>
+              <span>Messages</span>
             </Button>
           </div>
         </div>

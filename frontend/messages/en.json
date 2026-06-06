@@ -1,0 +1,141 @@
+{
+"nav": {
+  "home": "Home",
+  "courses": "Courses",
+  "lessons": "Lessons",
+  "events": "Events",
+  "blog": "Blog",
+  "about": "About",
+  "getStarted": "Get Started",
+  "login": "Login",
+  "admin": "Admin",
+  "teacher": "Teacher",
+  "seller": "Seller",
+  "workspace": "Workspace",
+  "signOut": "Sign Out"
+},
+  "button": {
+    "viewAll": "View All",
+    "takeQuiz": "Take Quiz",
+    "signUp": "Sign Up"
+  },
+  "hero": {
+    "title": "Discover Your Passion with",
+    "titleHighlight": "HobbyHub",
+    "subtitle": "Learn from expert teachers, join live lessons, and showcase your talent to the world."
+  },
+  "badges": {
+    "expertTeachers": "Expert Teachers",
+    "liveClasses": "Live Classes",
+    "certificates": "Certificates",
+    "safeSecure": "Safe & Secure"
+  },
+  "categories": {
+    "title": "Explore Popular Categories",
+    "music": "Music",
+    "art": "Art",
+    "coding": "Coding",
+    "dance": "Dance",
+    "robotics": "Robotics",
+    "photography": "Photography",
+    "writing": "Writing"
+  },
+  "howItWorks": {
+    "title": "How It Works"
+  },
+  "step1": {
+    "title": "Take the Quiz",
+    "desc": "Discover your interests with our smart assessment"
+  },
+  "step2": {
+    "title": "Choose Your Hobby",
+    "desc": "Pick from hundreds of activities that match your passion"
+  },
+  "step3": {
+    "title": "Learn with Experts",
+    "desc": "Join live sessions with professional teachers"
+  },
+  "step4": {
+    "title": "Showcase Your Talent",
+    "desc": "Share your work and earn certificates"
+  },
+  "whoIsFor": {
+    "title": "Who Is It For?"
+  },
+  "target": {
+    "students": {
+      "title": "Students",
+      "details": "Discover new hobbies and build skills for life"
+    },
+    "parents": {
+      "title": "Parents",
+      "details": "Monitor your child's progress and approve purchases"
+    },
+    "teachers": {
+      "title": "Teachers",
+      "details": "Share your expertise and earn income"
+    },
+    "schools": {
+      "title": "Schools",
+      "details": "Enrich your curriculum with our programs"
+    }
+  },
+  "platform": {
+    "title": "Everything in One Platform",
+    "subtitle": "All the tools you need to learn, grow, and succeed"
+  },
+  "features": {
+    "quiz": {
+      "title": "Smart Quiz"
+    },
+    "live": {
+      "title": "Live Lessons"
+    },
+    "progress": {
+      "title": "Track Progress"
+    },
+    "marketplace": {
+      "title": "Marketplace"
+    },
+    "blog": {
+      "title": "Blog"
+    },
+    "events": {
+      "title": "Events"
+    },
+    "scholarships": {
+      "title": "Scholarships"
+    }
+  },
+  "testimonials": {
+    "title": "What Our Community Says",
+    "parent": "Parent",
+    "student": "Student",
+    "admin": "School Admin",
+    "mekdes": {
+      "text": "My daughter found her passion for painting through HobbyHub. The teachers are amazing!"
+    },
+    "samuel": {
+      "text": "I learned coding and built my first website. This platform changed my life!"
+    },
+    "tesfaye": {
+      "text": "HobbyHub has transformed how our students discover and develop their talents."
+    }
+  },
+  "cta": {
+    "title": "Ready to Start Your Journey?",
+    "subtitle": "Join thousands of students discovering their passions"
+  },
+  "footer": {
+    "desc": "Discover, learn, create, and shine with HobbyHub Education.",
+    "quickLinks": "Quick Links",
+    "support": "Support",
+    "contact": "Contact",
+    "helpCenter": "Help Center",
+    "contactUs": "Contact Us",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "address": "Addis Ababa, Ethiopia",
+    "rights": "All rights reserved"
+  }
+}

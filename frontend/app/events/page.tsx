@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
-import { useLanguage } from '@/providers/language-provider';
 import Navbar from '@/components/Navbar';
 import api from '../lib/api';
 import { Calendar, Users, Trophy, Clock, Award } from 'lucide-react';
@@ -16,7 +15,6 @@ import { Calendar, Users, Trophy, Clock, Award } from 'lucide-react';
 export default function EventsPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { language } = useLanguage();
   const queryClient = useQueryClient();
 
   const { data: eventsData, isLoading } = useQuery({
@@ -43,10 +41,10 @@ export default function EventsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       queryClient.invalidateQueries({ queryKey: ['my-events'] });
-      alert(language === 'am' ? 'ለዝግጅቱ በተሳካ ሁኔታ ተመዝግበዋል!' : 'Successfully registered for the event!');
+      alert('Successfully registered for the event!');
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || (language === 'am' ? 'ምዝገባው አልተሳካም' : 'Registration failed'));
+      alert(error.response?.data?.error || 'Registration failed');
     },
   });
 
@@ -57,17 +55,17 @@ export default function EventsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       queryClient.invalidateQueries({ queryKey: ['my-events'] });
-      alert(language === 'am' ? 'ከዝግጅቱ ምዝገባዎ በተሳካ ሁኔታ ተሰርዟል' : 'Successfully unregistered from the event');
+      alert('Successfully unregistered from the event');
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || (language === 'am' ? 'ምዝገባውን መሰረዝ አልተሳካም' : 'Failed to unregister'));
+      alert(error.response?.data?.error || 'Failed to unregister');
     },
   });
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">{language === 'am' ? 'ውድድሮችን በመጫን ላይ...' : 'Loading events...'}</div>
+        <div className="text-center font-semibold text-gray-500">Loading events...</div>
       </div>
     );
   }
@@ -109,11 +107,11 @@ export default function EventsPage() {
             </div>
             <div className="flex items-center gap-2.5">
               <Users className="h-4.5 w-4.5 text-[#FF7A45]" />
-              <span>{event.registeredCount || 0} / {event.maxParticipants} {language === 'am' ? 'ቦታዎች ተይዘዋል' : 'spots taken'}</span>
+              <span>{event.registeredCount || 0} / {event.maxParticipants} spots taken</span>
             </div>
             <div className="flex items-center gap-2.5">
               <Award className="h-4.5 w-4.5 text-[#FF7A45]" />
-              <span>{spotsLeft} {language === 'am' ? 'የቀሩ ቦታዎች' : 'remaining slots'}</span>
+              <span>{spotsLeft} remaining slots</span>
             </div>
           </div>
 
@@ -125,7 +123,7 @@ export default function EventsPage() {
                   className="w-full h-11 rounded-xl border-[#FF7A45]/30 text-[#FF7A45] hover:bg-[#FFF2EB] font-semibold transition-colors"
                   onClick={() => unregisterMutation.mutate(event.id)}
                 >
-                  {language === 'am' ? 'ምዝገባውን ሰርዝ' : 'Cancel Registration'}
+                  Cancel Registration
                 </Button>
               ) : (
                 <Button 
@@ -133,9 +131,7 @@ export default function EventsPage() {
                   onClick={() => registerMutation.mutate(event.id)}
                   disabled={isFull}
                 >
-                  {isFull 
-                    ? (language === 'am' ? 'ምዝገባው ተዘግቷል' : 'Event Registration Closed') 
-                    : (language === 'am' ? 'አሁን ተሳተፍ' : 'Join Event Now')}
+                  {isFull ? 'Event Registration Closed' : 'Join Event Now'}
                 </Button>
               )}
             </div>
@@ -151,21 +147,21 @@ export default function EventsPage() {
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">{language === 'am' ? 'ውድድሮች እና ዝግጅቶች' : 'Events & Tournaments'}</span>
+          <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">Events & Tournaments</span>
           <h1 className="text-3xl md:text-4xl lg:text-[48px] font-extrabold tracking-tight text-[#1F2937] mb-4">
-            {language === 'am' ? 'ችሎታዎን ያሳዩ' : 'Showcase Your Talent'}
+            Showcase Your Talent
           </h1>
           <p className="text-base text-[#6B7280]">
-            {language === 'am' ? 'በበይነተገናኝ ዝግጅቶች ላይ ይሳተፉ፣ ፕሮጀክቶችዎን ያሳዩ እና ሽልማቶችን ያሸንፉ።' : 'Participate in interactive events, display your projects, and win awards.'}
+            Participate in interactive events, display your projects, and win awards.
           </p>
         </div>
 
         {user ? (
           <Tabs defaultValue="upcoming" className="space-y-8">
             <TabsList className="bg-gray-100/70 p-1.5 rounded-xl border border-gray-100 max-w-lg">
-              <TabsTrigger value="upcoming" className="rounded-lg py-2.5 font-semibold text-sm">{language === 'am' ? 'የሚቀጥሉ' : 'Upcoming'} ({upcomingEvents.length})</TabsTrigger>
-              <TabsTrigger value="my-upcoming" className="rounded-lg py-2.5 font-semibold text-sm">{language === 'am' ? 'የተመዘገቡበት' : 'Registered'} ({myUpcomingEvents.length})</TabsTrigger>
-              <TabsTrigger value="my-past" className="rounded-lg py-2.5 font-semibold text-sm">{language === 'am' ? 'ያለፉ ዝግጅቶች' : 'Past Events'} ({myPastEvents.length})</TabsTrigger>
+              <TabsTrigger value="upcoming" className="rounded-lg py-2.5 font-semibold text-sm">Upcoming ({upcomingEvents.length})</TabsTrigger>
+              <TabsTrigger value="my-upcoming" className="rounded-lg py-2.5 font-semibold text-sm">Registered ({myUpcomingEvents.length})</TabsTrigger>
+              <TabsTrigger value="my-past" className="rounded-lg py-2.5 font-semibold text-sm">Past Events ({myPastEvents.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="upcoming" className="space-y-6">
@@ -173,7 +169,7 @@ export default function EventsPage() {
                 <Card className="rounded-[24px] border-gray-100 shadow-sm text-center py-16">
                   <CardContent>
                     <Calendar className="h-14 w-14 mx-auto text-[#FF7A45] mb-4 opacity-80" />
-                    <p className="text-gray-500 font-medium">{language === 'am' ? 'በአሁኑ ጊዜ ምንም የታቀዱ ዝግጅቶች የሉም' : 'No upcoming events scheduled right now'}</p>
+                    <p className="text-gray-500 font-medium">No upcoming events scheduled right now</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -189,7 +185,7 @@ export default function EventsPage() {
               {myUpcomingEvents.length === 0 ? (
                 <Card className="rounded-[24px] border-gray-100 shadow-sm text-center py-16">
                   <CardContent>
-                    <p className="text-gray-500 font-medium mb-3">{language === 'am' ? 'እስካሁን ምንም ውድድር አልተቀላቀሉም' : "You haven't joined any events yet"}</p>
+                    <p className="text-gray-500 font-medium mb-3">You haven't joined any events yet</p>
                     <Button 
                       variant="link" 
                       className="text-[#FF7A45] font-semibold hover:underline"
@@ -198,7 +194,7 @@ export default function EventsPage() {
                         if (tab) tab.click();
                       }}
                     >
-                      {language === 'am' ? 'የሚቀጥሉ ውድድሮችን ያስሱ' : 'Browse Upcoming Events'}
+                      Browse Upcoming Events
                     </Button>
                   </CardContent>
                 </Card>
@@ -215,7 +211,7 @@ export default function EventsPage() {
               {myPastEvents.length === 0 ? (
                 <Card className="rounded-[24px] border-gray-100 shadow-sm text-center py-16">
                   <CardContent>
-                    <p className="text-gray-500 font-medium">{language === 'am' ? 'ምንም ያለፉ ዝግጅቶች አልተመዘገቡም' : 'No past events recorded'}</p>
+                    <p className="text-gray-500 font-medium">No past events recorded</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -234,7 +230,7 @@ export default function EventsPage() {
                 <Card className="col-span-full rounded-[24px] border-gray-100 shadow-sm text-center py-16">
                   <CardContent>
                     <Calendar className="h-14 w-14 mx-auto text-[#FF7A45] mb-4 opacity-80" />
-                    <p className="text-gray-500 font-medium">{language === 'am' ? 'በአሁኑ ጊዜ ምንም የታቀዱ ዝግጅቶች የሉም' : 'No upcoming events scheduled right now'}</p>
+                    <p className="text-gray-500 font-medium">No upcoming events scheduled right now</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -247,11 +243,11 @@ export default function EventsPage() {
             <Card className="rounded-[24px] border border-gray-155 bg-white p-2 shadow-sm text-center py-10 max-w-xl mx-auto">
               <CardContent className="space-y-4">
                 <p className="text-base text-[#6B7280]">
-                  {language === 'am' ? 'በሚቀጥሉ ዝግጅቶች ላይ ለመመዝገብ እና ክህሎትዎን ለማሳየት ዝግጁ ነዎት?' : 'Ready to register for upcoming events and showcase your skills?'}
+                  Ready to register for upcoming events and showcase your skills?
                 </p>
                 <Link href="/login">
                   <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-bold h-11 px-8 rounded-xl transition-all">
-                    {language === 'am' ? 'ለመሳተፍ ይግቡ' : 'Login to Participate'}
+                    Login to Participate
                   </Button>
                 </Link>
               </CardContent>

@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/providers/auth-provider';
-import { useLanguage } from '@/providers/language-provider';
 import { useMutation } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { ArrowLeft, ImageIcon } from 'lucide-react';
@@ -17,7 +16,6 @@ import { ArrowLeft, ImageIcon } from 'lucide-react';
 export default function CreateBlogPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const { language } = useLanguage();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -31,14 +29,14 @@ export default function CreateBlogPage() {
       router.push(`/blog/${post.id}`);
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || (language === 'am' ? 'መጣጥፍ መፍጠር አልተሳካም' : 'Failed to create post'));
+      alert(error.response?.data?.error || 'Failed to create post');
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      alert(language === 'am' ? 'እባክዎን ርዕስ እና ይዘት ያስገቡ' : 'Please fill in title and content');
+      alert('Please fill in title and content');
       return;
     }
     createPostMutation.mutate({ title, content, imageUrl: imageUrl || undefined });
@@ -47,7 +45,7 @@ export default function CreateBlogPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">{language === 'am' ? 'በመጫን ላይ...' : 'Loading...'}</div>
+        <div className="text-center">Loading...</div>
       </div>
     );
   }
@@ -64,10 +62,10 @@ export default function CreateBlogPage() {
           <Link href="/" className="text-xl font-bold text-[#FF7A45]">HobbyHub</Link>
           <div className="flex gap-4">
             <Link href="/blog">
-              <Button variant="ghost">{language === 'am' ? 'ብሎግ' : 'Blog'}</Button>
+              <Button variant="ghost">Blog</Button>
             </Link>
             <Link href="/dashboard">
-              <Button variant="ghost">{language === 'am' ? 'ዳሽቦርድ' : 'Dashboard'}</Button>
+              <Button variant="ghost">Dashboard</Button>
             </Link>
           </div>
         </div>
@@ -78,23 +76,23 @@ export default function CreateBlogPage() {
           <Link href="/blog">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              {language === 'am' ? 'ወደ ብሎግ ይመለሱ' : 'Back to Blog'}
+              Back to Blog
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold">{language === 'am' ? 'አዲስ መጣጥፍ ጻፍ' : 'Create New Post'}</h1>
+          <h1 className="text-2xl font-bold">Create New Post</h1>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>{language === 'am' ? 'ታሪክዎን ያጋሩ' : 'Write Your Story'}</CardTitle>
+            <CardTitle>Write Your Story</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="title">{language === 'am' ? 'ርዕስ' : 'Title'}</Label>
+                <Label htmlFor="title">Title</Label>
                 <Input
                   id="title"
-                  placeholder={language === 'am' ? 'የመጣጥፉን ርዕስ ያስገቡ...' : 'Enter post title...'}
+                  placeholder="Enter post title..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
@@ -102,7 +100,7 @@ export default function CreateBlogPage() {
               </div>
 
               <div>
-                <Label htmlFor="imageUrl">{language === 'am' ? 'የምስል አድራሻ (ከተፈለገ)' : 'Featured Image URL (optional)'}</Label>
+                <Label htmlFor="imageUrl">Featured Image URL (optional)</Label>
                 <div className="flex gap-2">
                   <Input
                     id="imageUrl"
@@ -121,14 +119,14 @@ export default function CreateBlogPage() {
                     </Button>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{language === 'am' ? 'መጣጥፍዎን ይበልጥ ማራኪ ለማድረግ የሽፋን ምስል አድራሻ ያክሉ' : 'Add a cover image URL to make your post stand out'}</p>
+                <p className="text-xs text-gray-500 mt-1">Add a cover image URL to make your post stand out</p>
               </div>
 
               <div>
-                <Label htmlFor="content">{language === 'am' ? 'ይዘት' : 'Content'}</Label>
+                <Label htmlFor="content">Content</Label>
                 <Textarea
                   id="content"
-                  placeholder={language === 'am' ? 'የመጣጥፉን ይዘት እዚህ ይጻፉ...' : 'Write your post content here...'}
+                  placeholder="Write your post content here..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   rows={12}
@@ -138,12 +136,10 @@ export default function CreateBlogPage() {
 
               <div className="flex gap-3">
                 <Button type="submit" disabled={createPostMutation.isPending} className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937]">
-                  {createPostMutation.isPending 
-                    ? (language === 'am' ? 'በማተም ላይ...' : 'Publishing...') 
-                    : (language === 'am' ? 'አትም' : 'Publish Post')}
+                  {createPostMutation.isPending ? 'Publishing...' : 'Publish Post'}
                 </Button>
                 <Link href="/blog">
-                  <Button type="button" variant="outline">{language === 'am' ? 'ሰርዝ' : 'Cancel'}</Button>
+                  <Button type="button" variant="outline">Cancel</Button>
                 </Link>
               </div>
             </form>
