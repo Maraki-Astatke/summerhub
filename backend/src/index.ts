@@ -32,6 +32,8 @@ import roleRoutes from './routes/roles.js';
 import googleAuthRoutes from './routes/google-auth.js';
 import paymentRoutes from './routes/payment.js';
 import prisma from './lib/prisma.js';
+import path from 'path';
+import uploadRoutes from './routes/upload.js';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -40,7 +42,8 @@ app.use(helmet());
 
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:3000'],
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['Cross-Origin-Resource-Policy']
 }));
 
 const globalLimiter = rateLimit({
@@ -89,6 +92,16 @@ app.use('/api', notificationRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', roleRoutes);
 app.use('/api', paymentRoutes);
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
+  setHeaders: (res, filePath, stat) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+  }
+}));
+app.use('/api', uploadRoutes);
 
 
 app.get('/api/health', (req, res) => {

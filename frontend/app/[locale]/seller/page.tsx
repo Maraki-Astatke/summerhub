@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,7 @@ import api from '@/lib/api';
 import { 
   Package, ShoppingCart, DollarSign, AlertTriangle, Plus, Edit, Trash2, 
   Menu, X, LogOut, LayoutDashboard, BookOpen, Newspaper, Trophy, 
-  MessageSquare, Settings, Home, BarChart3, Store 
+  MessageSquare, Settings, Home, BarChart3, Store, Upload, XCircle
 } from 'lucide-react';
 
 export default function SellerDashboardPage() {
@@ -24,6 +25,7 @@ export default function SellerDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('products');
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -82,6 +84,20 @@ export default function SellerDashboardPage() {
     },
   });
 
+  const uploadImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      const response = await api.post('/upload/product-image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return response.data.imageUrl;
+    },
+    onError: (error: any) => {
+      alert('Failed to upload image: ' + (error.response?.data?.error || 'Unknown error'));
+    },
+  });
+
   const createProductMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await api.post('/products', data);
@@ -102,7 +118,8 @@ export default function SellerDashboardPage() {
       alert('Product created successfully!');
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || 'Failed to create product');
+      const message = error.response?.data?.error || error.response?.data?.message || 'Failed to create product';
+      alert(message);
     },
   });
 
@@ -139,31 +156,90 @@ export default function SellerDashboardPage() {
     },
   });
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file');
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be less than 5MB');
+      return;
+    }
+    
+    setUploadingImage(true);
+    try {
+      const imageUrl = await uploadImageMutation.mutateAsync(file);
+      setFormData({ ...formData, imageUrl });
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createProductMutation.mutate({
-      name: formData.name,
-      description: formData.description,
+    
+    if (!formData.name.trim()) {
+      alert('Product name is required');
+      return;
+    }
+    
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      alert('Valid price is required');
+      return;
+    }
+    
+    if (!formData.stockCount || parseInt(formData.stockCount) < 0) {
+      alert('Valid stock count is required');
+      return;
+    }
+    
+    if (!formData.imageUrl) {
+      alert('Product image is required');
+      return;
+    }
+
+    const submitData: any = {
+      name: formData.name.trim(),
+      description: formData.description || '',
       price: parseFloat(formData.price),
       stockCount: parseInt(formData.stockCount),
-      categoryId: formData.categoryId ? parseInt(formData.categoryId) : null,
       imageUrl: formData.imageUrl,
-    });
+    };
+    
+    if (formData.categoryId && formData.categoryId !== '') {
+      submitData.categoryId = parseInt(formData.categoryId);
+    }
+    
+    createProductMutation.mutate(submitData);
   };
 
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingProduct) {
+      const updateData: any = {
+        name: formData.name,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        stockCount: parseInt(formData.stockCount),
+      };
+      
+      if (formData.imageUrl) {
+        updateData.imageUrl = formData.imageUrl;
+      }
+      
+      if (formData.categoryId && formData.categoryId !== '') {
+        updateData.categoryId = parseInt(formData.categoryId);
+      }
+      
       updateProductMutation.mutate({
         id: editingProduct.id,
-        data: {
-          name: formData.name,
-          description: formData.description,
-          price: parseFloat(formData.price),
-          stockCount: parseInt(formData.stockCount),
-          categoryId: formData.categoryId ? parseInt(formData.categoryId) : null,
-          imageUrl: formData.imageUrl,
-        },
+        data: updateData,
       });
     }
   };
@@ -204,16 +280,28 @@ export default function SellerDashboardPage() {
               <Card key={product.id}>
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
-                      <p className="text-gray-600 mb-3">{product.description?.substring(0, 100)}</p>
-                      <div className="flex flex-wrap gap-4 text-sm">
-                        <span className="text-purple-600 font-bold">{product.price} ETB</span>
-                        <span className={`${product.stockCount < 10 ? 'text-red-500' : 'text-gray-500'}`}>
-                          Stock: {product.stockCount}
-                        </span>
-                        <span className="text-gray-500">Sold: {product.totalSold || 0}</span>
-                        <span className="text-gray-500">Rating: {product.averageRating?.toFixed(1) || 'No ratings'}</span>
+                    <div className="flex gap-4">
+                      {product.imageUrl && (
+                        <div className="w-20 h-20 relative flex-shrink-0">
+                          <Image
+                            src={product.imageUrl}
+                            alt={product.name}
+                            fill
+                            className="object-cover rounded-lg"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
+                        <p className="text-gray-600 mb-3">{product.description?.substring(0, 100)}</p>
+                        <div className="flex flex-wrap gap-4 text-sm">
+                          <span className="text-purple-600 font-bold">{product.price} ETB</span>
+                          <span className={`${product.stockCount < 10 ? 'text-red-500' : 'text-gray-500'}`}>
+                            Stock: {product.stockCount}
+                          </span>
+                          <span className="text-gray-500">Sold: {product.totalSold || 0}</span>
+                          <span className="text-gray-500">Rating: {product.averageRating?.toFixed(1) || 'No ratings'}</span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -353,7 +441,7 @@ export default function SellerDashboardPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="name">Product Name</Label>
+                <Label htmlFor="name">Product Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -372,7 +460,7 @@ export default function SellerDashboardPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="price">Price (ETB)</Label>
+                  <Label htmlFor="price">Price (ETB) *</Label>
                   <Input
                     id="price"
                     type="number"
@@ -383,7 +471,7 @@ export default function SellerDashboardPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="stockCount">Stock Quantity</Label>
+                  <Label htmlFor="stockCount">Stock Quantity *</Label>
                   <Input
                     id="stockCount"
                     type="number"
@@ -394,29 +482,75 @@ export default function SellerDashboardPage() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="categoryId">Category</Label>
+                <Label htmlFor="categoryId">Category (Optional)</Label>
                 <select
                   id="categoryId"
                   className="w-full border rounded-md px-3 py-2"
-                  value={formData.categoryId}
+                  value={formData.categoryId || ''}
                   onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                 >
-                  <option value="">Select Category</option>
+                  <option value="">-- Select Category --</option>
                   {categories?.map((cat: any) => (
                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
                 </select>
               </div>
+              
+              {/* Image Upload Section */}
               <div>
-                <Label htmlFor="imageUrl">Image URL (optional)</Label>
-                <Input
-                  id="imageUrl"
-                  placeholder="https://example.com/product.jpg"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                />
+                <Label>Product Image *</Label>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                  <div className="space-y-1 text-center">
+                    {formData.imageUrl ? (
+                      <div className="relative">
+                        <div className="relative w-32 h-32 mx-auto">
+                          <Image
+                            src={formData.imageUrl}
+                            alt="Product preview"
+                            fill
+                            className="object-cover rounded-lg"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                        >
+                          <XCircle className="h-5 w-5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="flex text-sm text-gray-600">
+                          <label
+                            htmlFor="image-upload"
+                            className="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none"
+                          >
+                            <span>Upload a file</span>
+                            <input
+                              id="image-upload"
+                              name="image-upload"
+                              type="file"
+                              className="sr-only"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              disabled={uploadingImage}
+                            />
+                          </label>
+                          <p className="pl-1">or drag and drop</p>
+                        </div>
+                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                      </>
+                    )}
+                    {uploadingImage && (
+                      <p className="text-sm text-purple-600">Uploading...</p>
+                    )}
+                  </div>
+                </div>
               </div>
-              <Button type="submit" disabled={createProductMutation.isPending}>
+              
+              <Button type="submit" disabled={createProductMutation.isPending || uploadingImage}>
                 {createProductMutation.isPending ? 'Adding...' : 'Add Product'}
               </Button>
             </form>
@@ -587,7 +721,7 @@ export default function SellerDashboardPage() {
                   <select
                     id="edit-categoryId"
                     className="w-full border rounded-md px-3 py-2"
-                    value={formData.categoryId}
+                    value={formData.categoryId || ''}
                     onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                   >
                     <option value="">Select Category</option>
@@ -596,16 +730,63 @@ export default function SellerDashboardPage() {
                     ))}
                   </select>
                 </div>
+                
+                {/* Image Upload in Edit Modal */}
                 <div>
-                  <Label htmlFor="edit-imageUrl">Image URL</Label>
-                  <Input
-                    id="edit-imageUrl"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  />
+                  <Label>Product Image</Label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                    <div className="space-y-1 text-center">
+                      {formData.imageUrl ? (
+                        <div className="relative">
+                          <div className="relative w-32 h-32 mx-auto">
+                            <Image
+                              src={formData.imageUrl}
+                              alt="Product preview"
+                              fill
+                              className="object-cover rounded-lg"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                          >
+                            <XCircle className="h-5 w-5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                          <div className="flex text-sm text-gray-600">
+                            <label
+                              htmlFor="edit-image-upload"
+                              className="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500"
+                            >
+                              <span>Upload a file</span>
+                              <input
+                                id="edit-image-upload"
+                                name="edit-image-upload"
+                                type="file"
+                                className="sr-only"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                disabled={uploadingImage}
+                              />
+                            </label>
+                            <p className="pl-1">or drag and drop</p>
+                          </div>
+                          <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                        </>
+                      )}
+                      {uploadingImage && (
+                        <p className="text-sm text-purple-600">Uploading...</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
+                
                 <div className="flex gap-2 pt-4 sticky bottom-0 bg-white">
-                  <Button type="submit" disabled={updateProductMutation.isPending}>
+                  <Button type="submit" disabled={updateProductMutation.isPending || uploadingImage}>
                     Save Changes
                   </Button>
                   <Button variant="outline" onClick={() => setEditingProduct(null)}>

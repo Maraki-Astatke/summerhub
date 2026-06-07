@@ -60,6 +60,8 @@ export default function LoginPage() {
           router.push("/admin");
         } else if (user.roles?.includes("teacher")) {
           router.push("/teacher");
+        } else if (user.roles?.includes("seller")) {
+          router.push("/seller");
         } else {
           router.push("/dashboard");
         }

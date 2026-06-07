@@ -306,7 +306,7 @@ export default function AdminDashboardPage() {
 
     if (activeTab === "content") {
       return (
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Manage Hobbies</CardTitle>
@@ -324,13 +324,27 @@ export default function AdminDashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Manage Categories</CardTitle>
-              <CardDescription>Add, edit, or remove categories</CardDescription>
+              <CardDescription>Add, edit, or remove hobby categories</CardDescription>
             </CardHeader>
             <CardContent>
               <Link href="/admin/categories">
                 <Button variant="outline" className="w-full">
                   <Plus className="h-4 w-4 mr-2" />
                   Manage Categories
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Product Categories</CardTitle>
+              <CardDescription>Add, edit, or remove marketplace categories for sellers</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/admin/product-categories">
+                <Button variant="outline" className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Manage Product Categories
                 </Button>
               </Link>
             </CardContent>
@@ -395,7 +409,6 @@ export default function AdminDashboardPage() {
           </nav>
 
           <div className="p-4 border-t space-y-2">
-            
             <Link href="/profile" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <Settings className="w-5 h-5" />
               <span className="font-medium">Settings</span>

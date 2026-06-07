@@ -21,7 +21,7 @@ router.post('/products',
     body('price').isFloat({ min: 0.01 }),
     body('stockCount').isInt({ min: 0 }),
     body('categoryId').optional().isInt(),
-    body('imageUrl').optional().isURL()
+body('imageUrl').optional().isString()
   ],
   async (req, res) => {
     const errors = validationResult(req);

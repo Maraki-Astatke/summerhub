@@ -300,6 +300,7 @@ router.get('/admin/reports/scholarships', async (req, res) => {
   });
 });
 
+// Hobby Categories (for hobbies)
 router.post('/admin/categories', async (req, res) => {
   const { name, description } = req.body;
   
@@ -334,6 +335,7 @@ router.delete('/admin/categories/:id', async (req, res) => {
   res.status(204).send();
 });
 
+// Hobbies
 router.post('/admin/hobbies', async (req, res) => {
   const { name, description, ageGroup, categoryId, imageUrl } = req.body;
   
@@ -357,6 +359,39 @@ router.put('/admin/hobbies/:id', async (req, res) => {
 router.delete('/admin/hobbies/:id', async (req, res) => {
   const { id } = req.params;
   await prisma.hobby.delete({ where: { id: parseInt(id) } });
+  res.status(204).send();
+});
+
+// Product Categories (for marketplace - sellers use these)
+router.post('/admin/product-categories', async (req, res) => {
+  const { name, description } = req.body;
+  
+  const category = await prisma.productCategory.create({
+    data: { name, description }
+  });
+  
+  res.status(201).json(category);
+});
+
+router.get('/admin/product-categories', async (req, res) => {
+  const categories = await prisma.productCategory.findMany();
+  res.json(categories);
+});
+
+router.put('/admin/product-categories/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, description } = req.body;
+  
+  const category = await prisma.productCategory.update({
+    where: { id: parseInt(id) },
+    data: { name, description }
+  });
+  res.json(category);
+});
+
+router.delete('/admin/product-categories/:id', async (req, res) => {
+  const { id } = req.params;
+  await prisma.productCategory.delete({ where: { id: parseInt(id) } });
   res.status(204).send();
 });
 
