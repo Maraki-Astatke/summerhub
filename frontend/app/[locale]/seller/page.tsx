@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,7 @@ import api from '@/lib/api';
 import { 
   Package, ShoppingCart, DollarSign, AlertTriangle, Plus, Edit, Trash2, 
   Menu, X, LogOut, LayoutDashboard, BookOpen, Newspaper, Trophy, 
-  MessageSquare, Settings, Home, BarChart3, Store, Upload, XCircle
+  MessageSquare, Settings, Home, BarChart3, Store, Upload, XCircle, Star
 } from 'lucide-react';
 
 export default function SellerDashboardPage() {
@@ -266,66 +265,97 @@ export default function SellerDashboardPage() {
   const renderContent = () => {
     if (activeTab === 'products') {
       return (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {products?.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-12">
-                <Package className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-500">No products listed yet</p>
-                <Button className="mt-4" onClick={() => setActiveTab('create')}>Add First Product</Button>
-              </CardContent>
-            </Card>
+            <div className="col-span-full">
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Package className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500">No products listed yet</p>
+                  <Button className="mt-4" onClick={() => setActiveTab('create')}>Add First Product</Button>
+                </CardContent>
+              </Card>
+            </div>
           ) : (
             products?.map((product: any) => (
-              <Card key={product.id}>
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                    <div className="flex gap-4">
-                      {product.imageUrl && (
-                        <div className="w-20 h-20 relative flex-shrink-0">
-                          <Image
-                            src={product.imageUrl}
-                            alt={product.name}
-                            fill
-                            className="object-cover rounded-lg"
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
-                        <p className="text-gray-600 mb-3">{product.description?.substring(0, 100)}</p>
-                        <div className="flex flex-wrap gap-4 text-sm">
-                          <span className="text-purple-600 font-bold">{product.price} ETB</span>
-                          <span className={`${product.stockCount < 10 ? 'text-red-500' : 'text-gray-500'}`}>
-                            Stock: {product.stockCount}
-                          </span>
-                          <span className="text-gray-500">Sold: {product.totalSold || 0}</span>
-                          <span className="text-gray-500">Rating: {product.averageRating?.toFixed(1) || 'No ratings'}</span>
-                        </div>
-                      </div>
+              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-row">
+                <div className="relative w-32 h-32 flex-shrink-0 bg-gray-100 overflow-hidden">
+                  {product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="w-full h-full"
+                      style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="h-12 w-12 text-gray-300" />
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => {
-                        setEditingProduct(product);
-                        setFormData({
-                          name: product.name,
-                          description: product.description || '',
-                          price: product.price.toString(),
-                          stockCount: product.stockCount.toString(),
-                          categoryId: product.categoryId?.toString() || '',
-                          imageUrl: product.imageUrl || '',
-                        });
-                      }}>
-                        <Edit className="h-4 w-4" />
+                  )}
+                  {product.stockCount < 10 && (
+                    <div className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                      Low Stock
+                    </div>
+                  )}
+                </div>
+                
+                <CardContent className="p-3 flex-1 flex flex-col">
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-semibold text-sm text-gray-800 line-clamp-1">{product.name}</h3>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => {
+                          setEditingProduct(product);
+                          setFormData({
+                            name: product.name,
+                            description: product.description || '',
+                            price: product.price.toString(),
+                            stockCount: product.stockCount.toString(),
+                            categoryId: product.categoryId?.toString() || '',
+                            imageUrl: product.imageUrl || '',
+                          });
+                        }}
+                      >
+                        <Edit className="h-3 w-3" />
                       </Button>
-                      <Button variant="outline" size="sm" className="text-red-500" onClick={() => {
-                        if (confirm('Delete this product?')) {
-                          deleteProductMutation.mutate(product.id);
-                        }
-                      }}>
-                        <Trash2 className="h-4 w-4" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                        onClick={() => {
+                          if (confirm('Delete this product?')) {
+                            deleteProductMutation.mutate(product.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
+                  </div>
+                  
+                  <p className="text-gray-500 text-xs line-clamp-2 mt-1 mb-2">{product.description || 'No description'}</p>
+                  
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="text-lg font-bold text-purple-600">{product.price} ETB</span>
+                    <div className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-gray-600">
+                        {product.averageRating?.toFixed(1) || '0'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-xs mt-2 pt-1 border-t border-gray-100">
+                    <span className={`font-medium ${product.stockCount < 10 ? 'text-red-500' : 'text-gray-500'}`}>
+                      Stock: {product.stockCount}
+                    </span>
+                    <span className="text-gray-400">Sold: {product.totalSold || 0}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -382,51 +412,45 @@ export default function SellerDashboardPage() {
 
     if (activeTab === 'stats') {
       return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Total Products</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold flex items-center gap-2">
-                <Package className="h-5 w-5 text-gray-400" />
-                {stats?.totalProducts || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Total Orders</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5 text-gray-400" />
-                {stats?.totalOrders || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-green-500" />
-                {stats?.totalRevenue || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Low Stock</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold flex items-center gap-2 text-yellow-600">
-                <AlertTriangle className="h-5 w-5" />
-                {stats?.lowStockProducts || 0}
-              </div>
-            </CardContent>
-          </Card>
+        <div className="bg-white rounded-lg border overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="text-left p-4 font-semibold text-gray-600">Metric</th>
+                <th className="text-right p-4 font-semibold text-gray-600">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b">
+                <td className="p-4 flex items-center gap-2">
+                  <Package className="h-5 w-5 text-purple-600" />
+                  <span className="font-medium">Total Products</span>
+                </td>
+                <td className="p-4 text-right font-bold text-xl">{stats?.totalProducts || 0}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-4 flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5 text-purple-600" />
+                  <span className="font-medium">Total Orders</span>
+                </td>
+                <td className="p-4 text-right font-bold text-xl">{stats?.totalOrders || 0}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-4 flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                  <span className="font-medium">Revenue</span>
+                </td>
+                <td className="p-4 text-right font-bold text-xl">{stats?.totalRevenue || 0} ETB</td>
+              </tr>
+              <tr>
+                <td className="p-4 flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                  <span className="font-medium">Low Stock Products</span>
+                </td>
+                <td className="p-4 text-right font-bold text-xl text-yellow-600">{stats?.lowStockProducts || 0}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       );
     }
@@ -496,19 +520,18 @@ export default function SellerDashboardPage() {
                 </select>
               </div>
               
-              {/* Image Upload Section */}
               <div>
                 <Label>Product Image *</Label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                   <div className="space-y-1 text-center">
                     {formData.imageUrl ? (
-                      <div className="relative">
-                        <div className="relative w-32 h-32 mx-auto">
-                          <Image
+                      <div className="relative inline-block">
+                        <div className="w-40 h-40 relative">
+                          <img
                             src={formData.imageUrl}
                             alt="Product preview"
-                            fill
-                            className="object-cover rounded-lg"
+                            className="w-full h-full object-cover rounded-lg"
+                            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                           />
                         </div>
                         <button
@@ -550,7 +573,7 @@ export default function SellerDashboardPage() {
                 </div>
               </div>
               
-              <Button type="submit" disabled={createProductMutation.isPending || uploadingImage}>
+              <Button type="submit" disabled={createProductMutation.isPending || uploadingImage} className="w-full">
                 {createProductMutation.isPending ? 'Adding...' : 'Add Product'}
               </Button>
             </form>
@@ -564,7 +587,6 @@ export default function SellerDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Seller</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
@@ -572,7 +594,6 @@ export default function SellerDashboardPage() {
         </button>
       </div>
 
-      {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b">
@@ -650,12 +671,10 @@ export default function SellerDashboardPage() {
         </div>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content */}
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
@@ -666,7 +685,6 @@ export default function SellerDashboardPage() {
         </div>
       </div>
 
-      {/* Edit Modal */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
@@ -731,19 +749,18 @@ export default function SellerDashboardPage() {
                   </select>
                 </div>
                 
-                {/* Image Upload in Edit Modal */}
                 <div>
                   <Label>Product Image</Label>
                   <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                     <div className="space-y-1 text-center">
                       {formData.imageUrl ? (
-                        <div className="relative">
-                          <div className="relative w-32 h-32 mx-auto">
-                            <Image
+                        <div className="relative inline-block">
+                          <div className="w-40 h-40 relative">
+                            <img
                               src={formData.imageUrl}
                               alt="Product preview"
-                              fill
-                              className="object-cover rounded-lg"
+                              className="w-full h-full object-cover rounded-lg"
+                              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                             />
                           </div>
                           <button
@@ -785,7 +802,7 @@ export default function SellerDashboardPage() {
                   </div>
                 </div>
                 
-                <div className="flex gap-2 pt-4 sticky bottom-0 bg-white">
+                <div className="flex gap-2 pt-4">
                   <Button type="submit" disabled={updateProductMutation.isPending || uploadingImage}>
                     Save Changes
                   </Button>

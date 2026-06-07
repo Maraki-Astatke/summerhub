@@ -6,7 +6,6 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = Router();
 
-// Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = 'uploads/products';
@@ -23,15 +22,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const allowedTypes = /jpeg|jpg|png|gif|webp|svg/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
     if (mimetype && extname) {
       return cb(null, true);
     }
-    cb(new Error('Only image files are allowed'));
+    cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp, svg)'));
   }
 });
 
@@ -41,8 +40,19 @@ router.post('/upload/product-image', authenticateToken, upload.single('image'), 
       return res.status(400).json({ error: 'No image file provided' });
     }
     
-    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/products/${req.file.filename}`;
-    res.json({ imageUrl });
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const filename = req.file.filename;
+    const imageUrl = `${protocol}://${host}/uploads/products/${filename}`;
+    
+    console.log(`Image uploaded: ${imageUrl}`);
+    
+    res.json({ 
+      success: true,
+      imageUrl,
+      filename,
+      message: 'Image uploaded successfully'
+    });
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'Failed to upload image' });
