@@ -62,6 +62,8 @@ export default function LoginPage() {
           router.push("/teacher");
         } else if (user.roles?.includes("seller")) {
           router.push("/seller");
+        } else if (user.roles?.includes("parent")) {
+          router.push("/parent");
         } else {
           router.push("/dashboard");
         }

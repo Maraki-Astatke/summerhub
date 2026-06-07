@@ -265,7 +265,7 @@ export default function SellerDashboardPage() {
   const renderContent = () => {
     if (activeTab === 'products') {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {products?.length === 0 ? (
             <div className="col-span-full">
               <Card>
@@ -278,17 +278,14 @@ export default function SellerDashboardPage() {
             </div>
           ) : (
             products?.map((product: any) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-row">
-                <div className="relative w-32 h-32 flex-shrink-0 bg-gray-100 overflow-hidden">
+              <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow duration-300">
+                <div className="relative w-full aspect-square bg-gray-100 overflow-hidden">
                   {product.imageUrl ? (
                     <img
                       src={product.imageUrl}
                       alt={product.name}
                       className="w-full h-full"
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -296,14 +293,14 @@ export default function SellerDashboardPage() {
                     </div>
                   )}
                   {product.stockCount < 10 && (
-                    <div className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                       Low Stock
                     </div>
                   )}
                 </div>
                 
-                <CardContent className="p-3 flex-1 flex flex-col">
-                  <div className="flex justify-between items-start">
+                <CardContent className="p-3">
+                  <div className="flex justify-between items-start mb-1">
                     <h3 className="font-semibold text-sm text-gray-800 line-clamp-1">{product.name}</h3>
                     <div className="flex gap-1">
                       <Button
@@ -339,10 +336,10 @@ export default function SellerDashboardPage() {
                     </div>
                   </div>
                   
-                  <p className="text-gray-500 text-xs line-clamp-2 mt-1 mb-2">{product.description || 'No description'}</p>
+                  <p className="text-gray-500 text-xs line-clamp-2 mb-2">{product.description || 'No description'}</p>
                   
-                  <div className="flex items-center justify-between mt-auto">
-                    <span className="text-lg font-bold text-purple-600">{product.price} ETB</span>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-base font-bold text-purple-600">{product.price} ETB</span>
                     <div className="flex items-center gap-1">
                       <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                       <span className="text-xs text-gray-600">
@@ -351,7 +348,7 @@ export default function SellerDashboardPage() {
                     </div>
                   </div>
                   
-                  <div className="flex justify-between items-center text-xs mt-2 pt-1 border-t border-gray-100">
+                  <div className="flex justify-between items-center text-xs pt-1 border-t border-gray-100">
                     <span className={`font-medium ${product.stockCount < 10 ? 'text-red-500' : 'text-gray-500'}`}>
                       Stock: {product.stockCount}
                     </span>
