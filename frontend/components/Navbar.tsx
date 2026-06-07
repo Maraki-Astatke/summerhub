@@ -8,7 +8,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import api from '../app/lib/api';
+import api from '@/lib/api';
 import { 
   ShoppingBag, LogOut, Menu, X, LayoutDashboard, User, 
   BookOpen, MessageSquare 

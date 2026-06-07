@@ -126,6 +126,14 @@
     "title": "ጉዞህን ለመጀመር ዝግጁ ነህ?",
     "subtitle": "በሺዎች ከሚቆጠሩ ተማሪዎች ጋር ፍላጎታቸውን ከሚያገኙ ተቀላቀል"
   },
+  "auth": {
+  "welcomeBack": "እንኳን ደህና መጡ",
+  "loginDesc": "ወደ HobbyHub አካውንትዎ ይግቡ",
+  "password": "የይለፍ ቃል",
+  "forgotPassword": "የይለፍ ቃል ረሳሁ?",
+  "orContinue": "ወይም በ",
+  "noAccount": "መለያ የለዎትም?"
+},
   "footer": {
     "desc": "የትርፍ ጊዜ ማሳለፊያዎችን ለይ፣ ተማር፣ ፍጠር እና ብልጭ በል ከHobbyHub ጋር።",
     "quickLinks": "ፈጣን አገናኞች",

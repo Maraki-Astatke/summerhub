@@ -126,6 +126,14 @@
     "title": "Ready to Start Your Journey?",
     "subtitle": "Join thousands of students discovering their passions"
   },
+  "auth": {
+  "welcomeBack": "Welcome Back",
+  "loginDesc": "Login to your HobbyHub account",
+  "password": "Password",
+  "forgotPassword": "Forgot password?",
+  "orContinue": "Or continue with",
+  "noAccount": "Don't have an account?"
+},
   "footer": {
     "desc": "Discover, learn, create, and shine with HobbyHub Education.",
     "quickLinks": "Quick Links",

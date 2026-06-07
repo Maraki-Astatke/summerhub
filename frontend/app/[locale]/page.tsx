@@ -4,21 +4,23 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { useAuth } from '../../providers/auth-provider';
+import { useAuth } from '@/providers/auth-provider';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
-import api from '../lib/api';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
+import api from '@/lib/api';
 import { 
   BookOpen, Video, ShoppingBag, Users, Calendar, Award, 
-  Mail, Phone, MapPin, Sparkles, Laptop, GraduationCap, 
+  Mail, Phone, MapPin, Sparkles, GraduationCap, 
   UserCheck, Building2, Music, Palette, Code2, Cpu, Camera,
   PenTool, ShieldCheck, ClipboardList, BarChart2, Newspaper, Trophy,
+  Star, ChevronLeft, ChevronRight, Globe, Send, MessageSquare
 } from 'lucide-react';
 
 export default function Home() {
   const { user } = useAuth();
   const t = useTranslations();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -350,7 +352,6 @@ export default function Home() {
                 <li className="flex items-center gap-2 text-sm text-[#9CA3AF]"><Mail className="w-4 h-4 text-[#FF7A45]" />info@hobbyhub.et</li>
                 <li className="flex items-center gap-2 text-sm text-[#9CA3AF]"><MapPin className="w-4 h-4 text-[#FF7A45]" />{t('footer.address')}</li>
               </ul>
-              <LanguageSwitcher />
             </div>
           </div>
           <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
