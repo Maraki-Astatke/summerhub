@@ -42,16 +42,18 @@ export default function ParentDashboardPage() {
     router.push('/');
   };
 
-  const { data: children, refetch: refetchChildren } = useQuery({
+  // Fetch children - add refetch interval
+  const { data: children, refetch: refetchChildren, isLoading: childrenLoading } = useQuery({
     queryKey: ['parent-children'],
     queryFn: async () => {
       const response = await api.get('/parent/children');
+      console.log('Children fetched:', response.data);
       return response.data;
     },
     enabled: !!user && user?.roles?.includes('parent'),
   });
 
-  const { data: childProgress } = useQuery({
+  const { data: childProgress, refetch: refetchProgress } = useQuery({
     queryKey: ['parent-child-progress', selectedChild?.id],
     queryFn: async () => {
       if (!selectedChild) return null;
@@ -61,7 +63,7 @@ export default function ParentDashboardPage() {
     enabled: !!selectedChild && !!user,
   });
 
-  const { data: childLessons } = useQuery({
+  const { data: childLessons, refetch: refetchLessons } = useQuery({
     queryKey: ['parent-child-lessons', selectedChild?.id],
     queryFn: async () => {
       if (!selectedChild) return null;
@@ -71,12 +73,16 @@ export default function ParentDashboardPage() {
     enabled: !!selectedChild && !!user,
   });
 
-  const { data: childQuizResults } = useQuery({
+  const { data: childQuizResults, refetch: refetchQuiz } = useQuery({
     queryKey: ['parent-child-quiz', selectedChild?.id],
     queryFn: async () => {
       if (!selectedChild) return null;
-      const response = await api.get(`/parent/child/${selectedChild.id}/quiz-results`);
-      return response.data;
+      try {
+        const response = await api.get(`/parent/child/${selectedChild.id}/quiz-results`);
+        return response.data;
+      } catch {
+        return null;
+      }
     },
     enabled: !!selectedChild && !!user,
   });
@@ -86,26 +92,21 @@ export default function ParentDashboardPage() {
       const response = await api.post('/parent/children/link', data);
       return response.data;
     },
-    onSuccess: () => {
-      refetchChildren();
+    onSuccess: (data) => {
+      console.log('Link success:', data);
+      // Close dialog
       setIsLinkDialogOpen(false);
+      // Clear form
       setLinkEmail('');
       setLinkPhone('');
+      // Show success message
       alert('Child linked successfully!');
+      // Refetch children list
+      refetchChildren();
     },
     onError: (error: any) => {
+      console.error('Link error:', error);
       alert(error.response?.data?.error || 'Failed to link child');
-    },
-  });
-
-  const approvePurchaseMutation = useMutation({
-    mutationFn: async ({ childId, orderId, approved }: { childId: number; orderId: number; approved: boolean }) => {
-      const response = await api.post(`/parent/child/${childId}/approve-purchase`, { orderId, approved });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parent-child-progress', selectedChild?.id] });
-      alert('Purchase updated!');
     },
   });
 
@@ -117,7 +118,7 @@ export default function ParentDashboardPage() {
     linkChildMutation.mutate({ childEmail: linkEmail || undefined, childPhone: linkPhone || undefined });
   };
 
-  if (authLoading) {
+  if (authLoading || childrenLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">Loading...</div>
@@ -135,15 +136,16 @@ export default function ParentDashboardPage() {
   ];
 
   const renderContent = () => {
+    // If no child selected, show children list or link form
     if (!selectedChild) {
       return (
         <Card>
           <CardHeader>
-            <CardTitle>Select a Child</CardTitle>
-            <CardDescription>Choose a child from the list to view their progress</CardDescription>
+            <CardTitle>My Children</CardTitle>
+            <CardDescription>Select a child to view their progress</CardDescription>
           </CardHeader>
           <CardContent>
-            {children?.length === 0 ? (
+            {!children || children.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-500 mb-4">No children linked yet</p>
                 <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
@@ -159,7 +161,7 @@ export default function ParentDashboardPage() {
                     </DialogHeader>
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="childEmail">Child's Email (optional)</Label>
+                        <Label htmlFor="childEmail">Child's Email</Label>
                         <Input
                           id="childEmail"
                           type="email"
@@ -167,9 +169,18 @@ export default function ParentDashboardPage() {
                           value={linkEmail}
                           onChange={(e) => setLinkEmail(e.target.value)}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Enter the student's email address</p>
+                      </div>
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-white px-2 text-gray-500">Or</span>
+                        </div>
                       </div>
                       <div>
-                        <Label htmlFor="childPhone">Child's Phone (optional)</Label>
+                        <Label htmlFor="childPhone">Child's Phone Number</Label>
                         <Input
                           id="childPhone"
                           type="tel"
@@ -177,9 +188,10 @@ export default function ParentDashboardPage() {
                           value={linkPhone}
                           onChange={(e) => setLinkPhone(e.target.value)}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Ethiopian format: 09XXXXXXXX</p>
                       </div>
-                      <Button onClick={handleLinkChild} disabled={linkChildMutation.isPending}>
-                        Link Child
+                      <Button onClick={handleLinkChild} disabled={linkChildMutation.isPending} className="w-full">
+                        {linkChildMutation.isPending ? 'Linking...' : 'Link Child'}
                       </Button>
                     </div>
                   </DialogContent>
@@ -187,7 +199,7 @@ export default function ParentDashboardPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {children?.map((child: any) => (
+                {children.map((child: any) => (
                   <Card 
                     key={child.id} 
                     className="cursor-pointer hover:shadow-md transition-shadow"
@@ -204,6 +216,15 @@ export default function ParentDashboardPage() {
                     </CardContent>
                   </Card>
                 ))}
+                <Card 
+                  className="cursor-pointer hover:shadow-md transition-shadow border-dashed"
+                  onClick={() => setIsLinkDialogOpen(true)}
+                >
+                  <CardContent className="p-4 flex items-center justify-center gap-2">
+                    <UserPlus className="h-5 w-5 text-purple-600" />
+                    <span className="text-purple-600">Link Another Child</span>
+                  </CardContent>
+                </Card>
               </div>
             )}
           </CardContent>
@@ -211,6 +232,7 @@ export default function ParentDashboardPage() {
       );
     }
 
+    // Child selected - show progress
     return (
       <div className="space-y-6">
         {/* Child Header */}
@@ -220,7 +242,7 @@ export default function ParentDashboardPage() {
             <p className="text-gray-500">{selectedChild.email}</p>
           </div>
           <Button variant="outline" onClick={() => setSelectedChild(null)}>
-            Change Child
+            Back to Children
           </Button>
         </div>
 
@@ -316,11 +338,11 @@ export default function ParentDashboardPage() {
                 <CardDescription>All lessons your child has registered for</CardDescription>
               </CardHeader>
               <CardContent>
-                {childLessons?.length === 0 ? (
+                {!childLessons || childLessons.length === 0 ? (
                   <p className="text-center text-gray-500 py-8">No lessons registered yet</p>
                 ) : (
                   <div className="space-y-3">
-                    {childLessons?.map((reg: any) => (
+                    {childLessons.map((reg: any) => (
                       <div key={reg.id} className="border rounded-lg p-4">
                         <div className="flex justify-between items-start">
                           <div>
@@ -386,46 +408,6 @@ export default function ParentDashboardPage() {
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Link Child Button */}
-        <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" className="w-full">
-              <UserPlus className="h-4 w-4 mr-2" />
-              Link Another Child
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Link a Child</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="childEmail">Child's Email (optional)</Label>
-                <Input
-                  id="childEmail"
-                  type="email"
-                  placeholder="child@example.com"
-                  value={linkEmail}
-                  onChange={(e) => setLinkEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="childPhone">Child's Phone (optional)</Label>
-                <Input
-                  id="childPhone"
-                  type="tel"
-                  placeholder="0912345678"
-                  value={linkPhone}
-                  onChange={(e) => setLinkPhone(e.target.value)}
-                />
-              </div>
-              <Button onClick={handleLinkChild} disabled={linkChildMutation.isPending}>
-                Link Child
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     );
   };
@@ -470,9 +452,7 @@ export default function ParentDashboardPage() {
                   setSelectedChild(null);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  'text-gray-600 hover:bg-gray-50'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-600 hover:bg-gray-50`}
               >
                 {item.icon}
                 <span className="font-medium">{item.label}</span>

@@ -5,6 +5,7 @@ import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
+// Link a child to parent
 router.post('/parent/children/link',
   authenticateToken,
   requireRole(['parent']),
@@ -49,9 +50,7 @@ router.post('/parent/children/link',
     const existingLink = await prisma.userRole.findFirst({
       where: {
         userId: child.id,
-        role: {
-          name: 'parent'
-        }
+        roleId: 5  // parent role ID
       }
     });
 
@@ -59,14 +58,10 @@ router.post('/parent/children/link',
       return res.status(400).json({ error: 'Child already linked to a parent' });
     }
 
-    const parentRole = await prisma.role.findUnique({
-      where: { name: 'parent' }
-    });
-
-    const userRole = await prisma.userRole.create({
+    await prisma.userRole.create({
       data: {
         userId: child.id,
-        roleId: parentRole.id,
+        roleId: 5,  // parent role ID
         assignedAt: new Date()
       }
     });
@@ -75,29 +70,19 @@ router.post('/parent/children/link',
   }
 );
 
+// Get all children for this parent
 router.get('/parent/children',
   authenticateToken,
   requireRole(['parent']),
   async (req, res) => {
     const parentId = req.user.userId;
 
+    // Find all users who have the parent role (meaning they are linked to this parent)
     const children = await prisma.user.findMany({
       where: {
         roles: {
           some: {
-            role: {
-              name: 'student'
-            },
-            user: {
-              roles: {
-                some: {
-                  userId: parentId,
-                  role: {
-                    name: 'parent'
-                  }
-                }
-              }
-            }
+            roleId: 5  // parent role means they are linked as child
           }
         }
       },
@@ -117,10 +102,15 @@ router.get('/parent/children',
       }
     });
 
-    res.json(children);
+    // Filter out the parent themselves
+    const filteredChildren = children.filter(child => child.id !== parentId);
+    
+    console.log(`Parent ${parentId} has ${filteredChildren.length} children`);
+    res.json(filteredChildren);
   }
 );
 
+// Get child progress
 router.get('/parent/child/:id/progress',
   authenticateToken,
   requireRole(['parent']),
@@ -132,20 +122,11 @@ router.get('/parent/child/:id/progress',
     }
 
     const { id } = req.params;
-    const parentId = req.user.userId;
+    const childId = parseInt(id);
 
-    const child = await prisma.user.findFirst({
-      where: {
-        id: parseInt(id),
-        roles: {
-          some: {
-            role: { name: 'student' }
-          }
-        }
-      },
-      include: {
-        profile: true
-      }
+    const child = await prisma.user.findUnique({
+      where: { id: childId },
+      include: { profile: true }
     });
 
     if (!child) {
@@ -153,19 +134,17 @@ router.get('/parent/child/:id/progress',
     }
 
     const quizResult = await prisma.quizResult.findFirst({
-      where: { userId: child.id }
+      where: { userId: childId }
     });
 
     const lessonRegistrations = await prisma.lessonRegistration.findMany({
-      where: { studentId: child.id },
+      where: { studentId: childId },
       include: {
         lesson: {
           include: {
             hobby: true,
             teacher: {
-              include: {
-                profile: true
-              }
+              include: { profile: true }
             }
           }
         }
@@ -173,18 +152,16 @@ router.get('/parent/child/:id/progress',
     });
 
     const userHobbies = await prisma.userHobby.findMany({
-      where: { userId: child.id },
-      include: {
-        hobby: true
-      }
+      where: { userId: childId },
+      include: { hobby: true }
     });
 
     const blogPosts = await prisma.blogPost.count({
-      where: { authorId: child.id }
+      where: { authorId: childId }
     });
 
     const orders = await prisma.order.count({
-      where: { userId: child.id }
+      where: { userId: childId }
     });
 
     res.json({
@@ -208,6 +185,7 @@ router.get('/parent/child/:id/progress',
   }
 );
 
+// Get child lessons
 router.get('/parent/child/:id/lessons',
   authenticateToken,
   requireRole(['parent']),
@@ -227,9 +205,7 @@ router.get('/parent/child/:id/lessons',
           include: {
             hobby: true,
             teacher: {
-              include: {
-                profile: true
-              }
+              include: { profile: true }
             }
           }
         }
@@ -245,45 +221,7 @@ router.get('/parent/child/:id/lessons',
   }
 );
 
-router.post('/parent/child/:id/approve-purchase',
-  authenticateToken,
-  requireRole(['parent']),
-  [
-    param('id').isInt(),
-    body('orderId').isInt(),
-    body('approved').isBoolean()
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { id, orderId, approved } = req.body;
-    const parentId = req.user.userId;
-
-    const order = await prisma.order.findFirst({
-      where: {
-        id: orderId,
-        userId: parseInt(id)
-      }
-    });
-
-    if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-
-    const updatedOrder = await prisma.order.update({
-      where: { id: orderId },
-      data: {
-        status: approved ? 'approved_by_parent' : 'rejected_by_parent'
-      }
-    });
-
-    res.json(updatedOrder);
-  }
-);
-
+// Get child quiz results
 router.get('/parent/child/:id/quiz-results',
   authenticateToken,
   requireRole(['parent']),
@@ -308,15 +246,52 @@ router.get('/parent/child/:id/quiz-results',
       where: {
         id: { in: quizResult.topHobbyIds }
       },
-      include: {
-        category: true
-      }
+      include: { category: true }
     });
 
     res.json({
       completedAt: quizResult.completedAt,
       recommendations: recommendedHobbies
     });
+  }
+);
+
+// Approve purchase
+router.post('/parent/child/:id/approve-purchase',
+  authenticateToken,
+  requireRole(['parent']),
+  [
+    param('id').isInt(),
+    body('orderId').isInt(),
+    body('approved').isBoolean()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id, orderId, approved } = req.body;
+
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        userId: parseInt(id)
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: approved ? 'approved_by_parent' : 'rejected_by_parent'
+      }
+    });
+
+    res.json(updatedOrder);
   }
 );
 
