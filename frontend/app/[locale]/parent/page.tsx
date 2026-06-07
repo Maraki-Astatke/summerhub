@@ -15,7 +15,7 @@ import api from '@/lib/api';
 import { 
   Users, BookOpen, Calendar, ShoppingBag, Award, Star, 
   Menu, X, LogOut, LayoutDashboard, Home, Settings, 
-  UserPlus, Eye, CheckCircle, XCircle, Clock, TrendingUp
+  UserPlus, Eye, CheckCircle, XCircle, Clock, TrendingUp, RefreshCw
 } from 'lucide-react';
 
 export default function ParentDashboardPage() {
@@ -24,6 +24,7 @@ export default function ParentDashboardPage() {
   const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedChild, setSelectedChild] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('children');
   const [linkEmail, setLinkEmail] = useState('');
   const [linkPhone, setLinkPhone] = useState('');
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
@@ -42,12 +43,10 @@ export default function ParentDashboardPage() {
     router.push('/');
   };
 
-  // Fetch children - add refetch interval
   const { data: children, refetch: refetchChildren, isLoading: childrenLoading } = useQuery({
     queryKey: ['parent-children'],
     queryFn: async () => {
       const response = await api.get('/parent/children');
-      console.log('Children fetched:', response.data);
       return response.data;
     },
     enabled: !!user && user?.roles?.includes('parent'),
@@ -92,20 +91,14 @@ export default function ParentDashboardPage() {
       const response = await api.post('/parent/children/link', data);
       return response.data;
     },
-    onSuccess: (data) => {
-      console.log('Link success:', data);
-      // Close dialog
+    onSuccess: () => {
       setIsLinkDialogOpen(false);
-      // Clear form
       setLinkEmail('');
       setLinkPhone('');
-      // Show success message
       alert('Child linked successfully!');
-      // Refetch children list
       refetchChildren();
     },
     onError: (error: any) => {
-      console.error('Link error:', error);
       alert(error.response?.data?.error || 'Failed to link child');
     },
   });
@@ -135,118 +128,135 @@ export default function ParentDashboardPage() {
     { id: 'progress', label: 'Progress', icon: <TrendingUp className="w-5 h-5" /> },
   ];
 
-  const renderContent = () => {
-    // If no child selected, show children list or link form
+  const ChildrenView = () => (
+    <Card>
+      <CardHeader className="flex flex-row justify-between items-center">
+        <div>
+          <CardTitle>My Children</CardTitle>
+          <CardDescription>Select a child to view their progress</CardDescription>
+        </div>
+        <Button variant="ghost" size="sm" onClick={() => refetchChildren()}>
+          <RefreshCw className="h-4 w-4" />
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {!children || children.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500 mb-4">No children linked yet</p>
+            <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Link Child
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Link a Child</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="childEmail">Child's Email</Label>
+                    <Input
+                      id="childEmail"
+                      type="email"
+                      placeholder="child@example.com"
+                      value={linkEmail}
+                      onChange={(e) => setLinkEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-gray-500">Or</span>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="childPhone">Child's Phone</Label>
+                    <Input
+                      id="childPhone"
+                      type="tel"
+                      placeholder="0912345678"
+                      value={linkPhone}
+                      onChange={(e) => setLinkPhone(e.target.value)}
+                    />
+                  </div>
+                  <Button onClick={handleLinkChild} disabled={linkChildMutation.isPending} className="w-full">
+                    {linkChildMutation.isPending ? 'Linking...' : 'Link Child'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {children.map((child: any) => (
+              <Card 
+                key={child.id} 
+                className={`cursor-pointer hover:shadow-md transition-shadow ${selectedChild?.id === child.id ? 'border-purple-500 border-2' : ''}`}
+                onClick={() => {
+                  setSelectedChild(child);
+                  setActiveTab('progress');
+                }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-semibold">{child.profile?.firstName} {child.profile?.lastName}</h3>
+                      <p className="text-sm text-gray-500">{child.email}</p>
+                    </div>
+                    {selectedChild?.id === child.id ? (
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400" />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            <Card 
+              className="cursor-pointer hover:shadow-md transition-shadow border-dashed"
+              onClick={() => setIsLinkDialogOpen(true)}
+            >
+              <CardContent className="p-4 flex items-center justify-center gap-2">
+                <UserPlus className="h-5 w-5 text-purple-600" />
+                <span className="text-purple-600">Link Another Child</span>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const ProgressView = () => {
     if (!selectedChild) {
       return (
         <Card>
-          <CardHeader>
-            <CardTitle>My Children</CardTitle>
-            <CardDescription>Select a child to view their progress</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {!children || children.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">No children linked yet</p>
-                <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Link Child
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Link a Child</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="childEmail">Child's Email</Label>
-                        <Input
-                          id="childEmail"
-                          type="email"
-                          placeholder="child@example.com"
-                          value={linkEmail}
-                          onChange={(e) => setLinkEmail(e.target.value)}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Enter the student's email address</p>
-                      </div>
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-white px-2 text-gray-500">Or</span>
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="childPhone">Child's Phone Number</Label>
-                        <Input
-                          id="childPhone"
-                          type="tel"
-                          placeholder="0912345678"
-                          value={linkPhone}
-                          onChange={(e) => setLinkPhone(e.target.value)}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Ethiopian format: 09XXXXXXXX</p>
-                      </div>
-                      <Button onClick={handleLinkChild} disabled={linkChildMutation.isPending} className="w-full">
-                        {linkChildMutation.isPending ? 'Linking...' : 'Link Child'}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {children.map((child: any) => (
-                  <Card 
-                    key={child.id} 
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => setSelectedChild(child)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className="font-semibold">{child.profile?.firstName} {child.profile?.lastName}</h3>
-                          <p className="text-sm text-gray-500">{child.email}</p>
-                        </div>
-                        <Eye className="h-5 w-5 text-gray-400" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-                <Card 
-                  className="cursor-pointer hover:shadow-md transition-shadow border-dashed"
-                  onClick={() => setIsLinkDialogOpen(true)}
-                >
-                  <CardContent className="p-4 flex items-center justify-center gap-2">
-                    <UserPlus className="h-5 w-5 text-purple-600" />
-                    <span className="text-purple-600">Link Another Child</span>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+          <CardContent className="text-center py-12">
+            <p className="text-gray-500">Select a child first to view their progress</p>
+            <Button className="mt-4" onClick={() => setActiveTab('children')}>
+              Go to My Children
+            </Button>
           </CardContent>
         </Card>
       );
     }
 
-    // Child selected - show progress
     return (
       <div className="space-y-6">
-        {/* Child Header */}
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold">{selectedChild.profile?.firstName} {selectedChild.profile?.lastName}</h2>
             <p className="text-gray-500">{selectedChild.email}</p>
           </div>
-          <Button variant="outline" onClick={() => setSelectedChild(null)}>
-            Back to Children
+          <Button variant="outline" onClick={() => setActiveTab('children')}>
+            Change Child
           </Button>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">
@@ -449,10 +459,12 @@ export default function ParentDashboardPage() {
               <button
                 key={item.id}
                 onClick={() => {
-                  setSelectedChild(null);
+                  setActiveTab(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-600 hover:bg-gray-50`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  activeTab === item.id ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'
+                }`}
               >
                 {item.icon}
                 <span className="font-medium">{item.label}</span>
@@ -492,7 +504,7 @@ export default function ParentDashboardPage() {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Parent Dashboard</h1>
             <p className="text-gray-500 mt-1">Monitor your children's progress and activities</p>
           </div>
-          {renderContent()}
+          {activeTab === 'children' ? <ChildrenView /> : <ProgressView />}
         </div>
       </div>
     </div>
