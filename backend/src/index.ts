@@ -34,6 +34,7 @@ import paymentRoutes from './routes/payment.js';
 import prisma from './lib/prisma.js';
 import path from 'path';
 import uploadRoutes from './routes/upload.js';
+import userRoutes from './routes/users.js';
 
 
 const app = express();
@@ -89,6 +90,7 @@ app.use('/api', teacherRoutes);
 app.use('/api', sellerRoutes);
 app.use('/api', videoRoutes);
 app.use('/api', chatRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', roleRoutes);

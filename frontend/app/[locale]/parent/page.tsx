@@ -28,6 +28,7 @@ export default function ParentDashboardPage() {
   const [linkEmail, setLinkEmail] = useState('');
   const [linkPhone, setLinkPhone] = useState('');
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
+  const [linkError, setLinkError] = useState('');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -95,20 +96,31 @@ export default function ParentDashboardPage() {
       setIsLinkDialogOpen(false);
       setLinkEmail('');
       setLinkPhone('');
+      setLinkError('');
       alert('Child linked successfully!');
       refetchChildren();
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || 'Failed to link child');
+      const errorMsg = error.response?.data?.error || 'Failed to link child';
+      setLinkError(errorMsg);
+      alert(errorMsg);
     },
   });
 
   const handleLinkChild = () => {
+    setLinkError('');
     if (!linkEmail && !linkPhone) {
+      setLinkError('Please enter either email or phone number');
       alert('Please enter either email or phone number');
       return;
     }
-    linkChildMutation.mutate({ childEmail: linkEmail || undefined, childPhone: linkPhone || undefined });
+    
+    const linkData: any = {};
+    if (linkEmail) linkData.childEmail = linkEmail;
+    if (linkPhone) linkData.childPhone = linkPhone;
+    
+    console.log('Linking child with data:', linkData);
+    linkChildMutation.mutate(linkData);
   };
 
   if (authLoading || childrenLoading) {
@@ -160,10 +172,11 @@ export default function ParentDashboardPage() {
                     <Input
                       id="childEmail"
                       type="email"
-                      placeholder="child@example.com"
+                      placeholder="student@example.com"
                       value={linkEmail}
                       onChange={(e) => setLinkEmail(e.target.value)}
                     />
+                    <p className="text-xs text-gray-500 mt-1">Enter the student's email address</p>
                   </div>
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
@@ -174,7 +187,7 @@ export default function ParentDashboardPage() {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="childPhone">Child's Phone</Label>
+                    <Label htmlFor="childPhone">Child's Phone Number</Label>
                     <Input
                       id="childPhone"
                       type="tel"
@@ -182,8 +195,16 @@ export default function ParentDashboardPage() {
                       value={linkPhone}
                       onChange={(e) => setLinkPhone(e.target.value)}
                     />
+                    <p className="text-xs text-gray-500 mt-1">Ethiopian format: 09XXXXXXXX</p>
                   </div>
-                  <Button onClick={handleLinkChild} disabled={linkChildMutation.isPending} className="w-full">
+                  {linkError && (
+                    <p className="text-sm text-red-500 text-center">{linkError}</p>
+                  )}
+                  <Button 
+                    onClick={handleLinkChild} 
+                    disabled={linkChildMutation.isPending} 
+                    className="w-full"
+                  >
                     {linkChildMutation.isPending ? 'Linking...' : 'Link Child'}
                   </Button>
                 </div>
@@ -424,7 +445,6 @@ export default function ParentDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Parent</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
@@ -432,7 +452,6 @@ export default function ParentDashboardPage() {
         </button>
       </div>
 
-      {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b">
@@ -492,12 +511,10 @@ export default function ParentDashboardPage() {
         </div>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content */}
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">

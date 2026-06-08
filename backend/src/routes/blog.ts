@@ -36,7 +36,7 @@ router.post('/blog/posts',
         content,
         authorId,
         imageUrl,
-        publishedAt: publishedAt ? new Date(publishedAt) : null
+        publishedAt: publishedAt ? new Date(publishedAt) : new Date()
       },
       include: {
         author: {

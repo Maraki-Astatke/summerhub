@@ -44,20 +44,20 @@ model User {
 }
 
 model Profile {
-  id                Int      @id @default(autoincrement())
-  firstName         String
-  lastName          String
-  age               Int?
-  grade             Int?
-  city              String?
-  schoolName        String?
-  avatarUrl         String?
-  bio               String?
-  userId            Int      @unique
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         Int     @id @default(autoincrement())
+  userId     Int     @unique
+  user       User    @relation(fields: [userId], references: [id])
+  firstName  String?
+  lastName   String?
+  age        Int?      // ONLY for students
+  grade      String?   // ONLY for students
+  city       String?
+  schoolName String?   // ONLY for students
+  bio        String?
+  profession String?   // ONLY for teachers and sellers
+  company    String?   // ONLY for teachers and sellers
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Role {

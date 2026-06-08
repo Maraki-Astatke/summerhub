@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/providers/auth-provider";
-import api from "../../lib/api";
+import api from "@/lib/api";
 import { Edit, Trash2, Plus } from "lucide-react";
 
 export default function AdminHobbiesPage() {

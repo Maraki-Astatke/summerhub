@@ -1,5 +1,4 @@
 'use client';
-
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -7,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
-import Navbar from '@/components/Navbar';
-import api from '@/lib/api';        
-import { Calendar, User, Heart, MessageCircle, ArrowLeft } from 'lucide-react';
+import api from '@/lib/api';
+import { Calendar, User, Heart, MessageCircle, ArrowLeft, Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function BlogPostPage() {
@@ -20,12 +20,45 @@ export default function BlogPostPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [comment, setComment] = useState('');
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [editImageUrl, setEditImageUrl] = useState('');
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog-post', id],
     queryFn: async () => {
       const response = await api.get(`/blog/posts/${id}`);
       return response.data;
+    },
+  });
+
+  const updatePostMutation = useMutation({
+    mutationFn: async ({ title, content, imageUrl }: { title: string; content: string; imageUrl?: string }) => {
+      const response = await api.put(`/blog/posts/${id}`, { title, content, imageUrl });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog-post', id] });
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      setIsEditDialogOpen(false);
+      alert('Post updated successfully!');
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.error || 'Failed to update post');
+    },
+  });
+
+  const deletePostMutation = useMutation({
+    mutationFn: async () => {
+      await api.delete(`/blog/posts/${id}`);
+    },
+    onSuccess: () => {
+      router.push('/blog');
+      alert('Post deleted successfully!');
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.error || 'Failed to delete post');
     },
   });
 
@@ -71,24 +104,39 @@ export default function BlogPostPage() {
   });
 
   const hasLiked = post?.likes?.some((like: any) => like.userId === user?.id);
+  const isAuthor = user?.id === post?.authorId;
+
+  const handleUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTitle.trim() || !editContent.trim()) {
+      alert('Please fill in title and content');
+      return;
+    }
+    updatePostMutation.mutate({ title: editTitle, content: editContent, imageUrl: editImageUrl || undefined });
+  };
+
+  const openEditDialog = () => {
+    setEditTitle(post?.title || '');
+    setEditContent(post?.content || '');
+    setEditImageUrl(post?.imageUrl || '');
+    setIsEditDialogOpen(true);
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center font-semibold text-gray-500">Loading article...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">Loading...</div>
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-center max-w-sm px-6 py-8 bg-white rounded-[24px] shadow-sm border border-gray-100">
-          <p className="text-gray-500 font-medium mb-4">Post not found</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500">Post not found</p>
           <Link href="/blog">
-            <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] rounded-xl text-[#1F2937] font-bold h-11 px-6">
-              Back to Blog
-            </Button>
+            <Button className="mt-4">Back to Blog</Button>
           </Link>
         </div>
       </div>
@@ -96,19 +144,36 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
-      <Navbar alwaysWhite={true} />
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub</Link>
+          <div className="flex gap-4">
+            <Link href="/blog">
+              <Button variant="ghost">Blog</Button>
+            </Link>
+            {user ? (
+              <Link href="/dashboard">
+                <Button>Dashboard</Button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <Button>Login</Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-12 pt-32">
-        <Link href="/blog" className="inline-flex items-center text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45] mb-8 transition-colors">
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <Link href="/blog" className="inline-flex items-center text-gray-600 hover:text-purple-600 mb-6">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Insights
+          Back to Blog
         </Link>
 
-        {/* Post Content */}
-        <article className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-sm">
-          {post.imageUrl ? (
-            <div className="relative h-96 w-full bg-gray-100">
+        <article className="bg-white rounded-lg shadow-sm overflow-hidden">
+          {post.imageUrl && (
+            <div className="relative h-96 w-full">
               <Image
                 src={post.imageUrl}
                 alt={post.title}
@@ -116,86 +181,91 @@ export default function BlogPostPage() {
                 className="object-cover"
               />
             </div>
-          ) : (
-            <div className="h-44 w-full bg-[#FFF2EB] flex items-center justify-center text-5xl font-extrabold text-[#FF7A45]">
-              G
-            </div>
           )}
           
-          <div className="p-6 md:p-10">
-            <h1 className="text-2xl md:text-3xl lg:text-[40px] font-extrabold tracking-tight text-[#1F2937] leading-tight mb-4">
-              {post.title}
-            </h1>
+          <div className="p-6 md:p-8">
+            <div className="flex justify-between items-start mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold flex-1">{post.title}</h1>
+              {isAuthor && (
+                <div className="flex gap-2 ml-4">
+                  <Button variant="outline" size="sm" onClick={openEditDialog}>
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-red-500 hover:text-red-700"
+                    onClick={() => {
+                      if (confirm('Delete this post? This action cannot be undone.')) {
+                        deletePostMutation.mutate();
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              )}
+            </div>
             
-            <div className="flex items-center gap-6 text-xs md:text-sm font-semibold text-[#6B7280] mb-8 pb-6 border-b border-gray-100">
+            <div className="flex items-center gap-6 text-sm text-gray-500 mb-6">
               <span className="flex items-center gap-2">
-                <User className="h-4.5 w-4.5 text-[#FF7A45]" />
+                <User className="h-4 w-4" />
                 {post.author?.profile?.firstName} {post.author?.profile?.lastName}
               </span>
               <span className="flex items-center gap-2">
-                <Calendar className="h-4.5 w-4.5 text-[#FF7A45]" />
+                <Calendar className="h-4 w-4" />
                 {new Date(post.createdAt).toLocaleDateString()}
               </span>
             </div>
 
-            <div className="prose max-w-none mb-10">
-              <p className="text-[#1F2937]/90 text-base md:text-lg leading-relaxed whitespace-pre-wrap">
-                {post.content}
-              </p>
+            <div className="prose max-w-none mb-8">
+              <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>
             </div>
 
-            {/* Like and Stats Section */}
-            <div className="flex items-center gap-6 py-5 border-t border-b border-gray-100 mb-10">
+            {/* Like Button */}
+            <div className="flex items-center gap-6 border-t border-b py-4 mb-8">
               {user ? (
                 hasLiked ? (
-                  <Button 
-                    variant="outline" 
-                    onClick={() => unlikeMutation.mutate()}
-                    className="rounded-xl border-[#FF7A45]/30 text-[#FF7A45] hover:bg-[#FFF2EB] font-semibold h-11"
-                  >
+                  <Button variant="outline" onClick={() => unlikeMutation.mutate()}>
                     <Heart className="h-5 w-5 mr-2 fill-red-500 text-red-500" />
                     Liked ({post.likeCount || 0})
                   </Button>
                 ) : (
-                  <Button 
-                    variant="outline" 
-                    onClick={() => likeMutation.mutate()}
-                    className="rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold h-11"
-                  >
-                    <Heart className="h-5 w-5 mr-2 text-gray-500" />
+                  <Button variant="outline" onClick={() => likeMutation.mutate()}>
+                    <Heart className="h-5 w-5 mr-2" />
                     Like ({post.likeCount || 0})
                   </Button>
                 )
               ) : (
-                <Button variant="outline" asChild className="rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold h-11">
+                <Button variant="outline" asChild>
                   <Link href="/login">
-                    <Heart className="h-5 w-5 mr-2 text-gray-500" />
+                    <Heart className="h-5 w-5 mr-2" />
                     Like ({post.likeCount || 0})
                   </Link>
                 </Button>
               )}
-              <span className="flex items-center gap-2 text-sm font-semibold text-[#6B7280]">
-                <MessageCircle className="h-5 w-5 text-[#FF7A45]" />
+              <span className="flex items-center gap-2 text-gray-500">
+                <MessageCircle className="h-5 w-5" />
                 {post.comments?.length || 0} Comments
               </span>
             </div>
 
             {/* Comments Section */}
             <div>
-              <h3 className="text-xl font-bold text-[#1F2937] mb-6">Comments</h3>
+              <h3 className="text-xl font-semibold mb-4">Comments</h3>
               
-              {/* Add Comment */}
               {user ? (
-                <div className="mb-8">
+                <div className="mb-6">
                   <Textarea
-                    placeholder="Join the discussion... write a comment"
+                    placeholder="Write a comment..."
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     rows={3}
-                    className="mb-3 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45] p-4 text-sm"
+                    className="mb-2"
                   />
                   <Button 
-                    className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl h-11 px-6 active:scale-98 transition-transform"
                     onClick={() => commentMutation.mutate(comment)}
                     disabled={!comment.trim() || commentMutation.isPending}
                   >
@@ -203,42 +273,39 @@ export default function BlogPostPage() {
                   </Button>
                 </div>
               ) : (
-                <Card className="mb-8 bg-gray-50 border border-gray-150 rounded-2xl">
-                  <CardContent className="text-center py-6">
-                    <p className="text-sm text-[#6B7280]">
-                      Please <Link href="/login" className="text-[#FF7A45] font-semibold hover:underline">Login</Link> to write a comment and join the discussion.
+                <Card className="mb-6">
+                  <CardContent className="text-center py-4">
+                    <p className="text-gray-500">
+                      <Link href="/login" className="text-purple-600">Login</Link> to leave a comment
                     </p>
                   </CardContent>
                 </Card>
               )}
 
-              {/* Comments List */}
               <div className="space-y-4">
                 {post.comments?.length === 0 ? (
-                  <p className="text-[#6B7280] text-center py-10 font-medium text-sm">
-                    No comments yet. Be the first to start the conversation!
-                  </p>
+                  <p className="text-gray-500 text-center py-8">No comments yet. Be the first!</p>
                 ) : (
                   post.comments?.map((comment: any) => (
-                    <Card key={comment.id} className="rounded-2xl border-gray-100 bg-[#FAFAFA]">
-                      <CardContent className="p-5">
-                        <div className="flex justify-between items-start gap-4">
+                    <Card key={comment.id}>
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
                           <div>
-                            <div className="flex flex-wrap items-center gap-2.5 mb-2">
-                              <span className="font-semibold text-sm text-[#1F2937]">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="font-semibold">
                                 {comment.user?.profile?.firstName} {comment.user?.profile?.lastName}
                               </span>
-                              <span className="text-xs text-[#6B7280] font-medium">
+                              <span className="text-xs text-gray-400">
                                 {new Date(comment.createdAt).toLocaleDateString()}
                               </span>
                             </div>
-                            <p className="text-sm text-[#1F2937]/90 leading-relaxed">{comment.content}</p>
+                            <p className="text-gray-700">{comment.content}</p>
                           </div>
-                          {(user?.id === comment.userId || user?.roles?.includes('admin')) && (
+                          {(user?.id === comment.userId || user?.id === post.authorId || user?.roles?.includes('admin')) && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold px-2.5 h-8 shrink-0"
+                              className="text-red-500"
                               onClick={() => deleteCommentMutation.mutate(comment.id)}
                             >
                               Delete
@@ -254,6 +321,53 @@ export default function BlogPostPage() {
           </div>
         </article>
       </main>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Post</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleUpdate} className="space-y-4">
+            <div>
+              <Label htmlFor="edit-title">Title</Label>
+              <Input
+                id="edit-title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-imageUrl">Image URL (optional)</Label>
+              <Input
+                id="edit-imageUrl"
+                placeholder="https://example.com/image.jpg"
+                value={editImageUrl}
+                onChange={(e) => setEditImageUrl(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-content">Content</Label>
+              <Textarea
+                id="edit-content"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={10}
+                required
+              />
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button type="submit" disabled={updatePostMutation.isPending}>
+                Save Changes
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

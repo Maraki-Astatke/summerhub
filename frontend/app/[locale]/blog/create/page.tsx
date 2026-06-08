@@ -19,6 +19,8 @@ export default function CreateBlogPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [titleError, setTitleError] = useState('');
+  const [contentError, setContentError] = useState('');
 
   const createPostMutation = useMutation({
     mutationFn: async (data: { title: string; content: string; imageUrl?: string }) => {
@@ -29,16 +31,37 @@ export default function CreateBlogPage() {
       router.push(`/blog/${post.id}`);
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || 'Failed to create post');
+      const errorMsg = error.response?.data?.errors?.[0]?.msg || error.response?.data?.error || 'Failed to create post';
+      alert(errorMsg);
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      alert('Please fill in title and content');
-      return;
+    
+    setTitleError('');
+    setContentError('');
+    
+    let hasError = false;
+    
+    if (!title.trim()) {
+      setTitleError('Title is required');
+      hasError = true;
+    } else if (title.trim().length < 5) {
+      setTitleError('Title must be at least 5 characters');
+      hasError = true;
     }
+    
+    if (!content.trim()) {
+      setContentError('Content is required');
+      hasError = true;
+    } else if (content.trim().length < 20) {
+      setContentError('Content must be at least 20 characters');
+      hasError = true;
+    }
+    
+    if (hasError) return;
+    
     createPostMutation.mutate({ title, content, imageUrl: imageUrl || undefined });
   };
 
@@ -89,14 +112,21 @@ export default function CreateBlogPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title">Title (minimum 5 characters)</Label>
                 <Input
                   id="title"
                   placeholder="Enter post title..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
+                  className={titleError ? 'border-red-500' : ''}
                 />
+                {titleError && (
+                  <p className="text-red-500 text-sm mt-1">{titleError}</p>
+                )}
+                {!titleError && title.length > 0 && title.length < 5 && (
+                  <p className="text-orange-500 text-sm mt-1">{title.length}/5 characters minimum</p>
+                )}
               </div>
 
               <div>
@@ -123,15 +153,22 @@ export default function CreateBlogPage() {
               </div>
 
               <div>
-                <Label htmlFor="content">Content</Label>
+                <Label htmlFor="content">Content (minimum 20 characters)</Label>
                 <Textarea
                   id="content"
-                  placeholder="Write your post content here..."
+                  placeholder="Write your post content here... (minimum 20 characters)"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   rows={12}
                   required
+                  className={contentError ? 'border-red-500' : ''}
                 />
+                {contentError && (
+                  <p className="text-red-500 text-sm mt-1">{contentError}</p>
+                )}
+                {!contentError && content.length > 0 && content.length < 20 && (
+                  <p className="text-orange-500 text-sm mt-1">{content.length}/20 characters minimum</p>
+                )}
               </div>
 
               <div className="flex gap-3">

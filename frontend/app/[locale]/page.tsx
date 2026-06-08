@@ -111,7 +111,7 @@ export default function Home() {
                     {t('nav.getStarted')}
                   </button>
                 </Link>
-                <Link href="/hobbies" className="w-full sm:w-auto">
+             <Link href="/quiz" className="w-full sm:w-auto">
                   <button className="w-full sm:w-auto h-14 px-10 rounded-2xl border border-[#FF7A45] text-[#FF7A45] hover:bg-[#FF7A45]/5 font-bold transition-all">
                     {t('button.takeQuiz')}
                   </button>

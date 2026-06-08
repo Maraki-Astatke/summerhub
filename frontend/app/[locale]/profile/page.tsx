@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/providers/auth-provider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { User, Mail, Phone, MapPin, School, Calendar, Save } from 'lucide-react';
+import { User, Mail, Phone, MapPin, School, Calendar, Save, GraduationCap, Briefcase, Building2 } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -26,6 +26,8 @@ export default function ProfilePage() {
     city: '',
     schoolName: '',
     bio: '',
+    profession: '',
+    company: '',
   });
 
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -47,6 +49,8 @@ export default function ProfilePage() {
         city: profile.profile.city || '',
         schoolName: profile.profile.schoolName || '',
         bio: profile.profile.bio || '',
+        profession: profile.profile.profession || '',
+        company: profile.profile.company || '',
       });
     }
   }, [profile]);
@@ -72,10 +76,31 @@ export default function ProfilePage() {
     },
   });
 
+  // FIXED: This is the important part!
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfileMutation.mutate(formData);
+    
+    // Convert empty strings to null for proper database handling
+    const submitData = {
+      firstName: formData.firstName || null,
+      lastName: formData.lastName || null,
+      age: formData.age === '' ? null : parseInt(formData.age),
+      grade: formData.grade === '' ? null : formData.grade,
+      city: formData.city === '' ? null : formData.city,
+      schoolName: formData.schoolName === '' ? null : formData.schoolName,
+      bio: formData.bio === '' ? null : formData.bio,
+      profession: formData.profession === '' ? null : formData.profession,
+      company: formData.company === '' ? null : formData.company,
+    };
+    
+    updateProfileMutation.mutate(submitData);
   };
+
+  const userRole = user?.roles?.[0] || 'student';
+  const isStudent = userRole === 'student';
+  const isTeacher = userRole === 'teacher';
+  const isSeller = userRole === 'seller';
+  const isParent = userRole === 'parent';
 
   if (authLoading || profileLoading) {
     return (
@@ -93,7 +118,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub</Link>
+          <Link href="/" className="text-xl font-bold text-[#FF7A45]">HobbyHub</Link>
           <div className="flex gap-4">
             <Link href="/dashboard">
               <Button variant="ghost">Dashboard</Button>
@@ -107,7 +132,7 @@ export default function ProfilePage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">My Profile</h1>
           {!isEditing && (
-            <Button onClick={() => setIsEditing(true)}>
+            <Button onClick={() => setIsEditing(true)} className="bg-[#FF7A45] hover:bg-[#ff8f61]">
               Edit Profile
             </Button>
           )}
@@ -129,6 +154,7 @@ export default function ProfilePage() {
               <CardContent>
                 {isEditing ? (
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* First & Last Name - ALL ROLES */}
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="firstName">First Name</Label>
@@ -149,25 +175,71 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="age">Age</Label>
-                        <Input
-                          id="age"
-                          type="number"
-                          value={formData.age}
-                          onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="grade">Grade</Label>
-                        <Input
-                          id="grade"
-                          value={formData.grade}
-                          onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                        />
-                      </div>
+                      {/* Age - STUDENT ONLY */}
+                      {isStudent && (
+                        <div>
+                          <Label htmlFor="age">Age</Label>
+                          <Input
+                            id="age"
+                            type="number"
+                            value={formData.age}
+                            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Grade - STUDENT ONLY */}
+                      {isStudent && (
+                        <div>
+                          <Label htmlFor="grade">Grade</Label>
+                          <Input
+                            id="grade"
+                            value={formData.grade}
+                            onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Profession - TEACHER & SELLER ONLY (NOT parent) */}
+                      {(isTeacher || isSeller) && (
+                        <div>
+                          <Label htmlFor="profession">Profession</Label>
+                          <Input
+                            id="profession"
+                            value={formData.profession}
+                            onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
+                            placeholder={isTeacher ? "e.g., Music Teacher" : "e.g., Art Supplies Store Owner"}
+                          />
+                        </div>
+                      )}
                     </div>
 
+                    {/* School Name - STUDENT ONLY */}
+                    {isStudent && (
+                      <div>
+                        <Label htmlFor="schoolName">School Name</Label>
+                        <Input
+                          id="schoolName"
+                          value={formData.schoolName}
+                          onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
+                        />
+                      </div>
+                    )}
+
+                    {/* Company - TEACHER & SELLER ONLY */}
+                    {(isTeacher || isSeller) && (
+                      <div>
+                        <Label htmlFor="company">Organization/Company</Label>
+                        <Input
+                          id="company"
+                          value={formData.company}
+                          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                          placeholder={isTeacher ? "e.g., Music School" : "e.g., Art Supplies Inc."}
+                        />
+                      </div>
+                    )}
+
+                    {/* City - ALL ROLES */}
                     <div>
                       <Label htmlFor="city">City</Label>
                       <Input
@@ -177,26 +249,19 @@ export default function ProfilePage() {
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="schoolName">School Name</Label>
-                      <Input
-                        id="schoolName"
-                        value={formData.schoolName}
-                        onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
-                      />
-                    </div>
-
+                    {/* Bio - ALL ROLES */}
                     <div>
                       <Label htmlFor="bio">Bio</Label>
                       <Input
                         id="bio"
                         value={formData.bio}
                         onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                        placeholder="Tell us a little about yourself..."
                       />
                     </div>
 
                     <div className="flex gap-2 pt-4">
-                      <Button type="submit" disabled={updateProfileMutation.isPending}>
+                      <Button type="submit" disabled={updateProfileMutation.isPending} className="bg-[#FF7A45] hover:bg-[#ff8f61]">
                         <Save className="h-4 w-4 mr-2" />
                         Save Changes
                       </Button>
@@ -208,6 +273,7 @@ export default function ProfilePage() {
                 ) : (
                   <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
+                      {/* Full Name */}
                       <div className="flex items-center gap-2">
                         <User className="h-5 w-5 text-gray-400" />
                         <div>
@@ -215,6 +281,8 @@ export default function ProfilePage() {
                           <p className="font-medium">{profile?.profile?.firstName} {profile?.profile?.lastName}</p>
                         </div>
                       </div>
+                      
+                      {/* Email */}
                       <div className="flex items-center gap-2">
                         <Mail className="h-5 w-5 text-gray-400" />
                         <div>
@@ -222,6 +290,8 @@ export default function ProfilePage() {
                           <p className="font-medium">{profile?.email}</p>
                         </div>
                       </div>
+                      
+                      {/* Phone */}
                       <div className="flex items-center gap-2">
                         <Phone className="h-5 w-5 text-gray-400" />
                         <div>
@@ -229,25 +299,64 @@ export default function ProfilePage() {
                           <p className="font-medium">{profile?.phone || 'Not provided'}</p>
                         </div>
                       </div>
-                      {profile?.profile?.age && (
+                      
+                      {/* Grade - STUDENT ONLY */}
+                      {isStudent && profile?.profile?.grade && (
                         <div className="flex items-center gap-2">
-                          <Calendar className="h-5 w-5 text-gray-400" />
-                          <div>
-                            <p className="text-sm text-gray-500">Age</p>
-                            <p className="font-medium">{profile.profile.age}</p>
-                          </div>
-                        </div>
-                      )}
-                      {profile?.profile?.grade && (
-                        <div className="flex items-center gap-2">
-                          <School className="h-5 w-5 text-gray-400" />
+                          <GraduationCap className="h-5 w-5 text-gray-400" />
                           <div>
                             <p className="text-sm text-gray-500">Grade</p>
                             <p className="font-medium">{profile.profile.grade}</p>
                           </div>
                         </div>
                       )}
+                      
+                      {/* Profession - TEACHER & SELLER ONLY */}
+                      {(isTeacher || isSeller) && profile?.profile?.profession && (
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="text-sm text-gray-500">Profession</p>
+                            <p className="font-medium">{profile.profile.profession}</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Company - TEACHER & SELLER ONLY */}
+                      {(isTeacher || isSeller) && profile?.profile?.company && (
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="text-sm text-gray-500">Organization</p>
+                            <p className="font-medium">{profile.profile.company}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
+                    
+                    {/* Age - STUDENT ONLY */}
+                    {isStudent && profile?.profile?.age && (
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="text-sm text-gray-500">Age</p>
+                          <p className="font-medium">{profile.profile.age}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* School Name - STUDENT ONLY */}
+                    {isStudent && profile?.profile?.schoolName && (
+                      <div className="flex items-center gap-2">
+                        <School className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="text-sm text-gray-500">School</p>
+                          <p className="font-medium">{profile.profile.schoolName}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* City - ALL ROLES */}
                     {profile?.profile?.city && (
                       <div className="flex items-center gap-2">
                         <MapPin className="h-5 w-5 text-gray-400" />
@@ -257,15 +366,8 @@ export default function ProfilePage() {
                         </div>
                       </div>
                     )}
-                    {profile?.profile?.schoolName && (
-                      <div className="flex items-center gap-2">
-                        <School className="h-5 w-5 text-gray-400" />
-                        <div>
-                          <p className="text-sm text-gray-500">School</p>
-                          <p className="font-medium">{profile.profile.schoolName}</p>
-                        </div>
-                      </div>
-                    )}
+                    
+                    {/* Bio - ALL ROLES */}
                     {profile?.profile?.bio && (
                       <div className="mt-4 pt-4 border-t">
                         <p className="text-sm text-gray-500 mb-1">About Me</p>

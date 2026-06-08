@@ -133,7 +133,7 @@ export default function MyLessonsPage() {
 
     return (
       <Card className="border border-gray-100 bg-white rounded-[24px] hover:shadow-lg transition-all duration-300 overflow-hidden shadow-sm">
-        <CardContent className="p-6">
+        <CardContent className="p-6 ">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="flex-1 space-y-3">
               <div className="flex items-center gap-3">
