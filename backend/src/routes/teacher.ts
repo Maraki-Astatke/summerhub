@@ -1,9 +1,40 @@
 import { Router } from 'express';
 import { body, param, validationResult } from 'express-validator';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import prisma from '../lib/prisma.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
+
+const uploadDir = 'uploads/certificates';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, JPG, and PDF files are allowed'));
+    }
+  }
+});
 
 router.get('/teacher/stats',
   authenticateToken,
@@ -320,161 +351,51 @@ router.get('/teacher/revenue',
   }
 );
 
-// ============================================
-// CERTIFICATE MANAGEMENT
-// ============================================
-
-// Create a certificate template
-router.post('/teacher/certificates/template',
+router.post('/teacher/certificates/upload',
   authenticateToken,
   requireRole(['teacher']),
-  [
-    body('title').notEmpty().trim(),
-    body('description').optional().trim(),
-    body('templateHtml').notEmpty(),
-    body('hobbyId').optional().isInt()
-  ],
+  upload.single('certificate'),
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { title, description, templateHtml, hobbyId } = req.body;
-    const teacherId = req.user.userId;
-
-    const template = await prisma.certificateTemplate.create({
-      data: {
-        title,
-        description,
-        templateHtml,
-        hobbyId: hobbyId || null,
-        teacherId
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'Certificate file is required' });
       }
-    });
 
-    res.status(201).json(template);
-  }
-);
+      const teacherId = req.user.userId;
 
-// Get all certificate templates for a teacher
-router.get('/teacher/certificates/templates',
-  authenticateToken,
-  requireRole(['teacher']),
-  async (req, res) => {
-    const teacherId = req.user.userId;
-
-    const templates = await prisma.certificateTemplate.findMany({
-      where: { teacherId },
-      include: { hobby: true }
-    });
-
-    res.json(templates);
-  }
-);
-
-// Get a single template
-router.get('/teacher/certificates/template/:id',
-  authenticateToken,
-  requireRole(['teacher']),
-  [param('id').isInt()],
-  async (req, res) => {
-    const { id } = req.params;
-    const teacherId = req.user.userId;
-
-    const template = await prisma.certificateTemplate.findFirst({
-      where: { id: parseInt(id), teacherId }
-    });
-
-    if (!template) {
-      return res.status(404).json({ error: 'Template not found' });
-    }
-
-    res.json(template);
-  }
-);
-
-// Delete a template
-router.delete('/teacher/certificates/template/:id',
-  authenticateToken,
-  requireRole(['teacher']),
-  [param('id').isInt()],
-  async (req, res) => {
-    const { id } = req.params;
-    const teacherId = req.user.userId;
-
-    const template = await prisma.certificateTemplate.findFirst({
-      where: { id: parseInt(id), teacherId }
-    });
-
-    if (!template) {
-      return res.status(404).json({ error: 'Template not found' });
-    }
-
-    await prisma.certificateTemplate.delete({
-      where: { id: parseInt(id) }
-    });
-
-    res.json({ message: 'Template deleted successfully' });
-  }
-);
-
-// Get students who completed a hobby (interest level >= 4)
-router.get('/teacher/students/completed/:hobbyId',
-  authenticateToken,
-  requireRole(['teacher']),
-  [param('hobbyId').isInt()],
-  async (req, res) => {
-    const { hobbyId } = req.params;
-    const teacherId = req.user.userId;
-
-    const students = await prisma.user.findMany({
-      where: {
-        roles: { some: { role: { name: 'student' } } },
-        userHobbies: {
-          some: {
-            hobbyId: parseInt(hobbyId),
-            interestLevel: { gte: 4 }
-          }
+      await prisma.certificate.deleteMany({
+        where: {
+          teacherId: teacherId,
+          studentId: null,
+          templateId: null
         }
-      },
-      include: {
-        profile: true,
-        userHobbies: {
-          where: { hobbyId: parseInt(hobbyId) },
-          include: { hobby: true }
-        },
-        certificates: {
-          where: {
-            template: {
-              hobbyId: parseInt(hobbyId)
-            }
-          }
+      });
+
+      const certificate = await prisma.certificate.create({
+        data: {
+          teacherId: teacherId,
+          issuedAt: new Date(),
+          certificateHtml: `/uploads/certificates/${req.file.filename}`,
+          customMessage: null
         }
-      }
-    });
+      });
 
-    const formattedStudents = students.map(student => ({
-      id: student.id,
-      email: student.email,
-      profile: student.profile,
-      interestLevel: student.userHobbies[0]?.interestLevel || 0,
-      hasCertificate: student.certificates.length > 0,
-      certificateDate: student.certificates[0]?.issuedAt
-    }));
-
-    res.json(formattedStudents);
+      res.status(201).json({
+        id: certificate.id,
+        fileUrl: certificate.certificateHtml
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      res.status(500).json({ error: 'Failed to upload certificate' });
+    }
   }
 );
 
-// Issue a certificate to a student
 router.post('/teacher/certificates/issue',
   authenticateToken,
   requireRole(['teacher']),
   [
-    body('templateId').isInt(),
     body('studentId').isInt(),
-    body('studentName').optional().trim(),
     body('customMessage').optional().trim()
   ],
   async (req, res) => {
@@ -483,144 +404,145 @@ router.post('/teacher/certificates/issue',
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { templateId, studentId, studentName, customMessage } = req.body;
-    const teacherId = req.user.userId;
+    try {
+      const { studentId, customMessage } = req.body;
+      const teacherId = req.user.userId;
 
-    const template = await prisma.certificateTemplate.findFirst({
-      where: { id: templateId, teacherId }
-    });
+      const student = await prisma.user.findFirst({
+        where: {
+          id: studentId,
+          roles: { some: { role: { name: 'student' } } }
+        },
+        include: { profile: true }
+      });
 
-    if (!template) {
-      return res.status(404).json({ error: 'Template not found' });
-    }
-
-    const student = await prisma.user.findFirst({
-      where: {
-        id: studentId,
-        roles: { some: { role: { name: 'student' } } }
-      },
-      include: { profile: true }
-    });
-
-    if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
-    }
-
-    const existingCertificate = await prisma.certificate.findFirst({
-      where: {
-        studentId,
-        templateId
+      if (!student) {
+        return res.status(404).json({ error: 'Student not found' });
       }
-    });
 
-    if (existingCertificate) {
-      return res.status(400).json({ error: 'Student already has this certificate' });
-    }
+      const template = await prisma.certificate.findFirst({
+        where: {
+          teacherId: teacherId,
+          studentId: null,
+          templateId: null
+        },
+        orderBy: { issuedAt: 'desc' }
+      });
 
-    const displayName = studentName || `${student.profile?.firstName || ''} ${student.profile?.lastName || ''}`.trim() || student.email;
+      if (!template) {
+        return res.status(400).json({ error: 'Please upload a certificate template first' });
+      }
 
-    let finalHtml = template.templateHtml
-      .replace(/{{studentName}}/g, displayName)
-      .replace(/{{date}}/g, new Date().toLocaleDateString())
-      .replace(/{{certificateTitle}}/g, template.title);
-
-    if (customMessage) {
-      finalHtml = finalHtml.replace(/{{message}}/g, customMessage);
-    }
-
-    const certificate = await prisma.certificate.create({
-      data: {
-        studentId,
-        templateId,
-        issuedAt: new Date(),
-        certificateHtml: finalHtml,
-        customMessage: customMessage || null
-      },
-      include: {
-        template: {
-          include: { hobby: true }
+      const certificate = await prisma.certificate.create({
+        data: {
+          studentId: studentId,
+          teacherId: teacherId,
+          issuedAt: new Date(),
+          certificateHtml: template.certificateHtml,
+          customMessage: customMessage || null
+        },
+        include: {
+          student: {
+            include: { profile: true }
+          }
         }
-      }
-    });
+      });
 
-    res.status(201).json(certificate);
+      console.log('Certificate issued:', certificate.id, 'to student:', studentId);
+
+      res.status(201).json(certificate);
+    } catch (error) {
+      console.error('Issue certificate error:', error);
+      res.status(500).json({ error: 'Failed to issue certificate', details: error.message });
+    }
   }
 );
 
-// Get certificates issued by teacher
 router.get('/teacher/certificates/issued',
   authenticateToken,
   requireRole(['teacher']),
   async (req, res) => {
-    const teacherId = req.user.userId;
+    try {
+      const teacherId = req.user.userId;
 
-    const certificates = await prisma.certificate.findMany({
-      where: {
-        template: { teacherId }
-      },
-      include: {
-        student: {
-          include: { profile: true }
+      const certificates = await prisma.certificate.findMany({
+        where: {
+          teacherId: teacherId,
+          studentId: { not: null }
         },
-        template: {
-          include: { hobby: true }
-        }
-      },
-      orderBy: { issuedAt: 'desc' }
-    });
+        include: {
+          student: {
+            include: { profile: true }
+          }
+        },
+        orderBy: { issuedAt: 'desc' }
+      });
 
-    res.json(certificates);
+      res.json(certificates);
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+      res.status(500).json({ error: 'Failed to fetch certificates' });
+    }
   }
 );
 
-// Get certificates for a student (for dashboard)
 router.get('/students/certificates',
   authenticateToken,
   requireRole(['student']),
   async (req, res) => {
-    const studentId = req.user.userId;
+    try {
+      const studentId = req.user.userId;
 
-    const certificates = await prisma.certificate.findMany({
-      where: { studentId },
-      include: {
-        template: {
-          include: { hobby: true, teacher: { include: { profile: true } } }
-        }
-      },
-      orderBy: { issuedAt: 'desc' }
-    });
+      const certificates = await prisma.certificate.findMany({
+        where: {
+          studentId: studentId
+        },
+        orderBy: { issuedAt: 'desc' }
+      });
 
-    res.json(certificates);
+      res.json(certificates);
+    } catch (error) {
+      console.error('Error fetching student certificates:', error);
+      res.status(500).json({ error: 'Failed to fetch certificates' });
+    }
   }
 );
 
-// Download certificate (get HTML)
 router.get('/certificates/:id/download',
   authenticateToken,
   async (req, res) => {
-    const { id } = req.params;
-    const userId = req.user.userId;
+    try {
+      const { id } = req.params;
+      const userId = req.user.userId;
 
-    const certificate = await prisma.certificate.findFirst({
-      where: {
-        id: parseInt(id),
-        OR: [
-          { studentId: userId },
-          { template: { teacherId: userId } }
-        ]
-      },
-      include: {
-        student: { include: { profile: true } },
-        template: { include: { teacher: { include: { profile: true } } } }
+      const certificate = await prisma.certificate.findFirst({
+        where: {
+          id: parseInt(id),
+          OR: [
+            { studentId: userId },
+            { teacherId: userId }
+          ]
+        },
+        include: {
+          student: { include: { profile: true } }
+        }
+      });
+
+      if (!certificate) {
+        return res.status(404).json({ error: 'Certificate not found' });
       }
-    });
 
-    if (!certificate) {
-      return res.status(404).json({ error: 'Certificate not found' });
+      res.json({
+        fileUrl: certificate.certificateHtml,
+        studentName: `${certificate.student?.profile?.firstName || ''} ${certificate.student?.profile?.lastName || ''}`.trim(),
+        title: 'Certificate of Completion',
+        issuedAt: certificate.issuedAt,
+        customMessage: certificate.customMessage
+      });
+    } catch (error) {
+      console.error('Error downloading certificate:', error);
+      res.status(500).json({ error: 'Failed to download certificate' });
     }
-
-    res.setHeader('Content-Type', 'text/html');
-    res.send(certificate.certificateHtml);
   }
 );
 

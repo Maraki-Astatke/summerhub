@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
 import api from '@/lib/api';
-import { Calendar, Users, BookOpen, DollarSign, Edit, Trash2, Menu, X, LogOut, LayoutDashboard, Video, ShoppingBag, Newspaper, Trophy, MessageSquare, Settings, Award, Plus } from 'lucide-react';
+import { Calendar, Users, BookOpen, DollarSign, Edit, Trash2, Menu, X, LogOut, LayoutDashboard, Video, ShoppingBag, Newspaper, Trophy, MessageSquare, Settings, Award, Upload } from 'lucide-react';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={`bg-white rounded-lg border shadow-sm ${className}`}>{children}</div>
@@ -45,7 +45,7 @@ const Button = ({ children, onClick, variant = 'default', className = '', disabl
   </button>
 );
 
-const Input = ({ id, value, onChange, required, placeholder, type = 'text' }: any) => (
+const Input = ({ id, value, onChange, required, placeholder, type = 'text', accept }: any) => (
   <input
     id={id}
     type={type}
@@ -53,6 +53,7 @@ const Input = ({ id, value, onChange, required, placeholder, type = 'text' }: an
     onChange={onChange}
     required={required}
     placeholder={placeholder}
+    accept={accept}
     className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
   />
 );
@@ -76,20 +77,14 @@ const Textarea = ({ id, value, onChange, rows = 3, placeholder }: any) => (
 
 export default function TeacherDashboardPage() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, isLoading: authLoading, logout } = useAuth();
   const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('lessons');
   const [editingLesson, setEditingLesson] = useState<any>(null);
-  const [showTemplateForm, setShowTemplateForm] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
-  const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [customMessage, setCustomMessage] = useState('');
-  const [templateForm, setTemplateForm] = useState({
-    title: '',
-    description: '',
-    hobbyId: '',
-  });
+  const [certificateFile, setCertificateFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -101,13 +96,13 @@ export default function TeacherDashboardPage() {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       router.push('/login');
     }
-    if (user && !user?.roles?.includes('teacher')) {
+    if (!authLoading && user && !user?.roles?.includes('teacher')) {
       router.push('/');
     }
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   const handleLogout = () => {
     logout();
@@ -141,15 +136,6 @@ export default function TeacherDashboardPage() {
     enabled: !!user && user?.roles?.includes('teacher'),
   });
 
-  const { data: templates } = useQuery({
-    queryKey: ['teacher-certificate-templates'],
-    queryFn: async () => {
-      const response = await api.get('/teacher/certificates/templates');
-      return response.data;
-    },
-    enabled: !!user && user?.roles?.includes('teacher'),
-  });
-
   const { data: issuedCertificates } = useQuery({
     queryKey: ['teacher-issued-certificates'],
     queryFn: async () => {
@@ -167,26 +153,19 @@ export default function TeacherDashboardPage() {
     },
   });
 
-  const createTemplateMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await api.post('/teacher/certificates/template', data);
+  const uploadCertificateMutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      const response = await api.post('/teacher/certificates/upload', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teacher-certificate-templates'] });
-      setShowTemplateForm(false);
-      setTemplateForm({ title: '', description: '', hobbyId: '' });
-      alert('Template created successfully!');
+      setCertificateFile(null);
+      alert('Certificate uploaded successfully!');
     },
-  });
-
-  const deleteTemplateMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/teacher/certificates/template/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teacher-certificate-templates'] });
-      alert('Template deleted');
+    onError: (error: any) => {
+      alert(error.response?.data?.error || 'Failed to upload certificate');
     },
   });
 
@@ -198,9 +177,11 @@ export default function TeacherDashboardPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teacher-issued-certificates'] });
       setSelectedStudent(null);
-      setSelectedTemplateId('');
       setCustomMessage('');
       alert('Certificate issued successfully!');
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.error || 'Failed to issue certificate');
     },
   });
 
@@ -322,22 +303,23 @@ export default function TeacherDashboardPage() {
     }
   };
 
-  const handleTemplateSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createTemplateMutation.mutate(templateForm);
+  const handleUploadCertificate = () => {
+    if (!certificateFile) {
+      alert('Please select a certificate file');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('certificate', certificateFile);
+    formData.append('title', 'Certificate Template');
+    uploadCertificateMutation.mutate(formData);
   };
 
   const handleIssueCertificate = () => {
-    if (!selectedTemplateId) {
-      alert('Please select a template');
-      return;
-    }
     if (!selectedStudent) {
       alert('Please select a student');
       return;
     }
     issueCertificateMutation.mutate({
-      templateId: parseInt(selectedTemplateId),
       studentId: selectedStudent.id,
       customMessage: customMessage,
     });
@@ -355,6 +337,15 @@ export default function TeacherDashboardPage() {
       zoomLink: lesson.zoomLink || '',
     });
   };
+
+  // Show loading state while auth is initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   if (!user || !user?.roles?.includes('teacher')) {
     return null;
@@ -501,58 +492,33 @@ export default function TeacherDashboardPage() {
     if (activeTab === 'certificates') {
       return (
         <div className="space-y-6">
-          {/* Create Template Button */}
-          <div className="flex justify-end">
-            <Button onClick={() => setShowTemplateForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Template
-            </Button>
-          </div>
-
-          {/* Templates Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Certificate Templates</CardTitle>
-              <CardDescription>Create and manage certificate templates</CardDescription>
+              <CardTitle>Upload Certificate</CardTitle>
+              <CardDescription>Upload a certificate image (JPG, PNG) or PDF</CardDescription>
             </CardHeader>
             <CardContent>
-              {templates?.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">No templates created yet</p>
-              ) : (
-                <div className="space-y-3">
-                  {templates?.map((template: any) => (
-                    <div key={template.id} className="flex justify-between items-center p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium">{template.title}</p>
-                        <p className="text-sm text-gray-500">{template.description}</p>
-                        {template.hobby && (
-                          <p className="text-xs text-purple-600 mt-1">Hobby: {template.hobby.name}</p>
-                        )}
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-500"
-                        onClick={() => {
-                          if (confirm('Delete this template?')) {
-                            deleteTemplateMutation.mutate(template.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="certificate-file">Certificate File</Label>
+                  <Input
+                    id="certificate-file"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    onChange={(e) => setCertificateFile(e.target.files?.[0] || null)}
+                  />
                 </div>
-              )}
+                <Button onClick={handleUploadCertificate} disabled={!certificateFile || uploadCertificateMutation.isPending}>
+                  {uploadCertificateMutation.isPending ? 'Uploading...' : 'Upload Certificate'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Issue Certificate Section */}
           <Card>
             <CardHeader>
               <CardTitle>Issue Certificate</CardTitle>
-              <CardDescription>Select a student and template to issue a certificate</CardDescription>
+              <CardDescription>Select a student to issue a certificate</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -576,22 +542,6 @@ export default function TeacherDashboardPage() {
                 </div>
 
                 <div>
-                  <Label>Select Template</Label>
-                  <select
-                    className="w-full border rounded-md px-3 py-2"
-                    value={selectedTemplateId}
-                    onChange={(e) => setSelectedTemplateId(e.target.value)}
-                  >
-                    <option value="">Select a template</option>
-                    {templates?.map((template: any) => (
-                      <option key={template.id} value={template.id}>
-                        {template.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
                   <Label>Custom Message (Optional)</Label>
                   <Textarea
                     placeholder="Add a personal message for the student..."
@@ -601,14 +551,13 @@ export default function TeacherDashboardPage() {
                   />
                 </div>
 
-                <Button onClick={handleIssueCertificate} disabled={!selectedStudent || !selectedTemplateId}>
+                <Button onClick={handleIssueCertificate} disabled={!selectedStudent}>
                   Issue Certificate
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Issued Certificates Section */}
           <Card>
             <CardHeader>
               <CardTitle>Issued Certificates</CardTitle>
@@ -629,6 +578,9 @@ export default function TeacherDashboardPage() {
                         <p className="text-xs text-gray-400">
                           Date: {new Date(cert.issuedAt).toLocaleDateString()}
                         </p>
+                        {cert.customMessage && (
+                          <p className="text-sm text-purple-600 mt-1">"{cert.customMessage}"</p>
+                        )}
                       </div>
                       <Button
                         variant="outline"
@@ -744,68 +696,8 @@ export default function TeacherDashboardPage() {
     return null;
   };
 
-  // Create Template Modal
-  const CreateTemplateModal = () => {
-    if (!showTemplateForm) return null;
-    
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg max-w-md w-full">
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-bold">Create Certificate Template</h2>
-          </div>
-          <div className="p-6">
-            <form onSubmit={handleTemplateSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="template-title">Template Title</Label>
-                <Input
-                  id="template-title"
-                  value={templateForm.title}
-                  onChange={(e) => setTemplateForm({ ...templateForm, title: e.target.value })}
-                  required
-                  placeholder="e.g., Guitar Completion Certificate"
-                />
-              </div>
-              <div>
-                <Label htmlFor="template-description">Description</Label>
-                <Textarea
-                  id="template-description"
-                  value={templateForm.description}
-                  onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
-                  rows={2}
-                  placeholder="Brief description of this certificate"
-                />
-              </div>
-              <div>
-                <Label htmlFor="template-hobby">Associated Hobby (Optional)</Label>
-                <select
-                  id="template-hobby"
-                  className="w-full border rounded-md px-3 py-2"
-                  value={templateForm.hobbyId}
-                  onChange={(e) => setTemplateForm({ ...templateForm, hobbyId: e.target.value })}
-                >
-                  <option value="">All Hobbies</option>
-                  {hobbies?.map((hobby: any) => (
-                    <option key={hobby.id} value={hobby.id}>{hobby.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex gap-2 pt-4">
-                <Button type="submit">Create Template</Button>
-                <Button variant="outline" onClick={() => setShowTemplateForm(false)}>Cancel</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <CreateTemplateModal />
-      
-      {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Teacher</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
@@ -813,7 +705,6 @@ export default function TeacherDashboardPage() {
         </button>
       </div>
 
-      {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b">

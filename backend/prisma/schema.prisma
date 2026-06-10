@@ -31,8 +31,7 @@ model User {
   lessons           Lesson[]             @relation("TeacherLessons")
   lessonRegistrations LessonRegistration[]
   cartItems         CartItem[]
-  certificates             Certificate[]        // ADD THIS
-  certificateTemplates     CertificateTemplate[] // ADD THIS
+  certificateTemplates CertificateTemplate[]
   orders            Order[]
   blogPosts         BlogPost[]
   blogComments      BlogComment[]
@@ -46,6 +45,9 @@ model User {
   quizAnswers       QuizAnswer[]
   receivedRecommendations StudentRecommendation[] @relation("StudentRecommendations")
   givenRecommendations   StudentRecommendation[] @relation("AdminRecommendations")
+  
+  studentCertificates      Certificate[] @relation("StudentCertificates")
+  teacherCertificates      Certificate[] @relation("TeacherCertificates")
 }
 
 model Profile {
@@ -465,12 +467,14 @@ model CertificateTemplate {
 
 model Certificate {
   id              Int           @id @default(autoincrement())
-  studentId       Int
-  templateId      Int
+  studentId       Int?
+  templateId      Int?
+  teacherId       Int?
   issuedAt        DateTime      @default(now())
   certificateHtml String
   customMessage   String?
   
-  student         User          @relation(fields: [studentId], references: [id])
-  template        CertificateTemplate @relation(fields: [templateId], references: [id])
+  student         User?         @relation("StudentCertificates", fields: [studentId], references: [id])
+  teacher         User?         @relation("TeacherCertificates", fields: [teacherId], references: [id])
+  template        CertificateTemplate? @relation(fields: [templateId], references: [id])
 }

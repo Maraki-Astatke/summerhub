@@ -145,6 +145,11 @@ export default function DashboardPage() {
     }
   };
 
+  const handleDownloadCertificate = (certId: number) => {
+    const token = localStorage.getItem('token');
+    window.open(`http://localhost:5001/api/certificates/${certId}/download?token=${token}`, '_blank');
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -306,20 +311,33 @@ export default function DashboardPage() {
         <Card className="border border-gray-100 rounded-xl overflow-hidden">
           <CardHeader className="p-6">
             <CardTitle className="text-xl font-bold">Your Certificates</CardTitle>
-            <CardDescription>Lessons and tracks you've completed successfully</CardDescription>
+            <CardDescription>Certificates you've earned from your teachers</CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0">
             {certificates?.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No certificates earned yet. Attend live lessons to get certified!</p>
+              <p className="text-gray-500 text-center py-8">No certificates earned yet. Complete courses to get certified!</p>
             ) : (
               <div className="space-y-3">
                 {certificates?.map((cert: any) => (
                   <div key={cert.id} className="flex justify-between items-center p-4 border border-gray-100 rounded-xl bg-gray-50">
                     <div>
                       <p className="font-semibold text-gray-800">{cert.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{cert.hobby} • {cert.teacher}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {cert.hobby} • {cert.teacher}
+                      </p>
+                      {cert.customMessage && (
+                        <p className="text-xs text-purple-600 mt-1 italic">"{cert.customMessage}"</p>
+                      )}
+                      <p className="text-xs text-gray-400 mt-1">
+                        Issued: {new Date(cert.issuedAt).toLocaleDateString()}
+                      </p>
                     </div>
-                    <Button variant="outline" size="sm" className="rounded-lg" onClick={() => alert("Downloading certificate...")}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="rounded-lg"
+                      onClick={() => handleDownloadCertificate(cert.id)}
+                    >
                       Download
                     </Button>
                   </div>

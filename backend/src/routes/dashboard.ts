@@ -86,41 +86,46 @@ router.get('/dashboard/progress',
   }
 );
 
+// UPDATED: Fetch certificates from Certificate table (issued by teachers)
 router.get('/dashboard/certificates',
   authenticateToken,
   requireRole(['student', 'scholar']),
   async (req, res) => {
-    const userId = req.user.userId;
+    try {
+      const studentId = req.user.userId;
 
-    const attendedLessons = await prisma.lessonRegistration.findMany({
-      where: {
-        studentId: userId,
-        attended: true
-      },
-      include: {
-        lesson: {
-          include: {
-            hobby: true,
-            teacher: {
-              include: {
-                profile: true
-              }
+      const certificates = await prisma.certificate.findMany({
+        where: {
+          studentId: studentId
+        },
+        include: {
+          teacher: {
+            include: {
+              profile: true
             }
           }
-        }
-      }
-    });
+        },
+        orderBy: { issuedAt: 'desc' }
+      });
 
-    const certificates = attendedLessons.map(reg => ({
-      id: reg.id,
-      title: reg.lesson.title,
-      hobby: reg.lesson.hobby.name,
-      teacher: `${reg.lesson.teacher.profile?.firstName} ${reg.lesson.teacher.profile?.lastName}`,
-      completedAt: reg.registeredAt,
-      certificateUrl: `/certificates/${reg.id}`
-    }));
+      const formattedCertificates = certificates.map(cert => ({
+        id: cert.id,
+        title: 'Certificate of Completion',
+        hobby: 'Course Completion',
+        teacher: cert.teacher?.profile?.firstName 
+          ? `${cert.teacher.profile.firstName} ${cert.teacher.profile.lastName || ''}`
+          : 'HobbyHub Instructor',
+        issuedAt: cert.issuedAt,
+        fileUrl: cert.certificateHtml,
+        customMessage: cert.customMessage
+      }));
 
-    res.json(certificates);
+      console.log(`Found ${formattedCertificates.length} certificates for student ${studentId}`);
+      res.json(formattedCertificates);
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+      res.status(500).json({ error: 'Failed to fetch certificates' });
+    }
   }
 );
 
