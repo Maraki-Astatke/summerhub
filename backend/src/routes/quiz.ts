@@ -16,11 +16,7 @@ router.post('/admin/quiz/questions',
   authenticateToken,
   requireRole(['admin', 'teacher']),
   [
-    body('question').notEmpty().isLength({ min: 5, max: 500 }).trim().escape(),
-    body('options').isArray({ min: 2, max: 6 }),
-    body('options.*.text').notEmpty().trim().escape(),
-    body('options.*.hobbyId').isInt(),
-    body('hobbyId').optional().isInt()
+    body('question').notEmpty().isLength({ min: 5, max: 500 }).trim().escape()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -28,13 +24,13 @@ router.post('/admin/quiz/questions',
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { question, options, hobbyId } = req.body;
+    const { question } = req.body;
 
     const quizQuestion = await prisma.quizQuestion.create({
       data: {
         question,
-        options,
-        hobbyId
+        options: [],
+        isActive: true
       }
     });
 
@@ -42,12 +38,50 @@ router.post('/admin/quiz/questions',
   }
 );
 
+router.put('/admin/quiz/questions/:id',
+  authenticateToken,
+  requireRole(['admin', 'teacher']),
+  [
+    body('question').notEmpty().isLength({ min: 5, max: 500 }).trim().escape()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const { question } = req.body;
+
+    const quizQuestion = await prisma.quizQuestion.update({
+      where: { id: parseInt(id) },
+      data: {
+        question
+      }
+    });
+
+    res.json(quizQuestion);
+  }
+);
+
+router.delete('/admin/quiz/questions/:id',
+  authenticateToken,
+  requireRole(['admin', 'teacher']),
+  async (req, res) => {
+    const { id } = req.params;
+
+    await prisma.quizQuestion.delete({
+      where: { id: parseInt(id) }
+    });
+
+    res.status(204).send();
+  }
+);
+
 router.get('/quiz/questions',
   async (req, res) => {
     const questions = await prisma.quizQuestion.findMany({
-      include: {
-        hobby: true
-      },
+      where: { isActive: true },
       orderBy: {
         createdAt: 'asc'
       }
@@ -55,9 +89,7 @@ router.get('/quiz/questions',
 
     const sanitizedQuestions = questions.map(q => ({
       id: q.id,
-      question: q.question,
-      options: q.options,
-      hobbyId: q.hobbyId
+      question: q.question
     }));
 
     res.json(sanitizedQuestions);
@@ -66,12 +98,12 @@ router.get('/quiz/questions',
 
 router.post('/quiz/submit',
   authenticateToken,
-  requireRole(['student', 'scholar']),
+  requireRole(['student']),
   quizSubmitLimiter,
   [
     body('answers').isArray({ min: 1 }),
     body('answers.*.questionId').isInt(),
-    body('answers.*.selectedHobbyId').isInt()
+    body('answers.*.answer').isString().trim().isLength({ min: 1, max: 2000 })
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -80,133 +112,115 @@ router.post('/quiz/submit',
     }
 
     const { answers } = req.body;
-    const userId = req.user.userId;
+    const studentId = req.user.userId;
 
     const existingResult = await prisma.quizResult.findFirst({
-      where: { userId }
+      where: { userId: studentId }
     });
 
     if (existingResult) {
       return res.status(400).json({ error: 'You have already taken the quiz' });
     }
 
-    const hobbyScores = new Map();
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        for (const answer of answers) {
+          const question = await tx.quizQuestion.findUnique({
+            where: { id: answer.questionId }
+          });
 
-    for (const answer of answers) {
-      const question = await prisma.quizQuestion.findUnique({
-        where: { id: answer.questionId }
-      });
-
-      if (!question) {
-        return res.status(400).json({ error: `Question ${answer.questionId} not found` });
-      }
-
-      const validOption = question.options.find(
-        (opt: any) => opt.hobbyId === answer.selectedHobbyId
-      );
-
-      if (!validOption) {
-        return res.status(400).json({ error: `Invalid option for question ${answer.questionId}` });
-      }
-
-      const currentScore = hobbyScores.get(answer.selectedHobbyId) || 0;
-      hobbyScores.set(answer.selectedHobbyId, currentScore + 1);
-    }
-
-    const sortedHobbies = Array.from(hobbyScores.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
-
-    const result = await prisma.quizResult.create({
-      data: {
-        userId,
-        answers,
-        topHobbyIds: sortedHobbies.map(h => h[0]),
-        completedAt: new Date()
-      }
-    });
-
-    for (const [hobbyId, score] of sortedHobbies) {
-      await prisma.userHobby.upsert({
-        where: {
-          userId_hobbyId: {
-            userId,
-            hobbyId: parseInt(hobbyId)
+          if (!question) {
+            throw new Error(`Question ${answer.questionId} not found`);
           }
-        },
-        update: {
-          interestLevel: score
-        },
-        create: {
-          userId,
-          hobbyId: parseInt(hobbyId),
-          interestLevel: score
+
+          await tx.quizAnswer.create({
+            data: {
+              studentId: studentId,
+              questionId: answer.questionId,
+              selectedHobbyId: 0,
+              answerText: answer.answer
+            }
+          });
+        }
+
+        return await tx.quizResult.create({
+          data: {
+            userId: studentId,
+            answers: answers,
+            topHobbyIds: [],
+            completedAt: new Date()
+          }
+        });
+      });
+
+      res.status(201).json({
+        message: 'Quiz submitted successfully',
+        result: {
+          id: result.id,
+          completedAt: result.completedAt
         }
       });
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      res.status(500).json({ error: error.message || 'Failed to submit quiz' });
     }
-
-    const recommendedHobbies = await prisma.hobby.findMany({
-      where: {
-        id: {
-          in: sortedHobbies.map(h => parseInt(h[0]))
-        }
-      },
-      include: {
-        category: true
-      }
-    });
-
-    res.status(201).json({
-      message: 'Quiz submitted successfully',
-      recommendations: recommendedHobbies,
-      scores: sortedHobbies.map(([id, score]) => ({
-        hobbyId: parseInt(id),
-        score
-      }))
-    });
   }
 );
 
 router.get('/quiz/results',
   authenticateToken,
-  requireRole(['student', 'scholar']),
+  requireRole(['student']),
   async (req, res) => {
-    const userId = req.user.userId;
+    const studentId = req.user.userId;
 
     const result = await prisma.quizResult.findFirst({
-      where: { userId }
+      where: { userId: studentId }
     });
 
     if (!result) {
       return res.status(404).json({ error: 'No quiz results found' });
     }
 
-    const recommendedHobbies = await prisma.hobby.findMany({
-      where: {
-        id: {
-          in: result.topHobbyIds
-        }
-      },
-      include: {
-        category: true
-      }
-    });
-
     res.json({
       completedAt: result.completedAt,
-      recommendations: recommendedHobbies
+      quizCompleted: true
     });
   }
 );
 
 router.get('/quiz/recommendations',
   authenticateToken,
-  requireRole(['student', 'scholar']),
+  requireRole(['student']),
   async (req, res) => {
-    const userId = req.user.userId;
+    const studentId = req.user.userId;
+
+    const recommendations = await prisma.studentRecommendation.findMany({
+      where: { 
+        studentId: studentId
+      },
+      include: {
+        hobby: {
+          include: { category: true }
+        },
+        admin: {
+          include: { profile: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json(recommendations);
+  }
+);
+
+router.get('/quiz/progress',
+  authenticateToken,
+  requireRole(['student']),
+  async (req, res) => {
+    const studentId = req.user.userId;
 
     const userHobbies = await prisma.userHobby.findMany({
-      where: { userId },
+      where: { userId: studentId },
       include: {
         hobby: {
           include: {

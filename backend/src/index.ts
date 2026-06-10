@@ -34,7 +34,9 @@ import paymentRoutes from './routes/payment.js';
 import prisma from './lib/prisma.js';
 import path from 'path';
 import uploadRoutes from './routes/upload.js';
+import adminQuizRoutes from './routes/admin-quiz.js';
 import userRoutes from './routes/users.js';
+
 
 
 const app = express();
@@ -70,6 +72,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use('/api', adminQuizRoutes);
 // PUBLIC ROUTES (no authentication required)
 app.use('/api/auth', authRoutes);
 app.use('/api', googleAuthRoutes);
@@ -95,6 +98,7 @@ app.use('/api', notificationRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', roleRoutes);
 app.use('/api', paymentRoutes);
+
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
   setHeaders: (res, filePath, stat) => {

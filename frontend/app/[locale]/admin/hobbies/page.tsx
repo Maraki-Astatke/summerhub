@@ -29,13 +29,6 @@ export default function AdminHobbiesPage() {
   const [ageGroup, setAgeGroup] = useState("");
   const [categoryId, setCategoryId] = useState("");
 
-  // Console logs for debugging
-  console.log("=== AdminHobbiesPage Debug ===");
-  console.log("authLoading:", authLoading);
-  console.log("user object:", user);
-  console.log("user roles:", user?.roles);
-  console.log("is admin?", user?.roles?.includes("admin"));
-  console.log("==============================");
 
   useEffect(() => {
     console.log("useEffect triggered - checking admin access");

@@ -1,677 +1,3 @@
-// 'use client';
-// import React from 'react';
-// import { useState, useEffect } from 'react';
-// import Link from 'next/link';
-// import { useRouter } from 'next/navigation';
-// import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-// import { useAuth } from '@/providers/auth-provider';
-// import api from '@/lib/api';
-// import { Calendar, Users, BookOpen, DollarSign, Edit, Trash2 } from 'lucide-react';
-
-// const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-//   <div className={`bg-white rounded-lg border shadow-sm ${className}`}>{children}</div>
-// );
-
-// const CardHeader = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-//   <div className={`p-6 pb-3 ${className}`}>{children}</div>
-// );
-
-// const CardTitle = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-//   <h3 className={`text-lg font-semibold ${className}`}>{children}</h3>
-// );
-
-// const CardDescription = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-//   <p className={`text-sm text-gray-500 ${className}`}>{children}</p>
-// );
-
-// const CardContent = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-//   <div className={`p-6 pt-0 ${className}`}>{children}</div>
-// );
-
-// const Button = ({ children, onClick, variant = 'default', className = '', disabled = false, type = 'button' }: any) => (
-//   <button
-//     type={type}
-//     onClick={onClick}
-//     disabled={disabled}
-//     className={`px-4 py-2 rounded-lg font-medium transition ${
-//       variant === 'outline' 
-//         ? 'border border-gray-300 hover:bg-gray-50' 
-//         : variant === 'destructive'
-//         ? 'bg-red-500 text-white hover:bg-red-600'
-//         : 'bg-purple-600 text-white hover:bg-purple-700'
-//     } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
-//   >
-//     {children}
-//   </button>
-// );
-
-// const Input = ({ id, value, onChange, required, placeholder, type = 'text' }: any) => (
-//   <input
-//     id={id}
-//     type={type}
-//     value={value}
-//     onChange={onChange}
-//     required={required}
-//     placeholder={placeholder}
-//     className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-//   />
-// );
-
-// const Label = ({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) => (
-//   <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 mb-1">
-//     {children}
-//   </label>
-// );
-
-// const Textarea = ({ id, value, onChange, rows = 3, placeholder }: any) => (
-//   <textarea
-//     id={id}
-//     value={value}
-//     onChange={onChange}
-//     rows={rows}
-//     placeholder={placeholder}
-//     className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-//   />
-// );
-
-// const Tabs = ({ defaultValue, children, className = '' }: any) => {
-//   const [activeTab, setActiveTab] = useState(defaultValue);
-//   return (
-//     <div className={className}>
-//       {React.Children.map(children, (child) => {
-//         if (child.type === TabsList) {
-//           return React.cloneElement(child, { activeTab, setActiveTab });
-//         }
-//         if (child.type === TabsContent && child.props.value === activeTab) {
-//           return child;
-//         }
-//         return null;
-//       })}
-//     </div>
-//   );
-// };
-
-// const TabsList = ({ children, activeTab, setActiveTab }: any) => (
-//   <div className="flex gap-2 border-b mb-6">
-//     {React.Children.map(children, (child) => {
-//       if (child.type === TabsTrigger) {
-//         return React.cloneElement(child, { activeTab, setActiveTab });
-//       }
-//       return null;
-//     })}
-//   </div>
-// );
-
-// const TabsTrigger = ({ value, children, activeTab, setActiveTab }: any) => (
-//   <button
-//     onClick={() => setActiveTab(value)}
-//     className={`px-4 py-2 font-medium transition ${
-//       activeTab === value 
-//         ? 'text-purple-600 border-b-2 border-purple-600' 
-//         : 'text-gray-500 hover:text-gray-700'
-//     }`}
-//   >
-//     {children}
-//   </button>
-// );
-
-// const TabsContent = ({ children, value }: any) => <div>{children}</div>;
-
-// export default function TeacherDashboardPage() {
-//   const router = useRouter();
-//   const { user, isLoading: authLoading } = useAuth();
-//   const queryClient = useQueryClient();
-//   const [showCreateForm, setShowCreateForm] = useState(false);
-//   const [editingLesson, setEditingLesson] = useState<any>(null);
-//   const [formData, setFormData] = useState({
-//     title: '',
-//     description: '',
-//     hobbyId: '',
-//     dateTime: '',
-//     durationMinutes: '60',
-//     maxStudents: '20',
-//     zoomLink: '',
-//   });
-
-//   useEffect(() => {
-//     if (!authLoading && !user) {
-//       router.push('/login');
-//     }
-//     if (!authLoading && user && !user?.roles?.includes('teacher')) {
-//       router.push('/');
-//     }
-//   }, [user, authLoading, router]);
-
-//   const { data: stats } = useQuery({
-//     queryKey: ['teacher-stats'],
-//     queryFn: async () => {
-//       const response = await api.get('/teacher/stats');
-//       return response.data;
-//     },
-//     enabled: !!user && user?.roles?.includes('teacher'),
-//   });
-
-//   const { data: lessons } = useQuery({
-//     queryKey: ['teacher-lessons'],
-//     queryFn: async () => {
-//       const response = await api.get('/teacher/lessons');
-//       return response.data;
-//     },
-//     enabled: !!user && user?.roles?.includes('teacher'),
-//   });
-
-//   const { data: students } = useQuery({
-//     queryKey: ['teacher-students'],
-//     queryFn: async () => {
-//       const response = await api.get('/teacher/students');
-//       return response.data;
-//     },
-//     enabled: !!user && user?.roles?.includes('teacher'),
-//   });
-
-//   const { data: hobbies } = useQuery({
-//     queryKey: ['hobbies-list'],
-//     queryFn: async () => {
-//       const response = await api.get('/hobbies?limit=100');
-//       return response.data.data;
-//     },
-//   });
-
-//   const createLessonMutation = useMutation({
-//     mutationFn: async (data: any) => {
-//     const response = await api.post('/teacher/lessons/create', data);
-//       return response.data;
-//     },
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ['teacher-lessons'] });
-//       queryClient.invalidateQueries({ queryKey: ['teacher-stats'] });
-//       setShowCreateForm(false);
-//       setFormData({
-//         title: '',
-//         description: '',
-//         hobbyId: '',
-//         dateTime: '',
-//         durationMinutes: '60',
-//         maxStudents: '20',
-//         zoomLink: '',
-//       });
-//       alert('Lesson created successfully!');
-//     },
-//     onError: (error: any) => {
-//       const data = error.response?.data;
-//       if (data?.errors) {
-//         const errorMsgs = data.errors.map((e: any) => `${e.path || e.param}: ${e.msg}`).join(', ');
-//         alert(`Validation failed: ${errorMsgs}`);
-//       } else {
-//         alert(data?.error || 'Failed to create lesson');
-//       }
-//     },
-//   });
-
-//   const updateLessonMutation = useMutation({
-//     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-//       const response = await api.put(`/lessons/${id}`, data);
-//       return response.data;
-//     },
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ['teacher-lessons'] });
-//       setEditingLesson(null);
-//       alert('Lesson updated successfully!');
-//     },
-//     onError: (error: any) => {
-//       const data = error.response?.data;
-//       if (data?.errors) {
-//         const errorMsgs = data.errors.map((e: any) => `${e.path || e.param}: ${e.msg}`).join(', ');
-//         alert(`Validation failed: ${errorMsgs}`);
-//       } else {
-//         alert(data?.error || 'Failed to update lesson');
-//       }
-//     },
-//   });
-
-//   const deleteLessonMutation = useMutation({
-//     mutationFn: async (id: number) => {
-//       await api.delete(`/lessons/${id}`);
-//     },
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ['teacher-lessons'] });
-//       queryClient.invalidateQueries({ queryKey: ['teacher-stats'] });
-//       alert('Lesson deleted');
-//     },
-//   });
-
-//   const handleSubmit = (e: React.FormEvent) => {
-//     e.preventDefault();
-    
-//     if (formData.title.trim().length < 5) {
-//       alert('Lesson title must be at least 5 characters long');
-//       return;
-//     }
-//     if (!formData.hobbyId) {
-//       alert('Please select a hobby');
-//       return;
-//     }
-//     if (!formData.dateTime) {
-//       alert('Please select a date and time');
-//       return;
-//     }
-
-//     const submitData: any = {
-//       title: formData.title,
-//       description: formData.description,
-//       hobbyId: parseInt(formData.hobbyId),
-//       dateTime: new Date(formData.dateTime).toISOString(),
-//       durationMinutes: parseInt(formData.durationMinutes),
-//       maxStudents: parseInt(formData.maxStudents)
-//     };
-    
-//     if (formData.zoomLink) {
-//       submitData.zoomLink = formData.zoomLink;
-//     }
-    
-//     createLessonMutation.mutate(submitData);
-//   };
-
-//   const handleUpdate = (e: React.FormEvent) => {
-//     e.preventDefault();
-//     if (editingLesson) {
-      
-//       if (!formData.hobbyId) {
-//         alert('Please select a hobby');
-//         return;
-//       }
-//       if (!formData.dateTime) {
-//         alert('Please select a date and time');
-//         return;
-//       }
-      
-//       const updateData: any = {
-//         title: formData.title,
-//         description: formData.description,
-//         hobbyId: parseInt(formData.hobbyId),
-//         dateTime: new Date(formData.dateTime).toISOString(),
-//         durationMinutes: parseInt(formData.durationMinutes),
-//         maxStudents: parseInt(formData.maxStudents),
-//       };
-      
-//       if (formData.zoomLink) {
-//         updateData.zoomLink = formData.zoomLink;
-//       }
-      
-//       updateLessonMutation.mutate({
-//         id: editingLesson.id,
-//         data: updateData,
-//       });
-//     }
-//   };
-
-//   if (authLoading) {
-//     return (
-//       <div className="min-h-screen flex items-center justify-center">
-//         <div className="text-center">Loading...</div>
-//       </div>
-//     );
-//   }
-
-//   if (!user || !user?.roles?.includes('teacher')) {
-//     return null;
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-gray-50">
-//       <header className="bg-white border-b sticky top-0 z-10">
-//         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-//           <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Teacher</Link>
-//           <div className="flex gap-4">
-//             <Link href="/teacher">
-//               <Button variant="ghost">Teacher Dashboard</Button>
-//             </Link>
-//           </div>
-//         </div>
-//       </header>
-
-//       <main className="container mx-auto px-4 py-8">
-//         <h1 className="text-3xl font-bold mb-2">Teacher Dashboard</h1>
-//         <p className="text-gray-600 mb-8">Manage your lessons and students</p>
-
-//         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-//           <Card>
-//             <CardHeader className="pb-2">
-//               <CardTitle className="text-sm font-medium text-gray-500">Total Lessons</CardTitle>
-//             </CardHeader>
-//             <CardContent>
-//               <div className="text-2xl font-bold flex items-center gap-2">
-//                 <BookOpen className="h-5 w-5 text-gray-400" />
-//                 {stats?.totalLessons || 0}
-//               </div>
-//             </CardContent>
-//           </Card>
-//           <Card>
-//             <CardHeader className="pb-2">
-//               <CardTitle className="text-sm font-medium text-gray-500">Total Students</CardTitle>
-//             </CardHeader>
-//             <CardContent>
-//               <div className="text-2xl font-bold flex items-center gap-2">
-//                 <Users className="h-5 w-5 text-gray-400" />
-//                 {stats?.totalStudents || 0}
-//               </div>
-//             </CardContent>
-//           </Card>
-//           <Card>
-//             <CardHeader className="pb-2">
-//               <CardTitle className="text-sm font-medium text-gray-500">Upcoming Lessons</CardTitle>
-//             </CardHeader>
-//             <CardContent>
-//               <div className="text-2xl font-bold">{stats?.upcomingLessons || 0}</div>
-//             </CardContent>
-//           </Card>
-//           <Card>
-//             <CardHeader className="pb-2">
-//               <CardTitle className="text-sm font-medium text-gray-500">Revenue</CardTitle>
-//             </CardHeader>
-//             <CardContent>
-//               <div className="text-2xl font-bold flex items-center gap-2">
-//                 <DollarSign className="h-5 w-5 text-green-500" />
-//                 {stats?.totalRevenue || 0}
-//               </div>
-//             </CardContent>
-//           </Card>
-//         </div>
-
-//         <Tabs defaultValue="lessons" className="space-y-6">
-//           <TabsList>
-//             <TabsTrigger value="lessons">My Lessons</TabsTrigger>
-//             <TabsTrigger value="students">My Students</TabsTrigger>
-//             <TabsTrigger value="create">Create Lesson</TabsTrigger>
-//           </TabsList>
-
-//           <TabsContent value="lessons">
-//             <div className="space-y-4">
-//               {lessons?.length === 0 ? (
-//                 <Card>
-//                   <CardContent className="text-center py-12">
-//                     <BookOpen className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-//                     <p className="text-gray-500">No lessons created yet</p>
-//                     <Button className="mt-4" onClick={() => setShowCreateForm(true)}>Create First Lesson</Button>
-//                   </CardContent>
-//                 </Card>
-//               ) : (
-//                 lessons?.map((lesson: any) => (
-//                   <Card key={lesson.id}>
-//                     <CardContent className="p-6">
-//                       <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-//                         <div className="flex-1">
-//                           <h3 className="text-xl font-semibold mb-2">{lesson.title}</h3>
-//                           <p className="text-gray-600 mb-3">{lesson.description}</p>
-//                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-500">
-//                             <div className="flex items-center gap-2">
-//                               <Calendar className="h-4 w-4" />
-//                               <span>{new Date(lesson.dateTime).toLocaleString()}</span>
-//                             </div>
-//                             <div className="flex items-center gap-2">
-//                               <Users className="h-4 w-4" />
-//                               <span>{lesson.registrations?.length || 0} / {lesson.maxStudents} students</span>
-//                             </div>
-//                           </div>
-//                         </div>
-//                         <div className="flex gap-2">
-//                           <Button
-//                             variant="outline"
-//                             size="sm"
-//                             onClick={() => {
-//                               setEditingLesson(lesson);
-//                               setFormData({
-//                                 title: lesson.title,
-//                                 description: lesson.description || '',
-//                                 hobbyId: lesson.hobbyId.toString(),
-//                                 dateTime: lesson.dateTime.slice(0, 16),
-//                                 durationMinutes: lesson.durationMinutes.toString(),
-//                                 maxStudents: lesson.maxStudents.toString(),
-//                                 zoomLink: lesson.zoomLink || '',
-//                               });
-//                             }}
-//                           >
-//                             <Edit className="h-4 w-4" />
-//                           </Button>
-//                           <Button
-//                             variant="outline"
-//                             size="sm"
-//                             className="text-red-500"
-//                             onClick={() => {
-//                               if (confirm('Delete this lesson?')) {
-//                                 deleteLessonMutation.mutate(lesson.id);
-//                               }
-//                             }}
-//                           >
-//                             <Trash2 className="h-4 w-4" />
-//                           </Button>
-//                         </div>
-//                       </div>
-//                     </CardContent>
-//                   </Card>
-//                 ))
-//               )}
-//             </div>
-//           </TabsContent>
-
-//           <TabsContent value="students">
-//             <Card>
-//               <CardHeader>
-//                 <CardTitle>My Students</CardTitle>
-//                 <CardDescription>Students registered in your lessons</CardDescription>
-//               </CardHeader>
-//               <CardContent>
-//                 {students?.length === 0 ? (
-//                   <p className="text-center text-gray-500 py-8">No students yet</p>
-//                 ) : (
-//                   <div className="space-y-3">
-//                     {students?.map((student: any) => (
-//                       <div key={student.id} className="flex justify-between items-center p-3 border rounded-lg">
-//                         <div>
-//                           <p className="font-medium">{student.profile?.firstName} {student.profile?.lastName}</p>
-//                           <p className="text-sm text-gray-500">{student.email}</p>
-//                         </div>
-//                         <div className="text-sm text-gray-500">
-//                           {student.registeredLessons} lesson(s)
-//                         </div>
-//                       </div>
-//                     ))}
-//                   </div>
-//                 )}
-//               </CardContent>
-//             </Card>
-//           </TabsContent>
-
-//           <TabsContent value="create">
-//             <Card>
-//               <CardHeader>
-//                 <CardTitle>Create New Lesson</CardTitle>
-//                 <CardDescription>Add a new lesson for students to join</CardDescription>
-//               </CardHeader>
-//               <CardContent>
-//                 <form onSubmit={handleSubmit} className="space-y-4">
-//                   <div>
-//                     <Label htmlFor="title">Lesson Title</Label>
-//                     <Input
-//                       id="title"
-//                       placeholder="Enter a title (minimum 5 characters)"
-//                       value={formData.title}
-//                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, title: e.target.value })}
-//                       required
-//                     />
-//                     {formData.title.length > 0 && formData.title.length < 5 && (
-//                       <p className="text-red-500 text-xs mt-1">Title must be at least 5 characters ({formData.title.length}/5)</p>
-//                     )}
-//                   </div>
-//                   <div>
-//                     <Label htmlFor="description">Description</Label>
-//                     <Textarea
-//                       id="description"
-//                       value={formData.description}
-//                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
-//                       rows={3}
-//                     />
-//                   </div>
-//                   <div>
-//                     <Label htmlFor="hobbyId">Hobby Category</Label>
-//                     <select
-//                       id="hobbyId"
-//                       className="w-full border rounded-md px-3 py-2"
-//                       value={formData.hobbyId}
-//                       onChange={(e) => setFormData({ ...formData, hobbyId: e.target.value })}
-//                       required
-//                     >
-//                       <option value="">Select Hobby</option>
-//                       {hobbies?.map((hobby: any) => (
-//                         <option key={hobby.id} value={hobby.id}>{hobby.name}</option>
-//                       ))}
-//                     </select>
-//                   </div>
-//                   <div>
-//                     <Label htmlFor="dateTime">Date & Time</Label>
-//                     <Input
-//                       id="dateTime"
-//                       type="datetime-local"
-//                       value={formData.dateTime}
-//                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, dateTime: e.target.value })}
-//                       required
-//                     />
-//                   </div>
-//                   <div className="grid grid-cols-2 gap-4">
-//                     <div>
-//                       <Label htmlFor="durationMinutes">Duration (minutes)</Label>
-//                       <Input
-//                         id="durationMinutes"
-//                         type="number"
-//                         value={formData.durationMinutes}
-//                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, durationMinutes: e.target.value })}
-//                       />
-//                     </div>
-//                     <div>
-//                       <Label htmlFor="maxStudents">Max Students</Label>
-//                       <Input
-//                         id="maxStudents"
-//                         type="number"
-//                         value={formData.maxStudents}
-//                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, maxStudents: e.target.value })}
-//                       />
-//                     </div>
-//                   </div>
-//                   <div>
-//                     <Label htmlFor="zoomLink">Zoom Link (optional)</Label>
-//                     <Input
-//                       id="zoomLink"
-//                       placeholder="https://zoom.us/j/..."
-//                       value={formData.zoomLink}
-//                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, zoomLink: e.target.value })}
-//                     />
-//                   </div>
-//                   <Button type="submit" disabled={createLessonMutation.isPending}>
-//                     {createLessonMutation.isPending ? 'Creating...' : 'Create Lesson'}
-//                   </Button>
-//                 </form>
-//               </CardContent>
-//             </Card>
-//           </TabsContent>
-//         </Tabs>
-
-//         {editingLesson && (
-//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-//             <Card className="w-full max-w-2xl mx-4 max-h-[90vh] overflow-auto">
-//               <CardHeader>
-//                 <CardTitle>Edit Lesson</CardTitle>
-//               </CardHeader>
-//               <CardContent>
-//                 <form onSubmit={handleUpdate} className="space-y-4">
-//                   <div>
-//                     <Label htmlFor="edit-title">Title</Label>
-//                     <Input
-//                       id="edit-title"
-//                       value={formData.title}
-//                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, title: e.target.value })}
-//                       required
-//                     />
-//                   </div>
-//                   <div>
-//                     <Label htmlFor="edit-description">Description</Label>
-//                     <Textarea
-//                       id="edit-description"
-//                       value={formData.description}
-//                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
-//                       rows={3}
-//                     />
-//                   </div>
-//                   <div>
-//                     <Label htmlFor="edit-hobbyId">Hobby</Label>
-//                     <select
-//                       id="edit-hobbyId"
-//                       className="w-full border rounded-md px-3 py-2"
-//                       value={formData.hobbyId}
-//                       onChange={(e) => setFormData({ ...formData, hobbyId: e.target.value })}
-//                       required
-//                     >
-//                       <option value="">Select Hobby</option>
-//                       {hobbies?.map((hobby: any) => (
-//                         <option key={hobby.id} value={hobby.id}>{hobby.name}</option>
-//                       ))}
-//                     </select>
-//                   </div>
-//                   <div>
-//                     <Label htmlFor="edit-dateTime">Date & Time</Label>
-//                     <Input
-//                       id="edit-dateTime"
-//                       type="datetime-local"
-//                       value={formData.dateTime}
-//                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, dateTime: e.target.value })}
-//                       required
-//                     />
-//                   </div>
-//                   <div className="grid grid-cols-2 gap-4">
-//                     <div>
-//                       <Label htmlFor="edit-duration">Duration (minutes)</Label>
-//                       <Input
-//                         id="edit-duration"
-//                         type="number"
-//                         value={formData.durationMinutes}
-//                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, durationMinutes: e.target.value })}
-//                       />
-//                     </div>
-//                     <div>
-//                       <Label htmlFor="edit-maxStudents">Max Students</Label>
-//                       <Input
-//                         id="edit-maxStudents"
-//                         type="number"
-//                         value={formData.maxStudents}
-//                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, maxStudents: e.target.value })}
-//                       />
-//                     </div>
-//                   </div>
-//                   <div>
-//                     <Label htmlFor="edit-zoomLink">Zoom Link</Label>
-//                     <Input
-//                       id="edit-zoomLink"
-//                       value={formData.zoomLink}
-//                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, zoomLink: e.target.value })}
-//                     />
-//                   </div>
-//                   <div className="flex gap-2 pt-4">
-//                     <Button type="submit" disabled={updateLessonMutation.isPending}>
-//                       Save Changes
-//                     </Button>
-//                     <Button variant="outline" onClick={() => setEditingLesson(null)}>
-//                       Cancel
-//                     </Button>
-//                   </div>
-//                 </form>
-//               </CardContent>
-//             </Card>
-//           </div>
-//         )}
-//       </main>
-//     </div>
-//   );
-// }
-
 'use client';
 import React from 'react';
 import { useState, useEffect } from 'react';
@@ -680,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
 import api from '@/lib/api';
-import { Calendar, Users, BookOpen, DollarSign, Edit, Trash2, Menu, X, LogOut, LayoutDashboard, Video, ShoppingBag, Newspaper, Trophy, MessageSquare, Settings } from 'lucide-react';
+import { Calendar, Users, BookOpen, DollarSign, Edit, Trash2, Menu, X, LogOut, LayoutDashboard, Video, ShoppingBag, Newspaper, Trophy, MessageSquare, Settings, Award, Plus } from 'lucide-react';
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={`bg-white rounded-lg border shadow-sm ${className}`}>{children}</div>
@@ -755,6 +81,15 @@ export default function TeacherDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('lessons');
   const [editingLesson, setEditingLesson] = useState<any>(null);
+  const [showTemplateForm, setShowTemplateForm] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState('');
+  const [customMessage, setCustomMessage] = useState('');
+  const [templateForm, setTemplateForm] = useState({
+    title: '',
+    description: '',
+    hobbyId: '',
+  });
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -806,11 +141,66 @@ export default function TeacherDashboardPage() {
     enabled: !!user && user?.roles?.includes('teacher'),
   });
 
+  const { data: templates } = useQuery({
+    queryKey: ['teacher-certificate-templates'],
+    queryFn: async () => {
+      const response = await api.get('/teacher/certificates/templates');
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes('teacher'),
+  });
+
+  const { data: issuedCertificates } = useQuery({
+    queryKey: ['teacher-issued-certificates'],
+    queryFn: async () => {
+      const response = await api.get('/teacher/certificates/issued');
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes('teacher'),
+  });
+
   const { data: hobbies } = useQuery({
     queryKey: ['hobbies-list'],
     queryFn: async () => {
       const response = await api.get('/hobbies?limit=100');
       return response.data.data;
+    },
+  });
+
+  const createTemplateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await api.post('/teacher/certificates/template', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacher-certificate-templates'] });
+      setShowTemplateForm(false);
+      setTemplateForm({ title: '', description: '', hobbyId: '' });
+      alert('Template created successfully!');
+    },
+  });
+
+  const deleteTemplateMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/teacher/certificates/template/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacher-certificate-templates'] });
+      alert('Template deleted');
+    },
+  });
+
+  const issueCertificateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await api.post('/teacher/certificates/issue', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacher-issued-certificates'] });
+      setSelectedStudent(null);
+      setSelectedTemplateId('');
+      setCustomMessage('');
+      alert('Certificate issued successfully!');
     },
   });
 
@@ -932,6 +322,27 @@ export default function TeacherDashboardPage() {
     }
   };
 
+  const handleTemplateSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createTemplateMutation.mutate(templateForm);
+  };
+
+  const handleIssueCertificate = () => {
+    if (!selectedTemplateId) {
+      alert('Please select a template');
+      return;
+    }
+    if (!selectedStudent) {
+      alert('Please select a student');
+      return;
+    }
+    issueCertificateMutation.mutate({
+      templateId: parseInt(selectedTemplateId),
+      studentId: selectedStudent.id,
+      customMessage: customMessage,
+    });
+  };
+
   const openEditDialog = (lesson: any) => {
     setEditingLesson(lesson);
     setFormData({
@@ -953,6 +364,7 @@ export default function TeacherDashboardPage() {
     { id: 'stats', label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: 'lessons', label: 'My Lessons', icon: <BookOpen className="w-5 h-5" /> },
     { id: 'students', label: 'My Students', icon: <Users className="w-5 h-5" /> },
+    { id: 'certificates', label: 'Certificates', icon: <Award className="w-5 h-5" /> },
     { id: 'create', label: 'Create Lesson', icon: <Video className="w-5 h-5" /> },
   ];
 
@@ -1086,6 +498,155 @@ export default function TeacherDashboardPage() {
       );
     }
 
+    if (activeTab === 'certificates') {
+      return (
+        <div className="space-y-6">
+          {/* Create Template Button */}
+          <div className="flex justify-end">
+            <Button onClick={() => setShowTemplateForm(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Template
+            </Button>
+          </div>
+
+          {/* Templates Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Certificate Templates</CardTitle>
+              <CardDescription>Create and manage certificate templates</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {templates?.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">No templates created yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {templates?.map((template: any) => (
+                    <div key={template.id} className="flex justify-between items-center p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{template.title}</p>
+                        <p className="text-sm text-gray-500">{template.description}</p>
+                        {template.hobby && (
+                          <p className="text-xs text-purple-600 mt-1">Hobby: {template.hobby.name}</p>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-500"
+                        onClick={() => {
+                          if (confirm('Delete this template?')) {
+                            deleteTemplateMutation.mutate(template.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Issue Certificate Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Issue Certificate</CardTitle>
+              <CardDescription>Select a student and template to issue a certificate</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label>Select Student</Label>
+                  <select
+                    className="w-full border rounded-md px-3 py-2"
+                    value={selectedStudent?.id || ''}
+                    onChange={(e) => {
+                      const student = students?.find((s: any) => s.id === parseInt(e.target.value));
+                      setSelectedStudent(student);
+                    }}
+                  >
+                    <option value="">Select a student</option>
+                    {students?.map((student: any) => (
+                      <option key={student.id} value={student.id}>
+                        {student.profile?.firstName} {student.profile?.lastName} ({student.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label>Select Template</Label>
+                  <select
+                    className="w-full border rounded-md px-3 py-2"
+                    value={selectedTemplateId}
+                    onChange={(e) => setSelectedTemplateId(e.target.value)}
+                  >
+                    <option value="">Select a template</option>
+                    {templates?.map((template: any) => (
+                      <option key={template.id} value={template.id}>
+                        {template.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label>Custom Message (Optional)</Label>
+                  <Textarea
+                    placeholder="Add a personal message for the student..."
+                    value={customMessage}
+                    onChange={(e) => setCustomMessage(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+
+                <Button onClick={handleIssueCertificate} disabled={!selectedStudent || !selectedTemplateId}>
+                  Issue Certificate
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Issued Certificates Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Issued Certificates</CardTitle>
+              <CardDescription>View all certificates you've issued</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {issuedCertificates?.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">No certificates issued yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {issuedCertificates?.map((cert: any) => (
+                    <div key={cert.id} className="flex justify-between items-center p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{cert.template?.title}</p>
+                        <p className="text-sm text-gray-500">
+                          Issued to: {cert.student?.profile?.firstName} {cert.student?.profile?.lastName}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Date: {new Date(cert.issuedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(`/api/certificates/${cert.id}/download`, '_blank')}
+                      >
+                        View
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
     if (activeTab === 'create') {
       return (
         <Card>
@@ -1183,8 +744,67 @@ export default function TeacherDashboardPage() {
     return null;
   };
 
+  // Create Template Modal
+  const CreateTemplateModal = () => {
+    if (!showTemplateForm) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-md w-full">
+          <div className="p-6 border-b">
+            <h2 className="text-xl font-bold">Create Certificate Template</h2>
+          </div>
+          <div className="p-6">
+            <form onSubmit={handleTemplateSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="template-title">Template Title</Label>
+                <Input
+                  id="template-title"
+                  value={templateForm.title}
+                  onChange={(e) => setTemplateForm({ ...templateForm, title: e.target.value })}
+                  required
+                  placeholder="e.g., Guitar Completion Certificate"
+                />
+              </div>
+              <div>
+                <Label htmlFor="template-description">Description</Label>
+                <Textarea
+                  id="template-description"
+                  value={templateForm.description}
+                  onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
+                  rows={2}
+                  placeholder="Brief description of this certificate"
+                />
+              </div>
+              <div>
+                <Label htmlFor="template-hobby">Associated Hobby (Optional)</Label>
+                <select
+                  id="template-hobby"
+                  className="w-full border rounded-md px-3 py-2"
+                  value={templateForm.hobbyId}
+                  onChange={(e) => setTemplateForm({ ...templateForm, hobbyId: e.target.value })}
+                >
+                  <option value="">All Hobbies</option>
+                  {hobbies?.map((hobby: any) => (
+                    <option key={hobby.id} value={hobby.id}>{hobby.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button type="submit">Create Template</Button>
+                <Button variant="outline" onClick={() => setShowTemplateForm(false)}>Cancel</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <CreateTemplateModal />
+      
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Teacher</Link>
@@ -1196,13 +816,11 @@ export default function TeacherDashboardPage() {
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
           <div className="p-6 border-b">
             <Link href="/" className="text-2xl font-bold text-purple-600">HobbyHub</Link>
             <p className="text-sm text-gray-500 mt-1">Teacher Portal</p>
           </div>
 
-          {/* User Info */}
           <div className="p-4 border-b bg-gray-50">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
@@ -1217,7 +835,6 @@ export default function TeacherDashboardPage() {
             </div>
           </div>
 
-          {/* Navigation Menu */}
           <nav className="flex-1 p-4 space-y-1">
             {menuItems.map((item) => (
               <button
@@ -1238,7 +855,6 @@ export default function TeacherDashboardPage() {
             ))}
           </nav>
 
-          {/* Footer */}
           <div className="p-4 border-t space-y-2">
             <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <ShoppingBag className="w-5 h-5" />
@@ -1271,12 +887,10 @@ export default function TeacherDashboardPage() {
         </div>
       </div>
 
-      {/* Overlay for mobile */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content */}
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
@@ -1287,7 +901,6 @@ export default function TeacherDashboardPage() {
         </div>
       </div>
 
-      {/* Edit Modal */}
       {editingLesson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">

@@ -271,9 +271,6 @@ export default function Home() {
             <h2 className="text-2xl md:text-3xl lg:text-[36px] font-extrabold text-[#1F2937] tracking-tight">
               {t('testimonials.title')}
             </h2>
-            <Link href="/testimonials" className="text-sm font-bold text-[#FF7A45] hover:text-[#ff8f61] transition-colors">
-              {t('button.viewAll')}
-            </Link>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

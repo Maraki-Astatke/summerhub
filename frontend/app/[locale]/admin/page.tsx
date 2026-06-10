@@ -13,6 +13,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/providers/auth-provider";
 import api from "@/lib/api";
@@ -36,6 +44,9 @@ import {
   MessageSquare,
   Globe,
   Home,
+  HelpCircle,
+  GraduationCap,
+  FileText,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -46,6 +57,18 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState("users");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
+  
+  // Quiz state - SIMPLIFIED (no isActive)
+  const [isQuizDialogOpen, setIsQuizDialogOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<any>(null);
+  const [question, setQuestion] = useState('');
+
+  // Redirect for quiz-responses tab
+  useEffect(() => {
+    if (activeTab === "quiz-responses") {
+      router.push("/admin/quiz-responses");
+    }
+  }, [activeTab, router]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -88,6 +111,16 @@ export default function AdminDashboardPage() {
     enabled: !!user && user?.roles?.includes("admin"),
   });
 
+  // Quiz queries - SIMPLIFIED
+  const { data: questions, isLoading: quizLoading } = useQuery({
+    queryKey: ['quiz-questions'],
+    queryFn: async () => {
+      const response = await api.get('/quiz/questions');
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes('admin'),
+  });
+
   const updateRolesMutation = useMutation({
     mutationFn: async ({ userId, roleIds }: { userId: number; roleIds: number[] }) => {
       await api.put(`/admin/users/${userId}/roles`, { roleIds });
@@ -119,6 +152,76 @@ export default function AdminDashboardPage() {
     },
   });
 
+  // Quiz mutations - SIMPLIFIED (no isActive)
+  const createQuizMutation = useMutation({
+    mutationFn: async (data: { question: string }) => {
+      const response = await api.post('/admin/quiz/questions', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quiz-questions'] });
+      setIsQuizDialogOpen(false);
+      resetQuizForm();
+      alert('Question created successfully!');
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.error || 'Failed to create question');
+    },
+  });
+
+  const updateQuizMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: { question: string } }) => {
+      const response = await api.put(`/admin/quiz/questions/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quiz-questions'] });
+      setIsQuizDialogOpen(false);
+      setEditingQuestion(null);
+      resetQuizForm();
+      alert('Question updated successfully!');
+    },
+  });
+
+  const deleteQuizMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/admin/quiz/questions/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quiz-questions'] });
+      alert('Question deleted');
+    },
+  });
+
+  const resetQuizForm = () => {
+    setQuestion('');
+  };
+
+  const handleQuizSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!question.trim()) {
+      alert('Question is required');
+      return;
+    }
+    
+    const data = {
+      question: question.trim()
+    };
+    
+    if (editingQuestion) {
+      updateQuizMutation.mutate({ id: editingQuestion.id, data });
+    } else {
+      createQuizMutation.mutate(data);
+    }
+  };
+
+  const openEditDialog = (q: any) => {
+    setEditingQuestion(q);
+    setQuestion(q.question);
+    setIsQuizDialogOpen(true);
+  };
+
   const handleRoleUpdate = () => {
     if (selectedUserId && selectedRoles.length > 0) {
       updateRolesMutation.mutate({ userId: selectedUserId, roleIds: selectedRoles });
@@ -140,10 +243,17 @@ export default function AdminDashboardPage() {
   const menuItems = [
     { id: "users", label: "User Management", icon: <Users className="w-5 h-5" /> },
     { id: "stats", label: "Analytics", icon: <BarChart3 className="w-5 h-5" /> },
+    { id: "quiz", label: "Quiz Management", icon: <GraduationCap className="w-5 h-5" /> },
+    { id: "quiz-responses", label: "Quiz Responses", icon: <FileText className="w-5 h-5" /> },
     { id: "content", label: "Content", icon: <BookOpen className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
+    // Quiz responses handled by useEffect - just return null
+    if (activeTab === "quiz-responses") {
+      return null;
+    }
+
     if (activeTab === "users") {
       return (
         <Card>
@@ -304,6 +414,104 @@ export default function AdminDashboardPage() {
       );
     }
 
+    if (activeTab === "quiz") {
+      return (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Quiz Management</CardTitle>
+              <CardDescription>Create and manage interest assessment questions</CardDescription>
+            </div>
+            <Dialog open={isQuizDialogOpen} onOpenChange={setIsQuizDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => { resetQuizForm(); setEditingQuestion(null); }} className="bg-purple-600 hover:bg-purple-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Question
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>{editingQuestion ? 'Edit Question' : 'Add New Question'}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleQuizSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="question">Question</Label>
+                    <Textarea
+                      id="question"
+                      value={question}
+                      onChange={(e) => setQuestion(e.target.value)}
+                      placeholder="e.g., What activity makes you lose track of time?"
+                      rows={3}
+                      required
+                      className="resize-none"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      Students will answer this question with text responses
+                    </p>
+                  </div>
+                  
+                  <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+                    {editingQuestion ? 'Update Question' : 'Create Question'}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent>
+            {quizLoading ? (
+              <div className="text-center py-12">Loading...</div>
+            ) : questions?.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No quiz questions yet</p>
+                <Button className="mt-4 bg-purple-600 hover:bg-purple-700" onClick={() => setIsQuizDialogOpen(true)}>
+                  Create First Question
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {questions?.map((q: any, idx: number) => (
+                  <Card key={q.id} className="border">
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-purple-600 font-bold text-sm">{idx + 1}</span>
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg text-gray-800">{q.question}</CardTitle>
+                            <span className="text-xs text-gray-400 mt-1 inline-block">
+                              Students answer with written responses
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => openEditDialog(q)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500"
+                            onClick={() => {
+                              if (confirm('Delete this question?')) {
+                                deleteQuizMutation.mutate(q.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      );
+    }
+
     if (activeTab === "content") {
       return (
         <div className="grid md:grid-cols-3 gap-6">
@@ -358,7 +566,6 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Admin</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
@@ -366,7 +573,6 @@ export default function AdminDashboardPage() {
         </button>
       </div>
 
-      {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b">
@@ -424,23 +630,20 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content */}
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-            <p className="text-gray-500 mt-1">Manage users, view analytics, and control platform</p>
+            <p className="text-gray-500 mt-1">Manage users, quiz, analytics, and control platform</p>
           </div>
           {renderContent()}
         </div>
       </div>
 
-      {/* Role Edit Dialog */}
       {selectedUserId && roles && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg max-w-md w-full mx-4">
