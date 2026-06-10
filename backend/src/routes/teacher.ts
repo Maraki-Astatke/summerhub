@@ -3,6 +3,7 @@ import { body, param, validationResult } from 'express-validator';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 
@@ -509,11 +510,22 @@ router.get('/students/certificates',
 );
 
 router.get('/certificates/:id/download',
-  authenticateToken,
   async (req, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.userId;
+      const token = req.query.token as string;
+      
+      if (!token) {
+        return res.status(401).json({ error: 'Access denied. No token provided.' });
+      }
+
+      let userId: number;
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        userId = decoded.userId;
+      } catch (err) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
 
       const certificate = await prisma.certificate.findFirst({
         where: {
@@ -532,13 +544,13 @@ router.get('/certificates/:id/download',
         return res.status(404).json({ error: 'Certificate not found' });
       }
 
-      res.json({
-        fileUrl: certificate.certificateHtml,
-        studentName: `${certificate.student?.profile?.firstName || ''} ${certificate.student?.profile?.lastName || ''}`.trim(),
-        title: 'Certificate of Completion',
-        issuedAt: certificate.issuedAt,
-        customMessage: certificate.customMessage
-      });
+      const filePath = path.join(process.cwd(), certificate.certificateHtml);
+      
+      if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+      } else {
+        res.status(404).json({ error: 'Certificate file not found' });
+      }
     } catch (error) {
       console.error('Error downloading certificate:', error);
       res.status(500).json({ error: 'Failed to download certificate' });

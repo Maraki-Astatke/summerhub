@@ -144,11 +144,11 @@ export default function DashboardPage() {
       default: return <Sparkles className="w-5 h-5" />;
     }
   };
-
-  const handleDownloadCertificate = (certId: number) => {
-    const token = localStorage.getItem('token');
-    window.open(`http://localhost:5001/api/certificates/${certId}/download?token=${token}`, '_blank');
-  };
+  
+const handleDownloadCertificate = (certId: number) => {
+  const token = localStorage.getItem('token');
+  window.open(`http://localhost:5001/api/certificates/${certId}/download?token=${token}`, '_blank');
+};
 
   if (authLoading) {
     return (
