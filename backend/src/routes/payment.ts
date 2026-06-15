@@ -1,3 +1,4 @@
+
 import { Router } from 'express';
 import prisma from '../lib/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
@@ -48,7 +49,7 @@ router.get('/payment/verify/:tx_ref', async (req, res) => {
     
     const verification = await verifyPayment(tx_ref);
     
-    if (verification.data.status === 'success') {
+    if (verification.data?.status === 'success') {
       const orderId = parseInt(tx_ref.split('-')[1]);
       
       await prisma.order.update({
@@ -58,6 +59,7 @@ router.get('/payment/verify/:tx_ref', async (req, res) => {
       
       res.redirect(`http://localhost:3000/orders/${orderId}?payment=success`);
     } else {
+      const orderId = parseInt(tx_ref.split('-')[1]);
       res.redirect(`http://localhost:3000/orders/${orderId}?payment=failed`);
     }
   } catch (error) {
@@ -86,4 +88,5 @@ router.post('/payment/webhook', async (req, res) => {
   }
 });
 
+// ✅ ADD THIS AT THE END OF THE FILE
 export default router;

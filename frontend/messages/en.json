@@ -1,19 +1,19 @@
 {
-"nav": {
-  "home": "Home",
-  "courses": "Courses",
-  "lessons": "Lessons",
-  "events": "Events",
-  "blog": "Blog",
-  "about": "About",
-  "getStarted": "Get Started",
-  "login": "Login",
-  "admin": "Admin",
-  "teacher": "Teacher",
-  "seller": "Seller",
-  "workspace": "Workspace",
-  "signOut": "Sign Out"
-},
+  "nav": {
+    "home": "Home",
+    "courses": "Courses",
+    "lessons": "Lessons",
+    "events": "Events",
+    "blog": "Blog",
+    "about": "About",
+    "getStarted": "Get Started",
+    "login": "Login",
+    "admin": "Admin",
+    "teacher": "Teacher",
+    "seller": "Seller",
+    "workspace": "Workspace",
+    "signOut": "Sign Out"
+  },
   "button": {
     "viewAll": "View All",
     "takeQuiz": "Take Quiz",
@@ -61,6 +61,12 @@
   },
   "whoIsFor": {
     "title": "Who Is It For?"
+  },
+  "shop": {
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock"
   },
   "target": {
     "students": {
@@ -127,13 +133,13 @@
     "subtitle": "Join thousands of students discovering their passions"
   },
   "auth": {
-  "welcomeBack": "Welcome Back",
-  "loginDesc": "Login to your HobbyHub account",
-  "password": "Password",
-  "forgotPassword": "Forgot password?",
-  "orContinue": "Or continue with",
-  "noAccount": "Don't have an account?"
-},
+    "welcomeBack": "Welcome Back",
+    "loginDesc": "Login to your HobbyHub account",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "orContinue": "Or continue with",
+    "noAccount": "Don't have an account?"
+  },
   "footer": {
     "desc": "Discover, learn, create, and shine with HobbyHub Education.",
     "quickLinks": "Quick Links",

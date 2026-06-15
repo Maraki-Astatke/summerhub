@@ -641,10 +641,6 @@ export default function SellerDashboardPage() {
               <Store className="w-5 h-5" />
               <span className="font-medium">Marketplace</span>
             </Link>
-            <Link href="/blog" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
-              <Newspaper className="w-5 h-5" />
-              <span className="font-medium">Blog</span>
-            </Link>
             <Link href="/events" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <Trophy className="w-5 h-5" />
               <span className="font-medium">Events</span>

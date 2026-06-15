@@ -1,19 +1,19 @@
 {
-"nav": {
-  "home": "መነሻ",
-  "courses": "ኮርሶች",
-  "lessons": "ትምህርቶች",
-  "events": "ዝግጅቶች",
-  "blog": "ብሎግ",
-  "about": "ስለእኛ",
-  "getStarted": "ጀምር",
-  "login": "ግባ",
-  "admin": "አስተዳዳሪ",
-  "teacher": "አስተማሪ",
-  "seller": "ሻጭ",
-  "workspace": "የስራ ቦታ",
-  "signOut": "ውጣ"
-},
+  "nav": {
+    "home": "መነሻ",
+    "courses": "ኮርሶች",
+    "lessons": "ትምህርቶች",
+    "events": "ዝግጅቶች",
+    "blog": "ብሎግ",
+    "about": "ስለእኛ",
+    "getStarted": "ጀምር",
+    "login": "ግባ",
+    "admin": "አስተዳዳሪ",
+    "teacher": "አስተማሪ",
+    "seller": "ሻጭ",
+    "workspace": "የስራ ቦታ",
+    "signOut": "ውጣ"
+  },
   "button": {
     "viewAll": "ሁሉንም ተመልከት",
     "takeQuiz": "ፈተና ውሰድ",
@@ -61,6 +61,12 @@
   },
   "whoIsFor": {
     "title": "ለማን ነው?"
+  },
+  "shop": {
+    "addToCart": "ወደ ጋሪ ጨምር",
+    "buyNow": "አሁን ግዛ",
+    "inStock": "ክምችት አለ",
+    "outOfStock": "ክምችት የለም"
   },
   "target": {
     "students": {
@@ -127,13 +133,13 @@
     "subtitle": "በሺዎች ከሚቆጠሩ ተማሪዎች ጋር ፍላጎታቸውን ከሚያገኙ ተቀላቀል"
   },
   "auth": {
-  "welcomeBack": "እንኳን ደህና መጡ",
-  "loginDesc": "ወደ HobbyHub አካውንትዎ ይግቡ",
-  "password": "የይለፍ ቃል",
-  "forgotPassword": "የይለፍ ቃል ረሳሁ?",
-  "orContinue": "ወይም በ",
-  "noAccount": "መለያ የለዎትም?"
-},
+    "welcomeBack": "እንኳን ደህና መጡ",
+    "loginDesc": "ወደ HobbyHub አካውንትዎ ይግቡ",
+    "password": "የይለፍ ቃል",
+    "forgotPassword": "የይለፍ ቃል ረሳሁ?",
+    "orContinue": "ወይም በ",
+    "noAccount": "መለያ የለዎትም?"
+  },
   "footer": {
     "desc": "የትርፍ ጊዜ ማሳለፊያዎችን ለይ፣ ተማር፣ ፍጠር እና ብልጭ በል ከHobbyHub ጋር።",
     "quickLinks": "ፈጣን አገናኞች",
