@@ -55,10 +55,9 @@ export default function OrderDetailPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'text-yellow-600 bg-yellow-50 border border-yellow-100';
-      case 'approved_by_parent': return 'text-blue-600 bg-blue-50 border border-blue-100';
       case 'paid': return 'text-green-600 bg-green-50 border border-green-100';
-      case 'shipped': return 'text-purple-600 bg-purple-50 border border-purple-100';
-      case 'delivered': return 'text-green-700 bg-green-100 border border-green-200';
+      case 'shipped': return 'text-blue-600 bg-blue-50 border border-blue-100';
+      case 'delivered': return 'text-purple-600 bg-purple-50 border border-purple-100';
       case 'cancelled': return 'text-red-600 bg-red-50 border border-red-100';
       default: return 'text-gray-600 bg-gray-50';
     }
@@ -67,7 +66,6 @@ export default function OrderDetailPage() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending': return 'Pending';
-      case 'approved_by_parent': return 'Approved by Parent';
       case 'paid': return 'Paid';
       case 'shipped': return 'Shipped';
       case 'delivered': return 'Delivered';
@@ -76,15 +74,25 @@ export default function OrderDetailPage() {
     }
   };
 
-  const getStatusStep = (status: string) => {
-    const steps = ['pending', 'approved_by_parent', 'paid', 'shipped', 'delivered'];
-    const currentIndex = steps.indexOf(status);
-    return currentIndex + 1;
+  // 3-step progress: Order Placed → In Progress → Completed
+  const getProgressStep = () => {
+    switch (order.status) {
+      case 'pending':
+        return { current: 1, label: 'Order Placed' };
+      case 'paid':
+      case 'shipped':
+        return { current: 2, label: 'In Progress' };
+      case 'delivered':
+        return { current: 3, label: 'Completed' };
+      default:
+        return { current: 1, label: 'Order Placed' };
+    }
   };
+
+  const progress = getProgressStep();
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
-      {/* Sticky Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center focus:outline-none">
@@ -128,55 +136,70 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        {/* Order Progress */}
+        {/* 3-Step Order Progress Bar */}
         <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden mb-8">
           <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="text-center flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ${getStatusStep(order.status) >= 1 ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
-                  {getStatusStep(order.status) > 1 ? <CheckCircle className="h-5 w-5" /> : '1'}
+            <div className="flex items-center justify-between gap-2">
+              {/* Step 1: Order Placed */}
+              <div className="flex-1 text-center">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-sm font-bold transition-all duration-300 ${
+                  progress.current >= 1 
+                    ? 'bg-green-500 text-white shadow-lg shadow-green-200' 
+                    : 'bg-gray-100 text-gray-400'
+                }`}>
+                  {progress.current > 1 ? <CheckCircle className="h-5 w-5" /> : '1'}
                 </div>
-                <p className="text-xs font-bold text-gray-700">Order Placed</p>
+                <p className={`text-xs font-semibold ${
+                  progress.current >= 1 ? 'text-green-600' : 'text-gray-400'
+                }`}>
+                  Order Placed
+                </p>
               </div>
-              <div className="hidden md:block flex-1 h-1 bg-gray-100">
-                <div className="h-full bg-green-500" style={{ width: order.status === 'approved_by_parent' ? '33%' : order.status === 'paid' ? '50%' : order.status === 'shipped' ? '75%' : order.status === 'delivered' ? '100%' : '0%' }} />
+
+              {/* Connector Line 1 */}
+              <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                <div className={`h-full bg-green-500 transition-all duration-500 ${
+                  progress.current >= 2 ? 'w-full' : 'w-0'
+                }`} />
               </div>
-              
-              <div className="text-center flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ${getStatusStep(order.status) >= 2 ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
-                  {getStatusStep(order.status) > 2 ? <CheckCircle className="h-5 w-5" /> : '2'}
+
+              {/* Step 2: In Progress */}
+              <div className="flex-1 text-center">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-sm font-bold transition-all duration-300 ${
+                  progress.current >= 2 
+                    ? 'bg-green-500 text-white shadow-lg shadow-green-200' 
+                    : 'bg-gray-100 text-gray-400'
+                }`}>
+                  {progress.current > 2 ? <CheckCircle className="h-5 w-5" /> : '2'}
                 </div>
-                <p className="text-xs font-bold text-gray-700">Approved</p>
+                <p className={`text-xs font-semibold ${
+                  progress.current >= 2 ? 'text-green-600' : 'text-gray-400'
+                }`}>
+                  In Progress
+                </p>
               </div>
-              <div className="hidden md:block flex-1 h-1 bg-gray-100">
-                <div className="h-full bg-green-500" style={{ width: order.status === 'paid' ? '50%' : order.status === 'shipped' ? '75%' : order.status === 'delivered' ? '100%' : '0%' }} />
+
+              {/* Connector Line 2 */}
+              <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                <div className={`h-full bg-green-500 transition-all duration-500 ${
+                  progress.current >= 3 ? 'w-full' : 'w-0'
+                }`} />
               </div>
-              
-              <div className="text-center flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ${getStatusStep(order.status) >= 3 ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
-                  {getStatusStep(order.status) > 3 ? <CheckCircle className="h-5 w-5" /> : '3'}
+
+              {/* Step 3: Completed */}
+              <div className="flex-1 text-center">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-sm font-bold transition-all duration-300 ${
+                  progress.current >= 3 
+                    ? 'bg-green-500 text-white shadow-lg shadow-green-200' 
+                    : 'bg-gray-100 text-gray-400'
+                }`}>
+                  3
                 </div>
-                <p className="text-xs font-bold text-gray-700">Paid</p>
-              </div>
-              <div className="hidden md:block flex-1 h-1 bg-gray-100">
-                <div className="h-full bg-green-500" style={{ width: order.status === 'shipped' ? '75%' : order.status === 'delivered' ? '100%' : '0%' }} />
-              </div>
-              
-              <div className="text-center flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ${getStatusStep(order.status) >= 4 ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
-                  {getStatusStep(order.status) > 4 ? <CheckCircle className="h-5 w-5" /> : '4'}
-                </div>
-                <p className="text-xs font-bold text-gray-700">Shipped</p>
-              </div>
-              <div className="hidden md:block flex-1 h-1 bg-gray-100">
-                <div className="h-full bg-green-500" style={{ width: order.status === 'delivered' ? '100%' : '0%' }} />
-              </div>
-              
-              <div className="text-center flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ${order.status === 'delivered' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
-                  5
-                </div>
-                <p className="text-xs font-bold text-gray-700">Delivered</p>
+                <p className={`text-xs font-semibold ${
+                  progress.current >= 3 ? 'text-green-600' : 'text-gray-400'
+                }`}>
+                  Completed
+                </p>
               </div>
             </div>
           </CardContent>
@@ -206,7 +229,7 @@ export default function OrderDetailPage() {
             </Card>
           </div>
 
-          {/* Order Summary side details */}
+          {/* Order Summary */}
           <div className="space-y-6">
             <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
               <CardHeader className="p-6 pb-4 border-b border-gray-50">

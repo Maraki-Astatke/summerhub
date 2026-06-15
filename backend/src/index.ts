@@ -37,6 +37,8 @@ import uploadRoutes from './routes/upload.js';
 import adminQuizRoutes from './routes/admin-quiz.js';
 import userRoutes from './routes/users.js';
 import resourceRoutes from './routes/resource.js';
+import cartRoutes from './routes/cart.js';
+import orderRoutes from './routes/orders.js';
 
 
 
@@ -100,6 +102,8 @@ app.use('/api', notificationRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', roleRoutes);
 app.use('/api', paymentRoutes);
+app.use('/api', cartRoutes);
+app.use('/api', orderRoutes);
 
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {

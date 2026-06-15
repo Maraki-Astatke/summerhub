@@ -45,6 +45,7 @@ import {
   FileText,
   Upload,
   Send,
+  Package,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -136,6 +137,16 @@ export default function DashboardPage() {
     enabled: !!user && user?.roles?.[0] === "student",
   });
 
+  // Fetch orders for student
+  const { data: orders } = useQuery({
+    queryKey: ["dashboard-orders"],
+    queryFn: async () => {
+      const response = await api.get("/orders");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.[0] === "student",
+  });
+
   // Fetch teachers for submission dropdown
   const { data: teachers } = useQuery({
     queryKey: ["teachers-list"],
@@ -207,6 +218,28 @@ export default function DashboardPage() {
     }
   };
   
+  const getOrderStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-700';
+      case 'paid': return 'bg-green-100 text-green-700';
+      case 'shipped': return 'bg-blue-100 text-blue-700';
+      case 'delivered': return 'bg-purple-100 text-purple-700';
+      case 'cancelled': return 'bg-red-100 text-red-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  const getOrderStatusText = (status: string) => {
+    switch (status) {
+      case 'pending': return 'Pending';
+      case 'paid': return 'Paid';
+      case 'shipped': return 'Shipped';
+      case 'delivered': return 'Delivered';
+      case 'cancelled': return 'Cancelled';
+      default: return status;
+    }
+  };
+  
   const handleDownloadCertificate = (certId: number) => {
     const token = localStorage.getItem('token');
     window.open(`http://localhost:5001/api/certificates/${certId}/download?token=${token}`, '_blank');
@@ -256,6 +289,7 @@ export default function DashboardPage() {
     { id: "certificates", label: "Certificates", icon: <Award className="w-5 h-5" /> },
     { id: "resources", label: "Resources", icon: <FileText className="w-5 h-5" /> },
     { id: "recommendations", label: "Recommendations", icon: <GraduationCap className="w-5 h-5" /> },
+    { id: "orders", label: "Order History", icon: <Package className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
@@ -546,6 +580,79 @@ export default function DashboardPage() {
                           </p>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activeTab === "orders") {
+      return (
+        <Card className="border border-gray-100 rounded-xl overflow-hidden">
+          <CardHeader className="p-6">
+            <CardTitle className="text-xl font-bold">Order History</CardTitle>
+            <CardDescription>Track your purchases and delivery status</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 pt-0">
+            {!orders || orders.length === 0 ? (
+              <div className="text-center py-8">
+                <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No orders yet</p>
+                <Link href="/shops">
+                  <Button className="mt-4 bg-[#FF7A45] hover:bg-[#ff8f61]">Start Shopping</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {orders?.map((order: any) => (
+                  <div key={order.id} className="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-all duration-300">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
+                      <div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <p className="font-bold text-gray-800">Order #{order.id}</p>
+                          <span className={`text-xs px-3 py-1 rounded-full ${getOrderStatusBadge(order.status)}`}>
+                            {getOrderStatusText(order.status)}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {new Date(order.createdAt).toLocaleDateString()} • {new Date(order.createdAt).toLocaleTimeString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xl font-bold text-[#FF7A45]">{order.totalAmount} ETB</p>
+                        <p className="text-xs text-gray-400">{order.items?.length || 0} item(s)</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2 mb-4">
+                      {order.items?.slice(0, 3).map((item: any) => (
+                        <div key={item.id} className="flex justify-between text-sm">
+                          <span className="text-gray-600">
+                            {item.product?.name} <span className="text-gray-400">x{item.quantity}</span>
+                          </span>
+                          <span className="font-medium text-gray-700">{item.priceAtTime * item.quantity} ETB</span>
+                        </div>
+                      ))}
+                      {order.items?.length > 3 && (
+                        <p className="text-sm text-gray-400">+{order.items.length - 3} more items</p>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                      {order.shippingAddress && (
+                        <p className="text-xs text-gray-400 truncate max-w-[200px]">
+                          📦 {order.shippingAddress}
+                        </p>
+                      )}
+                      <Link href={`/orders/${order.id}`}>
+                        <Button variant="outline" size="sm" className="rounded-lg">
+                          View Details
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 ))}

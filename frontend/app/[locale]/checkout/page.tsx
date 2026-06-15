@@ -30,11 +30,14 @@ export default function CheckoutPage() {
     enabled: !!user,
   });
 
-  const createOrderMutation = useMutation({
-    mutationFn: async () => {
-      const response = await api.post('/orders/create');
-      return response.data;
-    },
+const createOrderMutation = useMutation({
+  mutationFn: async () => {
+    const response = await api.post('/orders', {
+      shippingAddress,
+      paymentMethod
+    });
+    return response.data;
+  },
     onSuccess: async (order) => {
       if (paymentMethod === 'chapa') {
         try {
