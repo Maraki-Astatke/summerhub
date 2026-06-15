@@ -8,39 +8,45 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/providers/auth-provider';
+import { useQuery, useQueryClient } from '@tanstack/react-query'; // ← CHANGE: add useQueryClient
+import api from '@/lib/api';
 import { toast, Toaster } from 'sonner';
-import { Moon, Sun, Bell, BellOff, Globe, Shield, Save, CheckCircle, Languages } from 'lucide-react';
+import { 
+  Moon, Sun, Bell, Globe, Shield, Save, CheckCircle, 
+  Languages, User, Mail, Phone, MapPin, School, Calendar, 
+  GraduationCap, Briefcase, Building2, LogOut 
+} from 'lucide-react';
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const queryClient = useQueryClient(); // ← ADD THIS
+  const { user, isLoading: authLoading, logout } = useAuth();
   const currentLocale = useLocale();
   
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
   const [language, setLanguage] = useState(currentLocale);
-  const [notifications, setNotifications] = useState({
-    emailNotifications: true,
-    lessonReminders: true,
-    certificateAlerts: true,
-    marketingEmails: false,
-    messageNotifications: true,
-  });
+
   const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch profile data - ADD user.id to query key to refetch when user changes
+  const { data: profile, isLoading: profileLoading } = useQuery({
+    queryKey: ['profile', user?.id], // ← CHANGE: add user?.id to key
+    queryFn: async () => {
+      const response = await api.get('/profile');
+      return response.data;
+    },
+    enabled: !!user,
+  });
 
   // Load saved preferences from localStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' || 'light';
-    const savedNotifications = localStorage.getItem('notifications');
     
     setTheme(savedTheme);
     applyTheme(savedTheme);
     
-    if (savedNotifications) {
-      setNotifications(JSON.parse(savedNotifications));
-    }
   }, []);
 
   const applyTheme = (newTheme: 'light' | 'dark' | 'system') => {
@@ -49,7 +55,6 @@ export default function SettingsPage() {
     } else if (newTheme === 'light') {
       document.documentElement.classList.remove('dark');
     } else {
-      // System preference
       if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
       } else {
@@ -64,7 +69,6 @@ export default function SettingsPage() {
     applyTheme(newTheme);
     toast.success('Theme updated', {
       description: `Theme changed to ${newTheme}`,
-      icon: newTheme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />,
     });
   };
 
@@ -72,41 +76,50 @@ export default function SettingsPage() {
     setLanguage(newLanguage);
     localStorage.setItem('language', newLanguage);
     
-    // Redirect to the same page with new locale
     const currentPath = window.location.pathname;
     const newPath = currentPath.replace(`/${currentLocale}`, `/${newLanguage}`);
     router.push(newPath);
     
     toast.success('Language changed', {
       description: `Language updated to ${newLanguage === 'en' ? 'English' : 'አማርኛ'}`,
-      icon: <Languages className="w-4 h-4" />,
     });
-  };
-
-  const handleNotificationChange = (key: keyof typeof notifications) => {
-    setNotifications(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
   };
 
   const saveSettings = () => {
     setIsSaving(true);
-    
-    // Save to localStorage
-    localStorage.setItem('notifications', JSON.stringify(notifications));
+
     localStorage.setItem('language', language);
     localStorage.setItem('theme', theme);
     
-    // Simulate API call
     setTimeout(() => {
       setIsSaving(false);
       toast.success('Settings saved!', {
         description: 'Your preferences have been updated.',
-        icon: <CheckCircle className="w-4 h-4" />,
       });
     }, 500);
   };
+
+  // ← CHANGE: Update handleLogout to clear cache
+  const handleLogout = () => {
+    queryClient.clear(); // ← ADD THIS - clears all cached queries
+    logout();
+    router.push('/');
+  };
+
+  const userRole = user?.roles?.[0] || 'student';
+  const isStudent = userRole === 'student';
+  const isTeacher = userRole === 'teacher';
+  const isSeller = userRole === 'seller';
+  const isAdmin = userRole === 'admin';
+  const isParent = userRole === 'parent';
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center text-gray-500 dark:text-gray-400">Loading...</div>
+      </div>
+    );
+  }
 
   if (!user) {
     router.push('/login');
@@ -117,7 +130,6 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Toaster position="top-center" richColors />
       
-      {/* Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-4 flex justify-between items-center">
           <Link href="/" className="text-xl font-bold text-[#FF7A45]">
@@ -125,7 +137,7 @@ export default function SettingsPage() {
           </Link>
           <div className="flex gap-4">
             <Link href="/dashboard">
-              <Button variant="ghost" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-[#FF7A45] dark:hover:text-[#FF7A45]">
+              <Button variant="ghost" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-[#FF7A45]">
                 Dashboard
               </Button>
             </Link>
@@ -144,9 +156,6 @@ export default function SettingsPage() {
             <TabsTrigger value="appearance" className="rounded-lg py-2.5 font-semibold text-sm">
               Appearance
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="rounded-lg py-2.5 font-semibold text-sm">
-              Notifications
-            </TabsTrigger>
             <TabsTrigger value="language" className="rounded-lg py-2.5 font-semibold text-sm">
               Language
             </TabsTrigger>
@@ -155,7 +164,7 @@ export default function SettingsPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Appearance Tab */}
+          {/* Appearance Tab - SAME FOR ALL ROLES */}
           <TabsContent value="appearance">
             <Card className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <CardHeader>
@@ -167,9 +176,8 @@ export default function SettingsPage() {
                   Choose how HobbyHub looks on your device
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Light Theme Option */}
                   <div
                     onClick={() => handleThemeChange('light')}
                     className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
@@ -186,7 +194,6 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">Light mode for bright environments</p>
                   </div>
 
-                  {/* Dark Theme Option */}
                   <div
                     onClick={() => handleThemeChange('dark')}
                     className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
@@ -203,7 +210,6 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">Dark mode for reduced eye strain</p>
                   </div>
 
-                  {/* System Theme Option */}
                   <div
                     onClick={() => handleThemeChange('system')}
                     className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
@@ -224,96 +230,7 @@ export default function SettingsPage() {
             </Card>
           </TabsContent>
 
-          {/* Notifications Tab */}
-          <TabsContent value="notifications">
-            <Card className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-[#FF7A45]" />
-                  Notification Preferences
-                </CardTitle>
-                <CardDescription className="text-gray-500 dark:text-gray-400">
-                  Manage how you receive notifications
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700">
-                    <div>
-                      <Label className="font-semibold text-gray-800 dark:text-white">Email Notifications</Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive important updates via email</p>
-                    </div>
-                    <Switch
-                      checked={notifications.emailNotifications}
-                      onCheckedChange={() => handleNotificationChange('emailNotifications')}
-                      className="data-[state=checked]:bg-[#FF7A45]"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700">
-                    <div>
-                      <Label className="font-semibold text-gray-800 dark:text-white">Lesson Reminders</Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Get reminders before your lessons start</p>
-                    </div>
-                    <Switch
-                      checked={notifications.lessonReminders}
-                      onCheckedChange={() => handleNotificationChange('lessonReminders')}
-                      className="data-[state=checked]:bg-[#FF7A45]"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700">
-                    <div>
-                      <Label className="font-semibold text-gray-800 dark:text-white">Certificate Alerts</Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when you earn a certificate</p>
-                    </div>
-                    <Switch
-                      checked={notifications.certificateAlerts}
-                      onCheckedChange={() => handleNotificationChange('certificateAlerts')}
-                      className="data-[state=checked]:bg-[#FF7A45]"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700">
-                    <div>
-                      <Label className="font-semibold text-gray-800 dark:text-white">Message Notifications</Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when you receive a message</p>
-                    </div>
-                    <Switch
-                      checked={notifications.messageNotifications}
-                      onCheckedChange={() => handleNotificationChange('messageNotifications')}
-                      className="data-[state=checked]:bg-[#FF7A45]"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between py-3">
-                    <div>
-                      <Label className="font-semibold text-gray-800 dark:text-white">Marketing Emails</Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive promotions and updates</p>
-                    </div>
-                    <Switch
-                      checked={notifications.marketingEmails}
-                      onCheckedChange={() => handleNotificationChange('marketingEmails')}
-                      className="data-[state=checked]:bg-[#FF7A45]"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-4">
-                  <Button 
-                    onClick={saveSettings} 
-                    disabled={isSaving}
-                    className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white rounded-xl"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {isSaving ? 'Saving...' : 'Save Preferences'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Language Tab */}
+          {/* Language Tab - SAME FOR ALL ROLES */}
           <TabsContent value="language">
             <Card className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <CardHeader>
@@ -325,55 +242,47 @@ export default function SettingsPage() {
                   Choose your preferred language
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div
-                      onClick={() => handleLanguageChange('en')}
-                      className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
-                        language === 'en' 
-                          ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20' 
-                          : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold text-gray-800 dark:text-white text-lg">English</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">English (US)</p>
-                        </div>
-                        {language === 'en' && <CheckCircle className="w-5 h-5 text-[#FF7A45]" />}
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div
+                    onClick={() => handleLanguageChange('en')}
+                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
+                      language === 'en' 
+                        ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20' 
+                        : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-gray-800 dark:text-white text-lg">English</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">English (US)</p>
                       </div>
-                    </div>
-
-                    <div
-                      onClick={() => handleLanguageChange('am')}
-                      className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
-                        language === 'am' 
-                          ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20' 
-                          : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold text-gray-800 dark:text-white text-lg">አማርኛ</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Amharic</p>
-                        </div>
-                        {language === 'am' && <CheckCircle className="w-5 h-5 text-[#FF7A45]" />}
-                      </div>
+                      {language === 'en' && <CheckCircle className="w-5 h-5 text-[#FF7A45]" />}
                     </div>
                   </div>
-                </div>
 
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <p className="text-sm text-blue-700 dark:text-blue-300">
-                    <strong>Note:</strong> Changing language will reload the page with your new language preference.
-                  </p>
+                  <div
+                    onClick={() => handleLanguageChange('am')}
+                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
+                      language === 'am' 
+                        ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20' 
+                        : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-gray-800 dark:text-white text-lg">አማርኛ</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Amharic</p>
+                      </div>
+                      {language === 'am' && <CheckCircle className="w-5 h-5 text-[#FF7A45]" />}
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Account Tab */}
+          {/* Account Tab - Shows Role-Specific Profile Info + Edit Profile Button */}
           <TabsContent value="account">
             <Card className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <CardHeader>
@@ -386,39 +295,137 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Basic Account Info */}
                 <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                   <div className="flex items-center justify-between flex-wrap gap-4">
                     <div>
                       <p className="font-semibold text-gray-800 dark:text-white">Account Information</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         Email: {user?.email}<br />
-                        Role: {user?.roles?.[0] || 'Student'}
+                        Role: {userRole}
                       </p>
                     </div>
                     <Link href="/profile">
                       <Button variant="outline" className="rounded-xl">
-                        Edit Profile
+                        Edit Full Profile
                       </Button>
                     </Link>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center py-3">
-                  <div>
-                    <p className="font-semibold text-gray-800 dark:text-white">Privacy Policy</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Read our privacy policy and terms</p>
+                {/* Profile Summary - Role-specific fields */}
+                <div>
+                  <h3 className="font-semibold text-gray-800 dark:text-white mb-4">Profile Summary</h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-2">
+                      <User className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Full Name</p>
+                        <p className="font-medium text-gray-800 dark:text-white">
+                          {profile?.profile?.firstName || 'Not set'} {profile?.profile?.lastName || ''}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                        <p className="font-medium text-gray-800 dark:text-white">{user?.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+                        <p className="font-medium text-gray-800 dark:text-white">
+                          {profile?.phone || 'Not provided'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {isStudent && profile?.profile?.grade && (
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Grade</p>
+                          <p className="font-medium text-gray-800 dark:text-white">{profile.profile.grade}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {isTeacher && profile?.profile?.profession && (
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Profession</p>
+                          <p className="font-medium text-gray-800 dark:text-white">{profile.profile.profession}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {(isTeacher || isSeller) && profile?.profile?.company && (
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Organization</p>
+                          <p className="font-medium text-gray-800 dark:text-white">{profile.profile.company}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <Button variant="ghost" className="text-[#FF7A45]">
-                    View →
-                  </Button>
+
+                  {isStudent && profile?.profile?.age && (
+                    <div className="flex items-center gap-2 mt-3">
+                      <Calendar className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Age</p>
+                        <p className="font-medium text-gray-800 dark:text-white">{profile.profile.age}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {isStudent && profile?.profile?.schoolName && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <School className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">School</p>
+                        <p className="font-medium text-gray-800 dark:text-white">{profile.profile.schoolName}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {profile?.profile?.city && (
+                    <div className="flex items-center gap-2 mt-3">
+                      <MapPin className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Location</p>
+                        <p className="font-medium text-gray-800 dark:text-white">{profile.profile.city}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {profile?.profile?.bio && (
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">About Me</p>
+                      <p className="text-gray-700 dark:text-gray-300">{profile.profile.bio}</p>
+                    </div>
+                  )}
                 </div>
 
+                {/* Logout Button */}
                 <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
-                  <Button variant="destructive" className="rounded-xl">
-                    Delete Account
+                  <Button 
+                    onClick={handleLogout}
+                    variant="destructive" 
+                    className="rounded-xl"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
                   </Button>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    This action is permanent and cannot be undone.
+                    This will log you out of your account.
                   </p>
                 </div>
               </CardContent>

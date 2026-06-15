@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth-provider";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import {
   BookOpen,
@@ -41,13 +41,26 @@ import {
   Video,
   Heart,
   MessageSquare,
+  Download,
+  FileText,
+  Upload,
+  Send,
 } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isLoading: authLoading, logout } = useAuth();
+  const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [submissionForm, setSubmissionForm] = useState({
+    title: "",
+    description: "",
+    teacherId: "",
+    lessonId: "",
+    file: null as File | null,
+  });
 
   useEffect(() => {
     if (authLoading) return;
@@ -113,6 +126,37 @@ export default function DashboardPage() {
     retry: false,
   });
 
+  // Fetch student resources
+  const { data: studentResources, isLoading: resourcesLoading } = useQuery({
+    queryKey: ["student-resources"],
+    queryFn: async () => {
+      const response = await api.get("/resources/student");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.[0] === "student",
+  });
+
+  // Fetch teachers for submission dropdown
+  const { data: teachers } = useQuery({
+    queryKey: ["teachers-list"],
+    queryFn: async () => {
+      const response = await api.get("/users/teachers");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.[0] === "student",
+  });
+
+  // Fetch teacher's lessons
+  const { data: teacherLessons } = useQuery({
+    queryKey: ["teacher-lessons-submit", submissionForm.teacherId],
+    queryFn: async () => {
+      if (!submissionForm.teacherId) return [];
+      const response = await api.get("/resources/teacher/lessons");
+      return response.data;
+    },
+    enabled: !!submissionForm.teacherId && user?.roles?.[0] === "student",
+  });
+
   const { data: popularHobbies } = useQuery({
     queryKey: ["popularHobbies"],
     queryFn: async () => {
@@ -133,6 +177,24 @@ export default function DashboardPage() {
     enabled: !!user,
   });
 
+  const submitAssignmentMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await api.post("/resources/submit", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["student-resources"] });
+      setShowSubmitModal(false);
+      setSubmissionForm({ title: "", description: "", teacherId: "", lessonId: "", file: null });
+      alert("Assignment submitted successfully!");
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.error || "Failed to submit assignment");
+    },
+  });
+
   const getIcon = (iconName: string) => {
     switch(iconName) {
       case "music": return <Music className="w-5 h-5" />;
@@ -145,10 +207,36 @@ export default function DashboardPage() {
     }
   };
   
-const handleDownloadCertificate = (certId: number) => {
-  const token = localStorage.getItem('token');
-  window.open(`http://localhost:5001/api/certificates/${certId}/download?token=${token}`, '_blank');
-};
+  const handleDownloadCertificate = (certId: number) => {
+    const token = localStorage.getItem('token');
+    window.open(`http://localhost:5001/api/certificates/${certId}/download?token=${token}`, '_blank');
+  };
+
+  const handleDownloadResource = (id: number) => {
+    const token = localStorage.getItem('token');
+    window.open(`http://localhost:5001/api/resources/${id}/download?token=${token}`, '_blank');
+  };
+
+  const handleSubmitAssignment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!submissionForm.title) {
+      alert("Please enter a title");
+      return;
+    }
+    if (!submissionForm.teacherId) {
+      alert("Please select a teacher");
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append("title", submissionForm.title);
+    if (submissionForm.description) formData.append("description", submissionForm.description);
+    formData.append("teacherId", submissionForm.teacherId);
+    if (submissionForm.lessonId) formData.append("lessonId", submissionForm.lessonId);
+    if (submissionForm.file) formData.append("file", submissionForm.file);
+    
+    submitAssignmentMutation.mutate(formData);
+  };
 
   if (authLoading) {
     return (
@@ -166,6 +254,7 @@ const handleDownloadCertificate = (certId: number) => {
     { id: "dashboard", label: "Overview", icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: "progress", label: "My Progress", icon: <BarChart3 className="w-5 h-5" /> },
     { id: "certificates", label: "Certificates", icon: <Award className="w-5 h-5" /> },
+    { id: "resources", label: "Resources", icon: <FileText className="w-5 h-5" /> },
     { id: "recommendations", label: "Recommendations", icon: <GraduationCap className="w-5 h-5" /> },
   ];
 
@@ -349,6 +438,68 @@ const handleDownloadCertificate = (certId: number) => {
       );
     }
 
+    if (activeTab === "resources") {
+      return (
+        <div className="space-y-6">
+          {/* Submit Assignment Button */}
+          <div className="flex justify-end">
+            <Button onClick={() => setShowSubmitModal(true)} className="bg-[#FF7A45] hover:bg-[#ff8f61]">
+              <Upload className="h-4 w-4 mr-2" />
+              Submit Assignment
+            </Button>
+          </div>
+
+          {/* Resources List */}
+          <Card className="border border-gray-100 rounded-xl overflow-hidden">
+            <CardHeader className="p-6">
+              <CardTitle className="text-xl font-bold">My Resources</CardTitle>
+              <CardDescription>Files shared by your teachers</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              {resourcesLoading ? (
+                <div className="text-center py-8">Loading...</div>
+              ) : !studentResources || studentResources.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No resources shared yet</p>
+                  <p className="text-sm text-gray-400 mt-1">Teachers will share learning materials here</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {studentResources?.map((resource: any) => (
+                    <div key={resource.id} className="flex justify-between items-center p-4 border border-gray-100 rounded-xl bg-gray-50">
+                      <div>
+                        <p className="font-semibold text-gray-800">{resource.title}</p>
+                        {resource.description && (
+                          <p className="text-sm text-gray-500 mt-1">{resource.description}</p>
+                        )}
+                        <p className="text-xs text-gray-400 mt-1">
+                          From: {resource.sender?.profile?.firstName} {resource.sender?.profile?.lastName}
+                          {resource.lesson?.title && ` • Lesson: ${resource.lesson.title}`}
+                          {` • ${new Date(resource.createdAt).toLocaleDateString()}`}
+                        </p>
+                      </div>
+                      {resource.fileUrl && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="rounded-lg"
+                          onClick={() => handleDownloadResource(resource.id)}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
     if (activeTab === "recommendations") {
       const hasRecommendations = recommendations && recommendations.length > 0;
 
@@ -410,6 +561,94 @@ const handleDownloadCertificate = (certId: number) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Submit Assignment Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-auto">
+            <div className="p-6 border-b sticky top-0 bg-white">
+              <h2 className="text-xl font-bold">Submit Assignment</h2>
+            </div>
+            <div className="p-6">
+              <form onSubmit={handleSubmitAssignment} className="space-y-4">
+                <div>
+                  <Label htmlFor="sub-title">Title *</Label>
+                  <Input
+                    id="sub-title"
+                    value={submissionForm.title}
+                    onChange={(e) => setSubmissionForm({ ...submissionForm, title: e.target.value })}
+                    placeholder="e.g., Week 1 Homework"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="sub-description">Description</Label>
+                  <Textarea
+                    id="sub-description"
+                    value={submissionForm.description}
+                    onChange={(e) => setSubmissionForm({ ...submissionForm, description: e.target.value })}
+                    rows={3}
+                    placeholder="Brief description of your submission"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="sub-teacher">Select Teacher *</Label>
+                  <select
+                    id="sub-teacher"
+                    className="w-full border rounded-md px-3 py-2"
+                    value={submissionForm.teacherId}
+                    onChange={(e) => setSubmissionForm({ ...submissionForm, teacherId: e.target.value })}
+                    required
+                  >
+                    <option value="">Select a teacher</option>
+                    {teachers?.map((teacher: any) => (
+                      <option key={teacher.id} value={teacher.id}>
+                        {teacher.profile?.firstName} {teacher.profile?.lastName} ({teacher.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label htmlFor="sub-lesson">Related Lesson (Optional)</Label>
+                  <select
+                    id="sub-lesson"
+                    className="w-full border rounded-md px-3 py-2"
+                    value={submissionForm.lessonId}
+                    onChange={(e) => setSubmissionForm({ ...submissionForm, lessonId: e.target.value })}
+                  >
+                    <option value="">Select a lesson</option>
+                    {teacherLessons?.map((lesson: any) => (
+                      <option key={lesson.id} value={lesson.id}>{lesson.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label htmlFor="sub-file">File (Optional)</Label>
+                  <Input
+                    id="sub-file"
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    onChange={(e) => setSubmissionForm({ ...submissionForm, file: e.target.files?.[0] || null })}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Max 50MB. Allowed: PDF, images, documents</p>
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <Button type="submit" disabled={submitAssignmentMutation.isPending}>
+                    <Send className="h-4 w-4 mr-2" />
+                    {submitAssignmentMutation.isPending ? "Submitting..." : "Submit Assignment"}
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowSubmitModal(false)}>Cancel</Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-[#FF7A45]">HobbyHub</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
@@ -490,3 +729,34 @@ const handleDownloadCertificate = (certId: number) => {
     </div>
   );
 }
+
+// Helper components
+const Label = ({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) => (
+  <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 mb-1">
+    {children}
+  </label>
+);
+
+const Input = ({ id, value, onChange, required, placeholder, type = "text", accept }: any) => (
+  <input
+    id={id}
+    type={type}
+    value={value}
+    onChange={onChange}
+    required={required}
+    placeholder={placeholder}
+    accept={accept}
+    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+  />
+);
+
+const Textarea = ({ id, value, onChange, rows = 3, placeholder }: any) => (
+  <textarea
+    id={id}
+    value={value}
+    onChange={onChange}
+    rows={rows}
+    placeholder={placeholder}
+    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+  />
+);

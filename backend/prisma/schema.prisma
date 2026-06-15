@@ -45,7 +45,8 @@ model User {
   quizAnswers       QuizAnswer[]
   receivedRecommendations StudentRecommendation[] @relation("StudentRecommendations")
   givenRecommendations   StudentRecommendation[] @relation("AdminRecommendations")
-  
+  sentResources      Resource[] @relation("SentResources")
+  receivedResources  Resource[] @relation("ReceivedResources")
   studentCertificates      Certificate[] @relation("StudentCertificates")
   teacherCertificates      Certificate[] @relation("TeacherCertificates")
 }
@@ -179,6 +180,7 @@ model Lesson {
   teacher           User     @relation("TeacherLessons", fields: [teacherId], references: [id])
   hobby             Hobby    @relation(fields: [hobbyId], references: [id])
   registrations     LessonRegistration[]
+   resources         Resource[] 
 }
 
 model LessonRegistration {
@@ -477,4 +479,22 @@ model Certificate {
   student         User?         @relation("StudentCertificates", fields: [studentId], references: [id])
   teacher         User?         @relation("TeacherCertificates", fields: [teacherId], references: [id])
   template        CertificateTemplate? @relation(fields: [templateId], references: [id])
+}
+model Resource {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  fileName    String?
+  fileUrl     String?
+  fileType    String?   // 'pdf', 'image', 'document', 'video'
+  fileSize    Int?      // in bytes
+  senderId    Int
+  receiverId  Int?
+  lessonId    Int?
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  
+  sender      User      @relation("SentResources", fields: [senderId], references: [id])
+  receiver    User?     @relation("ReceivedResources", fields: [receiverId], references: [id])
+  lesson      Lesson?   @relation(fields: [lessonId], references: [id])
 }

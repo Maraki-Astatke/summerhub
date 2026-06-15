@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/providers/auth-provider';
 import { useMutation } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { ArrowLeft, ImageIcon } from 'lucide-react';
+import { ArrowLeft, ImageIcon, ShieldX } from 'lucide-react';
 
 export default function CreateBlogPage() {
   const router = useRouter();
@@ -21,6 +21,12 @@ export default function CreateBlogPage() {
   const [imageUrl, setImageUrl] = useState('');
   const [titleError, setTitleError] = useState('');
   const [contentError, setContentError] = useState('');
+
+  // Check if user is student
+  const isStudent = user?.roles?.[0] === 'student';
+  const isTeacher = user?.roles?.[0] === 'teacher';
+  const isAdmin = user?.roles?.[0] === 'admin';
+  const isSeller = user?.roles?.[0] === 'seller';
 
   const createPostMutation = useMutation({
     mutationFn: async (data: { title: string; content: string; imageUrl?: string }) => {
@@ -76,6 +82,74 @@ export default function CreateBlogPage() {
   if (!user) {
     router.push('/login');
     return null;
+  }
+
+  // Show forbidden message for non-students
+  if (!isStudent) {
+    let roleName = '';
+    if (isTeacher) roleName = 'Teacher';
+    else if (isAdmin) roleName = 'Admin';
+    else if (isSeller) roleName = 'Seller';
+    else roleName = user?.roles?.[0] || 'User';
+
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b sticky top-0 z-10">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <Link href="/" className="text-xl font-bold text-[#FF7A45]">HobbyHub</Link>
+            <div className="flex gap-4">
+              <Link href="/blog">
+                <Button variant="ghost">Blog</Button>
+              </Link>
+              <Link href="/dashboard">
+                <Button variant="ghost">Dashboard</Button>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-12 max-w-2xl">
+          <Card className="shadow-xl border-0">
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <ShieldX className="h-10 w-10 text-red-600" />
+              </div>
+              <CardTitle className="text-2xl text-gray-800">Access Denied</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-gray-600 mb-2">
+                Only <strong>Students</strong> can create blog posts.
+              </p>
+              <p className="text-gray-500 text-sm mb-6">
+                Your role: <span className="font-semibold text-purple-600">{roleName}</span>
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Link href="/blog">
+                  <Button className="bg-purple-600 hover:bg-purple-700">
+                    Back to Blog
+                  </Button>
+                </Link>
+                {isTeacher && (
+                  <Link href="/teacher">
+                    <Button variant="outline">Teacher Dashboard</Button>
+                  </Link>
+                )}
+                {isAdmin && (
+                  <Link href="/admin">
+                    <Button variant="outline">Admin Dashboard</Button>
+                  </Link>
+                )}
+                {isSeller && (
+                  <Link href="/seller">
+                    <Button variant="outline">Seller Dashboard</Button>
+                  </Link>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
   }
 
   return (

@@ -264,7 +264,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TESTIMONIALS SECTION */}
       <section className="py-20 bg-white">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14">
           <div className="flex items-center justify-between mb-12">

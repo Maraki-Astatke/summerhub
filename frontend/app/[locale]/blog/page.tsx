@@ -16,6 +16,9 @@ export default function BlogPage() {
   const { user } = useAuth();
   const [search, setSearch] = useState('');
 
+  // Check if user is student (only students can create posts)
+  const isStudent = user?.roles?.[0] === 'student';
+
   const { data: postsData, isLoading } = useQuery({
     queryKey: ['blog-posts', search],
     queryFn: async () => {
@@ -53,7 +56,8 @@ export default function BlogPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45] w-full"
           />
-          {user && (
+          {/* Only show Write Post button for students */}
+          {user && isStudent && (
             <Link href="/blog/create" className="w-full sm:w-auto shrink-0">
               <Button className="w-full sm:w-auto h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl px-6">
                 Write Post
@@ -77,7 +81,7 @@ export default function BlogPage() {
         ) : postsData?.data?.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-[24px] border border-gray-100">
             <p className="text-gray-500 font-medium mb-3">No articles found</p>
-            {user && (
+            {user && isStudent && (
               <Link href="/blog/create">
                 <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl h-11 px-6">
                   Write the first post

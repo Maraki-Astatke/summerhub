@@ -11,7 +11,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
 import api from '@/lib/api';
 import Navbar from '@/components/Navbar';
-import { CheckCircle, Loader2, ArrowLeft, ArrowRight, Send } from 'lucide-react';
+import { CheckCircle, Loader2, ArrowLeft, ArrowRight, Send, ShieldX } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 
 export default function QuizPage() {
@@ -23,13 +23,19 @@ export default function QuizPage() {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState('');
 
+  // Check if user is allowed to take quiz (only students)
+  const isStudent = user?.roles?.[0] === 'student';
+  const isTeacher = user?.roles?.[0] === 'teacher';
+  const isAdmin = user?.roles?.[0] === 'admin';
+  const isSeller = user?.roles?.[0] === 'seller';
+
   const { data: questions, isLoading: questionsLoading } = useQuery({
     queryKey: ['quiz-questions'],
     queryFn: async () => {
       const response = await api.get('/quiz/questions');
       return response.data;
     },
-    enabled: !!user,
+    enabled: !!user && isStudent, // Only fetch if user is student
   });
 
   const { data: existingResult } = useQuery({
@@ -45,7 +51,7 @@ export default function QuizPage() {
         throw error;
       }
     },
-    enabled: !!user,
+    enabled: !!user && isStudent,
   });
 
   const submitMutation = useMutation({
@@ -70,7 +76,6 @@ export default function QuizPage() {
   }, [existingResult]);
 
   useEffect(() => {
-    // Load existing answer for current question
     const existingAnswer = answers.find(a => a.questionId === questions?.[currentQuestionIndex]?.id);
     if (existingAnswer) {
       setCurrentAnswer(existingAnswer.answer);
@@ -107,7 +112,6 @@ export default function QuizPage() {
       return;
     }
 
-    // Save current answer
     handleSaveAnswer();
 
     if (currentQuestionIndex < (questions?.length || 0) - 1) {
@@ -116,7 +120,6 @@ export default function QuizPage() {
   };
 
   const handlePrevious = () => {
-    // Save current answer before going back
     if (currentAnswer.trim()) {
       handleSaveAnswer();
     }
@@ -131,10 +134,7 @@ export default function QuizPage() {
       return;
     }
     
-    // Save the last answer
     handleSaveAnswer();
-    
-    // Submit all answers
     submitMutation.mutate(answers);
   };
 
@@ -142,7 +142,8 @@ export default function QuizPage() {
     return answers.some(a => a.questionId === questionId);
   };
 
-  if (authLoading || questionsLoading) {
+  // Show loading state
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
@@ -150,14 +151,72 @@ export default function QuizPage() {
     );
   }
 
+  // Redirect to login if not logged in
   if (!user) {
     router.push('/login');
     return null;
   }
 
+  // Show forbidden message for non-students
+  if (!isStudent) {
+    let roleName = '';
+    if (isTeacher) roleName = 'Teacher';
+    else if (isAdmin) roleName = 'Admin';
+    else if (isSeller) roleName = 'Seller';
+    else roleName = user?.roles?.[0] || 'User';
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
+        <Navbar alwaysWhite={true} />
+        <main className="container mx-auto px-4 py-12 pt-32 max-w-2xl">
+          <Card className="shadow-xl border-0">
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <ShieldX className="h-10 w-10 text-red-600" />
+              </div>
+              <CardTitle className="text-2xl text-gray-800">Access Denied</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-gray-600 mb-2">
+                This quiz is only available for <strong>Students</strong>.
+              </p>
+              <p className="text-gray-500 text-sm mb-6">
+                Your role: <span className="font-semibold text-purple-600">{roleName}</span>
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Link href="/dashboard">
+                  <Button className="bg-purple-600 hover:bg-purple-700">
+                    Go to Dashboard
+                  </Button>
+                </Link>
+                {isTeacher && (
+                  <Link href="/teacher">
+                    <Button variant="outline">Teacher Dashboard</Button>
+                  </Link>
+                )}
+                {isAdmin && (
+                  <Link href="/admin">
+                    <Button variant="outline">Admin Dashboard</Button>
+                  </Link>
+                )}
+                {isSeller && (
+                  <Link href="/seller">
+                    <Button variant="outline">Seller Dashboard</Button>
+                  </Link>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  // Show if no questions available
   if (!questions || questions.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
+        <Toaster position="top-center" richColors />
         <Navbar alwaysWhite={true} />
         <main className="container mx-auto px-4 py-12 pt-32 max-w-2xl">
           <Card>
@@ -180,6 +239,7 @@ export default function QuizPage() {
     );
   }
 
+  // Show quiz completed state
   if (quizCompleted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
@@ -219,7 +279,6 @@ export default function QuizPage() {
 
   const currentQuestion = questions?.[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / (questions?.length || 1)) * 100;
-  const allQuestionsAnswered = answers.length === questions?.length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">

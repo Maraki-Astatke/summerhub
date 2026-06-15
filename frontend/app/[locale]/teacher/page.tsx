@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -25,6 +25,14 @@ import {
   Settings,
   Award,
   Upload,
+  FileText,
+  Send,
+  Download,
+  Trash,
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 const Card = ({
@@ -87,8 +95,8 @@ const Button = ({
       variant === "outline"
         ? "border border-gray-300 hover:bg-gray-50"
         : variant === "destructive"
-          ? "bg-red-500 text-white hover:bg-red-600"
-          : "bg-purple-600 text-white hover:bg-purple-700"
+        ? "bg-red-500 text-white hover:bg-red-600"
+        : "bg-purple-600 text-white hover:bg-purple-700"
     } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
   >
     {children}
@@ -146,12 +154,24 @@ export default function TeacherDashboardPage() {
   const router = useRouter();
   const { user, isLoading: authLoading, logout } = useAuth();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("lessons");
+  const [activeTab, setActiveTab] = useState("stats");
   const [editingLesson, setEditingLesson] = useState<any>(null);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [customMessage, setCustomMessage] = useState("");
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
+  
+  // Resource state
+  const [resourceForm, setResourceForm] = useState({
+    title: "",
+    description: "",
+    lessonId: "",
+    receiverId: "",
+    shareToAll: false,
+    file: null as File | null,
+  });
+  
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -212,6 +232,43 @@ export default function TeacherDashboardPage() {
     enabled: !!user && user?.roles?.includes("teacher"),
   });
 
+  const { data: teacherLessons } = useQuery({
+    queryKey: ["teacher-resource-lessons"],
+    queryFn: async () => {
+      const response = await api.get("/resources/teacher/lessons");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes("teacher"),
+  });
+
+  const { data: lessonStudents } = useQuery({
+    queryKey: ["lesson-students", resourceForm.lessonId],
+    queryFn: async () => {
+      if (!resourceForm.lessonId) return [];
+      const response = await api.get(`/resources/lesson/${resourceForm.lessonId}/students`);
+      return response.data;
+    },
+    enabled: !!resourceForm.lessonId && user?.roles?.includes("teacher"),
+  });
+
+  const { data: sentResources } = useQuery({
+    queryKey: ["teacher-sent-resources"],
+    queryFn: async () => {
+      const response = await api.get("/resources/teacher/sent");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes("teacher"),
+  });
+
+  const { data: studentSubmissions } = useQuery({
+    queryKey: ["teacher-submissions"],
+    queryFn: async () => {
+      const response = await api.get("/resources/teacher/submissions");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes("teacher"),
+  });
+
   const { data: hobbies } = useQuery({
     queryKey: ["hobbies-list"],
     queryFn: async () => {
@@ -251,6 +308,41 @@ export default function TeacherDashboardPage() {
     },
     onError: (error: any) => {
       alert(error.response?.data?.error || "Failed to issue certificate");
+    },
+  });
+
+  const shareResourceMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await api.post("/resources/share", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teacher-sent-resources"] });
+      setResourceForm({
+        title: "",
+        description: "",
+        lessonId: "",
+        receiverId: "",
+        shareToAll: false,
+        file: null,
+      });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      alert("Resource shared successfully!");
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.error || "Failed to share resource");
+    },
+  });
+
+  const deleteResourceMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/resources/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teacher-sent-resources"] });
+      alert("Resource deleted");
     },
   });
 
@@ -396,6 +488,48 @@ export default function TeacherDashboardPage() {
     });
   };
 
+  const handleShareResource = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!resourceForm.title) {
+      alert("Please enter a title");
+      return;
+    }
+    if (!resourceForm.lessonId) {
+      alert("Please select a lesson");
+      return;
+    }
+    if (!resourceForm.shareToAll && !resourceForm.receiverId) {
+      alert("Please select a student or share to all");
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append("title", resourceForm.title);
+    if (resourceForm.description) formData.append("description", resourceForm.description);
+    formData.append("lessonId", resourceForm.lessonId);
+    formData.append("shareToAll", resourceForm.shareToAll.toString());
+    if (resourceForm.receiverId && !resourceForm.shareToAll) {
+      formData.append("receiverId", resourceForm.receiverId);
+    }
+    if (resourceForm.file) {
+      formData.append("file", resourceForm.file);
+    }
+    
+    shareResourceMutation.mutate(formData);
+  };
+
+  const handleDownloadResource = (id: number) => {
+    const token = localStorage.getItem("token");
+    window.open(`http://localhost:5001/api/resources/${id}/download?token=${token}`, "_blank");
+  };
+
+  const handleDeleteResource = (id: number) => {
+    if (confirm("Delete this resource?")) {
+      deleteResourceMutation.mutate(id);
+    }
+  };
+
   const openEditDialog = (lesson: any) => {
     setEditingLesson(lesson);
     setFormData({
@@ -409,7 +543,6 @@ export default function TeacherDashboardPage() {
     });
   };
 
-  // Show loading state while auth is initializing
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -423,86 +556,219 @@ export default function TeacherDashboardPage() {
   }
 
   const menuItems = [
-    {
-      id: "stats",
-      label: "Overview",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-    },
-    {
-      id: "lessons",
-      label: "My Lessons",
-      icon: <BookOpen className="w-5 h-5" />,
-    },
-    {
-      id: "students",
-      label: "My Students",
-      icon: <Users className="w-5 h-5" />,
-    },
-    {
-      id: "certificates",
-      label: "Certificates",
-      icon: <Award className="w-5 h-5" />,
-    },
-    {
-      id: "create",
-      label: "Create Lesson",
-      icon: <Video className="w-5 h-5" />,
-    },
+    { id: "stats", label: "Overview", icon: <LayoutDashboard className="w-5 h-5" /> },
+    { id: "lessons", label: "My Lessons", icon: <BookOpen className="w-5 h-5" /> },
+    { id: "students", label: "My Students", icon: <Users className="w-5 h-5" /> },
+    { id: "resources", label: "Resources", icon: <FileText className="w-5 h-5" /> },
+    { id: "submissions", label: "Submissions", icon: <Upload className="w-5 h-5" /> },
+    { id: "certificates", label: "Certificates", icon: <Award className="w-5 h-5" /> },
+    { id: "create", label: "Create Lesson", icon: <Video className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
     if (activeTab === "stats") {
       return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="space-y-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500">Total Lessons</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-gray-400" />
+                  {stats?.totalLessons || 0}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500">Total Students</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold flex items-center gap-2">
+                  <Users className="h-5 w-5 text-gray-400" />
+                  {stats?.totalStudents || 0}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500">Upcoming Lessons</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats?.upcomingLessons || 0}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500">Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-green-500" />
+                  {stats?.totalRevenue || 0}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Lessons Table */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">
-                Total Lessons
-              </CardTitle>
+            <CardHeader>
+              <CardTitle>Recent Lessons</CardTitle>
+              <CardDescription>Your most recent lessons and their status</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-gray-400" />
-                {stats?.totalLessons || 0}
-              </div>
+              {!lessons || lessons.length === 0 ? (
+                <div className="text-center py-8">
+                  <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No lessons created yet</p>
+                  <Button className="mt-4" onClick={() => setActiveTab("create")}>
+                    Create First Lesson
+                  </Button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left p-3">Lesson Title</th>
+                        <th className="text-left p-3">Hobby</th>
+                        <th className="text-left p-3">Date & Time</th>
+                        <th className="text-left p-3">Students</th>
+                        <th className="text-left p-3">Status</th>
+                        <th className="text-left p-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {lessons?.slice(0, 5).map((lesson: any) => {
+                        const isUpcoming = new Date(lesson.dateTime) > new Date();
+                        const isPast = new Date(lesson.dateTime) < new Date();
+                        const studentCount = lesson.registrations?.length || 0;
+                        const isFull = studentCount >= lesson.maxStudents;
+                        
+                        return (
+                          <tr key={lesson.id} className="border-t hover:bg-gray-50">
+                            <td className="p-3 font-medium text-gray-800">{lesson.title}</td>
+                            <td className="p-3 text-gray-600">{lesson.hobby?.name}</td>
+                            <td className="p-3 text-gray-600">
+                              {new Date(lesson.dateTime).toLocaleString()}
+                            </td>
+                            <td className="p-3">
+                              <div className="flex items-center gap-2">
+                                <span className={`font-medium ${isFull ? 'text-red-600' : 'text-green-600'}`}>
+                                  {studentCount}/{lesson.maxStudents}
+                                </span>
+                                {isFull && <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Full</span>}
+                              </div>
+                            </td>
+                            <td className="p-3">
+                              {isUpcoming ? (
+                                <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                                  <Clock className="h-3 w-3" />
+                                  Upcoming
+                                </span>
+                              ) : isPast ? (
+                                <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                  <CheckCircle className="h-3 w-3" />
+                                  Completed
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
+                                  In Progress
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3">
+                              <div className="flex gap-2">
+                                <Button variant="outline" size="sm" onClick={() => openEditDialog(lesson)}>
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="text-red-500"
+                                  onClick={() => {
+                                    if (confirm("Delete this lesson?")) {
+                                      deleteLessonMutation.mutate(lesson.id);
+                                    }
+                                  }}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {lessons?.length > 5 && (
+                    <div className="mt-4 text-center">
+                      <Button variant="outline" onClick={() => setActiveTab("lessons")}>
+                        View All Lessons
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          {/* Top Students Table */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">
-                Total Students
-              </CardTitle>
+            <CardHeader>
+              <CardTitle>Top Students</CardTitle>
+              <CardDescription>Students with most lesson registrations</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold flex items-center gap-2">
-                <Users className="h-5 w-5 text-gray-400" />
-                {stats?.totalStudents || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">
-                Upcoming Lessons
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {stats?.upcomingLessons || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">
-                Revenue
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-green-500" />
-                {stats?.totalRevenue || 0}
-              </div>
+              {!students || students.length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No students yet</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left p-3">Student Name</th>
+                        <th className="text-left p-3">Email</th>
+                        <th className="text-left p-3">Lessons Taken</th>
+                        <th className="text-left p-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {students?.slice(0, 5).map((student: any) => (
+                        <tr key={student.id} className="border-t hover:bg-gray-50">
+                          <td className="p-3 font-medium text-gray-800">
+                            {student.profile?.firstName} {student.profile?.lastName}
+                          </td>
+                          <td className="p-3 text-gray-600">{student.email}</td>
+                          <td className="p-3">
+                            <span className="font-medium text-purple-600">{student.registeredLessons}</span>
+                          </td>
+                          <td className="p-3">
+                            <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                              <CheckCircle className="h-3 w-3" />
+                              Active
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {students?.length > 5 && (
+                    <div className="mt-4 text-center">
+                      <Button variant="outline" onClick={() => setActiveTab("students")}>
+                        View All Students
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -528,44 +794,28 @@ export default function TeacherDashboardPage() {
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-2">
-                        {lesson.title}
-                      </h3>
+                      <h3 className="text-xl font-semibold mb-2">{lesson.title}</h3>
                       <p className="text-gray-600 mb-3">{lesson.description}</p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-500">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
-                          <span>
-                            {new Date(lesson.dateTime).toLocaleString()}
-                          </span>
+                          <span>{new Date(lesson.dateTime).toLocaleString()}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4" />
-                          <span>
-                            {lesson.registrations?.length || 0} /{" "}
-                            {lesson.maxStudents} students
-                          </span>
+                          <span>{lesson.registrations?.length || 0} / {lesson.maxStudents} students</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openEditDialog(lesson)}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => openEditDialog(lesson)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-500"
-                        onClick={() => {
-                          if (confirm("Delete this lesson?")) {
-                            deleteLessonMutation.mutate(lesson.id);
-                          }
-                        }}
-                      >
+                      <Button variant="outline" size="sm" className="text-red-500" onClick={() => {
+                        if (confirm("Delete this lesson?")) {
+                          deleteLessonMutation.mutate(lesson.id);
+                        }
+                      }}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -583,9 +833,7 @@ export default function TeacherDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>My Students</CardTitle>
-            <CardDescription>
-              Students registered in your lessons
-            </CardDescription>
+            <CardDescription>Students registered in your lessons</CardDescription>
           </CardHeader>
           <CardContent>
             {students?.length === 0 ? (
@@ -593,19 +841,207 @@ export default function TeacherDashboardPage() {
             ) : (
               <div className="space-y-3">
                 {students?.map((student: any) => (
-                  <div
-                    key={student.id}
-                    className="flex justify-between items-center p-3 border rounded-lg"
-                  >
+                  <div key={student.id} className="flex justify-between items-center p-3 border rounded-lg">
                     <div>
-                      <p className="font-medium">
-                        {student.profile?.firstName} {student.profile?.lastName}
-                      </p>
+                      <p className="font-medium">{student.profile?.firstName} {student.profile?.lastName}</p>
                       <p className="text-sm text-gray-500">{student.email}</p>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {student.registeredLessons} lesson(s)
+                    <div className="text-sm text-gray-500">{student.registeredLessons} lesson(s)</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activeTab === "resources") {
+      return (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Share Resource</CardTitle>
+              <CardDescription>Share files with your students</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleShareResource} className="space-y-4">
+                <div>
+                  <Label htmlFor="resource-title">Title *</Label>
+                  <Input
+                    id="resource-title"
+                    value={resourceForm.title}
+                    onChange={(e) => setResourceForm({ ...resourceForm, title: e.target.value })}
+                    placeholder="e.g., Chapter 1 Notes"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="resource-description">Description</Label>
+                  <Textarea
+                    id="resource-description"
+                    value={resourceForm.description}
+                    onChange={(e) => setResourceForm({ ...resourceForm, description: e.target.value })}
+                    rows={2}
+                    placeholder="Brief description of the resource"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="lesson">Select Lesson *</Label>
+                  <select
+                    id="lesson"
+                    className="w-full border rounded-md px-3 py-2"
+                    value={resourceForm.lessonId}
+                    onChange={(e) => setResourceForm({ ...resourceForm, lessonId: e.target.value, receiverId: "" })}
+                    required
+                  >
+                    <option value="">Select a lesson</option>
+                    {teacherLessons?.map((lesson: any) => (
+                      <option key={lesson.id} value={lesson.id}>{lesson.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {resourceForm.lessonId && (
+                  <div>
+                    <Label>Share to</Label>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          checked={resourceForm.shareToAll}
+                          onChange={() => setResourceForm({ ...resourceForm, shareToAll: true, receiverId: "" })}
+                        />
+                        <span>All students in this lesson</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          checked={!resourceForm.shareToAll}
+                          onChange={() => setResourceForm({ ...resourceForm, shareToAll: false })}
+                        />
+                        <span>Specific student</span>
+                      </label>
                     </div>
+                  </div>
+                )}
+
+                {resourceForm.lessonId && !resourceForm.shareToAll && (
+                  <div>
+                    <Label htmlFor="student">Select Student</Label>
+                    <select
+                      id="student"
+                      className="w-full border rounded-md px-3 py-2"
+                      value={resourceForm.receiverId}
+                      onChange={(e) => setResourceForm({ ...resourceForm, receiverId: e.target.value })}
+                      required
+                    >
+                      <option value="">Select a student</option>
+                      {lessonStudents?.map((student: any) => (
+                        <option key={student.id} value={student.id}>{student.name} ({student.email})</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div>
+                  <Label htmlFor="resource-file">File (Optional)</Label>
+                  <Input
+                    id="resource-file"
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.mp4"
+                    onChange={(e) => setResourceForm({ ...resourceForm, file: e.target.files?.[0] || null })}
+                    ref={fileInputRef}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Max 50MB. Allowed: PDF, images, documents, videos</p>
+                </div>
+
+                <Button type="submit" disabled={shareResourceMutation.isPending}>
+                  <Send className="h-4 w-4 mr-2" />
+                  {shareResourceMutation.isPending ? "Sharing..." : "Share Resource"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Sent Resources</CardTitle>
+              <CardDescription>Resources you've shared with students</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!sentResources || sentResources.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">No resources shared yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {sentResources?.map((resource: any) => (
+                    <div key={resource.id} className="flex justify-between items-center p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{resource.title}</p>
+                        {resource.description && <p className="text-sm text-gray-500">{resource.description}</p>}
+                        <p className="text-xs text-gray-400 mt-1">
+                          To: {resource.receiver?.profile?.firstName} {resource.receiver?.profile?.lastName} • 
+                          Lesson: {resource.lesson?.title} • {new Date(resource.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        {resource.fileUrl && (
+                          <Button variant="outline" size="sm" onClick={() => handleDownloadResource(resource.id)}>
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button variant="outline" size="sm" className="text-red-500" onClick={() => handleDeleteResource(resource.id)}>
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    if (activeTab === "submissions") {
+      return (
+        <Card>
+          <CardHeader>
+            <CardTitle>Student Submissions</CardTitle>
+            <CardDescription>Assignments submitted by students</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!studentSubmissions || studentSubmissions.length === 0 ? (
+              <p className="text-center text-gray-500 py-8">No submissions yet</p>
+            ) : (
+              <div className="space-y-3">
+                {studentSubmissions?.map((sub: any) => (
+                  <div key={sub.id} className="flex justify-between items-center p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{sub.title}</p>
+                      {sub.description && <p className="text-sm text-gray-500">{sub.description}</p>}
+                      <p className="text-xs text-gray-400 mt-1">
+                        From: {sub.sender?.profile?.firstName} {sub.sender?.profile?.lastName} • 
+                        {sub.lesson?.title && ` Lesson: ${sub.lesson.title}`} • 
+                        {new Date(sub.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {sub.fileUrl && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          const token = localStorage.getItem("token");
+                          window.open(`http://localhost:5001/api/resources/${sub.id}/download?token=${token}`, "_blank");
+                        }}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -621,9 +1057,7 @@ export default function TeacherDashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Upload Certificate</CardTitle>
-              <CardDescription>
-                Upload a certificate image (JPG, PNG) or PDF
-              </CardDescription>
+              <CardDescription>Upload a certificate image (JPG, PNG) or PDF</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -633,20 +1067,11 @@ export default function TeacherDashboardPage() {
                     id="certificate-file"
                     type="file"
                     accept=".jpg,.jpeg,.png,.pdf"
-                    onChange={(e) =>
-                      setCertificateFile(e.target.files?.[0] || null)
-                    }
+                    onChange={(e) => setCertificateFile(e.target.files?.[0] || null)}
                   />
                 </div>
-                <Button
-                  onClick={handleUploadCertificate}
-                  disabled={
-                    !certificateFile || uploadCertificateMutation.isPending
-                  }
-                >
-                  {uploadCertificateMutation.isPending
-                    ? "Uploading..."
-                    : "Upload Certificate"}
+                <Button onClick={handleUploadCertificate} disabled={!certificateFile || uploadCertificateMutation.isPending}>
+                  {uploadCertificateMutation.isPending ? "Uploading..." : "Upload Certificate"}
                 </Button>
               </div>
             </CardContent>
@@ -655,9 +1080,7 @@ export default function TeacherDashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Issue Certificate</CardTitle>
-              <CardDescription>
-                Select a student to issue a certificate
-              </CardDescription>
+              <CardDescription>Select a student to issue a certificate</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -667,17 +1090,14 @@ export default function TeacherDashboardPage() {
                     className="w-full border rounded-md px-3 py-2"
                     value={selectedStudent?.id || ""}
                     onChange={(e) => {
-                      const student = students?.find(
-                        (s: any) => s.id === parseInt(e.target.value),
-                      );
+                      const student = students?.find((s: any) => s.id === parseInt(e.target.value));
                       setSelectedStudent(student);
                     }}
                   >
                     <option value="">Select a student</option>
                     {students?.map((student: any) => (
                       <option key={student.id} value={student.id}>
-                        {student.profile?.firstName} {student.profile?.lastName}{" "}
-                        ({student.email})
+                        {student.profile?.firstName} {student.profile?.lastName} ({student.email})
                       </option>
                     ))}
                   </select>
@@ -693,12 +1113,7 @@ export default function TeacherDashboardPage() {
                   />
                 </div>
 
-                <Button
-                  onClick={handleIssueCertificate}
-                  disabled={!selectedStudent}
-                >
-                  Issue Certificate
-                </Button>
+                <Button onClick={handleIssueCertificate} disabled={!selectedStudent}>Issue Certificate</Button>
               </div>
             </CardContent>
           </Card>
@@ -706,48 +1121,27 @@ export default function TeacherDashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Issued Certificates</CardTitle>
-              <CardDescription>
-                View all certificates you've issued
-              </CardDescription>
+              <CardDescription>View all certificates you've issued</CardDescription>
             </CardHeader>
             <CardContent>
               {issuedCertificates?.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">
-                  No certificates issued yet
-                </p>
+                <p className="text-center text-gray-500 py-8">No certificates issued yet</p>
               ) : (
                 <div className="space-y-3">
                   {issuedCertificates?.map((cert: any) => (
-                    <div
-                      key={cert.id}
-                      className="flex justify-between items-center p-3 border rounded-lg"
-                    >
+                    <div key={cert.id} className="flex justify-between items-center p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">{cert.template?.title}</p>
                         <p className="text-sm text-gray-500">
-                          Issued to: {cert.student?.profile?.firstName}{" "}
-                          {cert.student?.profile?.lastName}
+                          Issued to: {cert.student?.profile?.firstName} {cert.student?.profile?.lastName}
                         </p>
-                        <p className="text-xs text-gray-400">
-                          Date: {new Date(cert.issuedAt).toLocaleDateString()}
-                        </p>
-                        {cert.customMessage && (
-                          <p className="text-sm text-purple-600 mt-1">
-                            "{cert.customMessage}"
-                          </p>
-                        )}
+                        <p className="text-xs text-gray-400">Date: {new Date(cert.issuedAt).toLocaleDateString()}</p>
+                        {cert.customMessage && <p className="text-sm text-purple-600 mt-1">"{cert.customMessage}"</p>}
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const token = localStorage.getItem("token");
-                          window.open(
-                            `http://localhost:5001/api/certificates/${cert.id}/download?token=${token}`,
-                            "_blank",
-                          );
-                        }}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => {
+                        const token = localStorage.getItem("token");
+                        window.open(`http://localhost:5001/api/certificates/${cert.id}/download?token=${token}`, "_blank");
+                      }}>
                         View
                       </Button>
                     </div>
@@ -765,9 +1159,7 @@ export default function TeacherDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Create New Lesson</CardTitle>
-            <CardDescription>
-              Add a new lesson for students to join
-            </CardDescription>
+            <CardDescription>Add a new lesson for students to join</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -777,16 +1169,11 @@ export default function TeacherDashboardPage() {
                   id="title"
                   placeholder="Enter a title (minimum 5 characters)"
                   value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
                 />
                 {formData.title.length > 0 && formData.title.length < 5 && (
-                  <p className="text-red-500 text-xs mt-1">
-                    Title must be at least 5 characters ({formData.title.length}
-                    /5)
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">Title must be at least 5 characters ({formData.title.length}/5)</p>
                 )}
               </div>
               <div>
@@ -794,9 +1181,7 @@ export default function TeacherDashboardPage() {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
                 />
               </div>
@@ -806,16 +1191,12 @@ export default function TeacherDashboardPage() {
                   id="hobbyId"
                   className="w-full border rounded-md px-3 py-2"
                   value={formData.hobbyId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, hobbyId: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, hobbyId: e.target.value })}
                   required
                 >
                   <option value="">Select Hobby</option>
                   {hobbies?.map((hobby: any) => (
-                    <option key={hobby.id} value={hobby.id}>
-                      {hobby.name}
-                    </option>
+                    <option key={hobby.id} value={hobby.id}>{hobby.name}</option>
                   ))}
                 </select>
               </div>
@@ -825,9 +1206,7 @@ export default function TeacherDashboardPage() {
                   id="dateTime"
                   type="datetime-local"
                   value={formData.dateTime}
-                  onChange={(e) =>
-                    setFormData({ ...formData, dateTime: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, dateTime: e.target.value })}
                   required
                 />
               </div>
@@ -838,12 +1217,7 @@ export default function TeacherDashboardPage() {
                     id="durationMinutes"
                     type="number"
                     value={formData.durationMinutes}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        durationMinutes: e.target.value,
-                      })
-                    }
+                    onChange={(e) => setFormData({ ...formData, durationMinutes: e.target.value })}
                   />
                 </div>
                 <div>
@@ -852,9 +1226,7 @@ export default function TeacherDashboardPage() {
                     id="maxStudents"
                     type="number"
                     value={formData.maxStudents}
-                    onChange={(e) =>
-                      setFormData({ ...formData, maxStudents: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, maxStudents: e.target.value })}
                   />
                 </div>
               </div>
@@ -864,15 +1236,11 @@ export default function TeacherDashboardPage() {
                   id="zoomLink"
                   placeholder="https://zoom.us/j/..."
                   value={formData.zoomLink}
-                  onChange={(e) =>
-                    setFormData({ ...formData, zoomLink: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, zoomLink: e.target.value })}
                 />
               </div>
               <Button type="submit" disabled={createLessonMutation.isPending}>
-                {createLessonMutation.isPending
-                  ? "Creating..."
-                  : "Create Lesson"}
+                {createLessonMutation.isPending ? "Creating..." : "Create Lesson"}
               </Button>
             </form>
           </CardContent>
@@ -886,29 +1254,16 @@ export default function TeacherDashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-purple-600">
-          HobbyHub Teacher
-        </Link>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-lg hover:bg-gray-100"
-        >
-          {sidebarOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
+        <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Teacher</Link>
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
+          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
-      <div
-        className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
+      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b">
-            <Link href="/" className="text-2xl font-bold text-purple-600">
-              HobbyHub
-            </Link>
+            <Link href="/" className="text-2xl font-bold text-purple-600">HobbyHub</Link>
             <p className="text-sm text-gray-500 mt-1">Teacher Portal</p>
           </div>
 
@@ -916,15 +1271,11 @@ export default function TeacherDashboardPage() {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
                 <span className="text-purple-600 font-bold text-lg">
-                  {user?.profile?.firstName?.[0] ||
-                    user?.email?.[0]?.toUpperCase() ||
-                    "T"}
+                  {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "T"}
                 </span>
               </div>
               <div>
-                <p className="font-semibold text-gray-800">
-                  {user?.profile?.firstName} {user?.profile?.lastName}
-                </p>
+                <p className="font-semibold text-gray-800">{user?.profile?.firstName} {user?.profile?.lastName}</p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
               </div>
             </div>
@@ -951,45 +1302,22 @@ export default function TeacherDashboardPage() {
           </nav>
 
           <div className="p-4 border-t space-y-2">
-            <Link
-              href="/"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-            >
+            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <ShoppingBag className="w-5 h-5" />
               <span className="font-medium">Shop</span>
             </Link>
-            <Link
-              href="/blog"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              <Newspaper className="w-5 h-5" />
-              <span className="font-medium">Blog</span>
-            </Link>
-            <Link
-              href="/events"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-            >
+            <Link href="/events" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <Trophy className="w-5 h-5" />
               <span className="font-medium">Events</span>
             </Link>
-            <Link
-              href="/chat"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-            >
+            <Link href="/chat" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <MessageSquare className="w-5 h-5" />
               <span className="font-medium">Messages</span>
             </Link>
-            <Link
-              href="/profile"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              <Settings className="w-5 h-5" />
-              <span className="font-medium">Settings</span>
+           <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+              <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
             </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
-            >
+            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
               <LogOut className="w-5 h-5" />
               <span className="font-medium">Logout</span>
             </button>
@@ -997,22 +1325,13 @@ export default function TeacherDashboardPage() {
         </div>
       </div>
 
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      {sidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-              Teacher Dashboard
-            </h1>
-            <p className="text-gray-500 mt-1">
-              Manage your lessons and students
-            </p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Teacher Dashboard</h1>
+            <p className="text-gray-500 mt-1">Manage your lessons, students, and resources</p>
           </div>
           {renderContent()}
         </div>
@@ -1031,9 +1350,7 @@ export default function TeacherDashboardPage() {
                   <Input
                     id="edit-title"
                     value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
                   />
                 </div>
@@ -1042,9 +1359,7 @@ export default function TeacherDashboardPage() {
                   <Textarea
                     id="edit-description"
                     value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
                   />
                 </div>
@@ -1054,16 +1369,12 @@ export default function TeacherDashboardPage() {
                     id="edit-hobbyId"
                     className="w-full border rounded-md px-3 py-2"
                     value={formData.hobbyId}
-                    onChange={(e) =>
-                      setFormData({ ...formData, hobbyId: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, hobbyId: e.target.value })}
                     required
                   >
                     <option value="">Select Hobby</option>
                     {hobbies?.map((hobby: any) => (
-                      <option key={hobby.id} value={hobby.id}>
-                        {hobby.name}
-                      </option>
+                      <option key={hobby.id} value={hobby.id}>{hobby.name}</option>
                     ))}
                   </select>
                 </div>
@@ -1073,9 +1384,7 @@ export default function TeacherDashboardPage() {
                     id="edit-dateTime"
                     type="datetime-local"
                     value={formData.dateTime}
-                    onChange={(e) =>
-                      setFormData({ ...formData, dateTime: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, dateTime: e.target.value })}
                     required
                   />
                 </div>
@@ -1086,12 +1395,7 @@ export default function TeacherDashboardPage() {
                       id="edit-duration"
                       type="number"
                       value={formData.durationMinutes}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          durationMinutes: e.target.value,
-                        })
-                      }
+                      onChange={(e) => setFormData({ ...formData, durationMinutes: e.target.value })}
                     />
                   </div>
                   <div>
@@ -1100,12 +1404,7 @@ export default function TeacherDashboardPage() {
                       id="edit-maxStudents"
                       type="number"
                       value={formData.maxStudents}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          maxStudents: e.target.value,
-                        })
-                      }
+                      onChange={(e) => setFormData({ ...formData, maxStudents: e.target.value })}
                     />
                   </div>
                 </div>
@@ -1114,24 +1413,12 @@ export default function TeacherDashboardPage() {
                   <Input
                     id="edit-zoomLink"
                     value={formData.zoomLink}
-                    onChange={(e) =>
-                      setFormData({ ...formData, zoomLink: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, zoomLink: e.target.value })}
                   />
                 </div>
                 <div className="flex gap-2 pt-4 sticky bottom-0 bg-white">
-                  <Button
-                    type="submit"
-                    disabled={updateLessonMutation.isPending}
-                  >
-                    Save Changes
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setEditingLesson(null)}
-                  >
-                    Cancel
-                  </Button>
+                  <Button type="submit" disabled={updateLessonMutation.isPending}>Save Changes</Button>
+                  <Button variant="outline" onClick={() => setEditingLesson(null)}>Cancel</Button>
                 </div>
               </form>
             </div>

@@ -11,19 +11,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
 import api from '@/lib/api';
-import { Calendar, User, Heart, MessageCircle, ArrowLeft, Edit, Trash2 } from 'lucide-react';
+import { Calendar, User, Heart, MessageCircle, ArrowLeft, Edit, Trash2, ShieldX } from 'lucide-react';
 import { useState } from 'react';
 
 export default function BlogPostPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [comment, setComment] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [editImageUrl, setEditImageUrl] = useState('');
+
+  // Check user role
+  const isStudent = user?.roles?.[0] === 'student';
+  const isAdmin = user?.roles?.[0] === 'admin';
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog-post', id],
@@ -104,7 +108,10 @@ export default function BlogPostPage() {
   });
 
   const hasLiked = post?.likes?.some((like: any) => like.userId === user?.id);
-  const isAuthor = user?.id === post?.authorId;
+  // Only author or admin can edit/delete
+  const canEditDelete = user?.id === post?.authorId || isAdmin;
+  // Only students can comment (optional - you can allow all roles to comment)
+  const canComment = isStudent;
 
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +129,7 @@ export default function BlogPostPage() {
     setIsEditDialogOpen(true);
   };
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">Loading...</div>
@@ -186,7 +193,8 @@ export default function BlogPostPage() {
           <div className="p-6 md:p-8">
             <div className="flex justify-between items-start mb-4">
               <h1 className="text-3xl md:text-4xl font-bold flex-1">{post.title}</h1>
-              {isAuthor && (
+              {/* Only show Edit/Delete buttons for author or admin */}
+              {canEditDelete && (
                 <div className="flex gap-2 ml-4">
                   <Button variant="outline" size="sm" onClick={openEditDialog}>
                     <Edit className="h-4 w-4 mr-1" />
@@ -224,7 +232,7 @@ export default function BlogPostPage() {
               <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>
             </div>
 
-            {/* Like Button */}
+            {/* Like Button - All logged-in users can like */}
             <div className="flex items-center gap-6 border-t border-b py-4 mb-8">
               {user ? (
                 hasLiked ? (
@@ -252,26 +260,39 @@ export default function BlogPostPage() {
               </span>
             </div>
 
-            {/* Comments Section */}
+            {/* Comments Section - Only students can comment */}
             <div>
               <h3 className="text-xl font-semibold mb-4">Comments</h3>
               
               {user ? (
-                <div className="mb-6">
-                  <Textarea
-                    placeholder="Write a comment..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    rows={3}
-                    className="mb-2"
-                  />
-                  <Button 
-                    onClick={() => commentMutation.mutate(comment)}
-                    disabled={!comment.trim() || commentMutation.isPending}
-                  >
-                    Post Comment
-                  </Button>
-                </div>
+                canComment ? (
+                  <div className="mb-6">
+                    <Textarea
+                      placeholder="Write a comment..."
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      rows={3}
+                      className="mb-2"
+                    />
+                    <Button 
+                      onClick={() => commentMutation.mutate(comment)}
+                      disabled={!comment.trim() || commentMutation.isPending}
+                    >
+                      Post Comment
+                    </Button>
+                  </div>
+                ) : (
+                  <Card className="mb-6 bg-yellow-50 border-yellow-200">
+                    <CardContent className="text-center py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <ShieldX className="h-5 w-5 text-yellow-600" />
+                        <p className="text-yellow-700">
+                          Only students can post comments. Your role does not have permission to comment.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
               ) : (
                 <Card className="mb-6">
                   <CardContent className="text-center py-4">
@@ -301,7 +322,8 @@ export default function BlogPostPage() {
                             </div>
                             <p className="text-gray-700">{comment.content}</p>
                           </div>
-                          {(user?.id === comment.userId || user?.id === post.authorId || user?.roles?.includes('admin')) && (
+                          {/* Allow comment author, post author, or admin to delete comments */}
+                          {(user?.id === comment.userId || user?.id === post.authorId || isAdmin) && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -322,7 +344,7 @@ export default function BlogPostPage() {
         </article>
       </main>
 
-      {/* Edit Dialog */}
+      {/* Edit Dialog - Only shown for author/admin */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
           <DialogHeader>

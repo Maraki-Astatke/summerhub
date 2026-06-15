@@ -58,7 +58,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
     console.log('User role:', user.role);
     console.log('Existing profile:', user.profile);
     
-    // Update user table
+    // Update user table (common for all roles)
     if (firstName || lastName) {
       await prisma.user.update({
         where: { id: userId },
@@ -70,25 +70,47 @@ router.put('/profile', authenticateToken, async (req, res) => {
       console.log('User table updated');
     }
     
-    // Prepare update data
+    // Prepare update data - COMMON FIELDS FOR ALL ROLES
     const updateData: any = {};
     
-    if (firstName !== undefined) updateData.firstName = firstName;
-    if (lastName !== undefined) updateData.lastName = lastName;
+    // First Name & Last Name are handled in user table above
     if (city !== undefined) updateData.city = city;
     if (bio !== undefined) updateData.bio = bio;
     
-    // Student-specific fields
-    if (user.role === 'student') {
-      if (age !== undefined) updateData.age = age ? parseInt(age) : null;
-      if (grade !== undefined) updateData.grade = grade;
-      if (schoolName !== undefined) updateData.schoolName = schoolName;
-    }
-    
-    // Teacher/Seller fields
-    if (user.role === 'teacher' || user.role === 'seller') {
-      if (profession !== undefined) updateData.profession = profession;
-      if (company !== undefined) updateData.company = company;
+    // ROLE-SPECIFIC FIELDS
+    switch (user.role) {
+      case 'student':
+        // Student: Age, Grade, School Name
+        if (age !== undefined) updateData.age = age ? parseInt(age) : null;
+        if (grade !== undefined) updateData.grade = grade;
+        if (schoolName !== undefined) updateData.schoolName = schoolName;
+        break;
+        
+      case 'teacher':
+        // Teacher: Profession, Company
+        if (profession !== undefined) updateData.profession = profession;
+        if (company !== undefined) updateData.company = company;
+        break;
+        
+      case 'seller':
+        // Seller: Company only
+        if (company !== undefined) updateData.company = company;
+        // Optionally add profession if seller needs it in future
+        break;
+        
+      case 'admin':
+        // Admin: No additional fields (only firstName, lastName, city, bio)
+        // Add any admin-specific fields here if needed in future
+        break;
+        
+      case 'parent':
+        // Parent: No additional fields (only firstName, lastName, city, bio)
+        // Add any parent-specific fields here if needed in future
+        break;
+        
+      default:
+        console.log('Unknown role:', user.role);
+        break;
     }
     
     console.log('Update data for profile:', updateData);

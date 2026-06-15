@@ -36,6 +36,7 @@ import path from 'path';
 import uploadRoutes from './routes/upload.js';
 import adminQuizRoutes from './routes/admin-quiz.js';
 import userRoutes from './routes/users.js';
+import resourceRoutes from './routes/resource.js';
 
 
 
@@ -90,6 +91,7 @@ app.use('/api', lessonRoutes);
 app.use('/api', dashboardRoutes);
 app.use('/api', parentRoutes);
 app.use('/api', teacherRoutes);
+app.use('/api', resourceRoutes);
 app.use('/api', sellerRoutes);
 app.use('/api', videoRoutes);
 app.use('/api', chatRoutes);

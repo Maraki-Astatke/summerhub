@@ -653,9 +653,8 @@ export default function SellerDashboardPage() {
               <MessageSquare className="w-5 h-5" />
               <span className="font-medium">Messages</span>
             </Link>
-            <Link href="/profile" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
-              <Settings className="w-5 h-5" />
-              <span className="font-medium">Settings</span>
+           <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+              <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
             </Link>
             <button
               onClick={handleLogout}
