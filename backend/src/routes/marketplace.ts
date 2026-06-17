@@ -12,6 +12,10 @@ const checkoutLimiter = rateLimit({
   message: { error: 'Too many checkout attempts. Try again later.' }
 });
 
+// ============================================
+// PRODUCT CRUD OPERATIONS (Seller/Admin only)
+// ============================================
+
 router.post('/products',
   authenticateToken,
   requireRole(['seller', 'admin']),
@@ -21,7 +25,8 @@ router.post('/products',
     body('price').isFloat({ min: 0.01 }),
     body('stockCount').isInt({ min: 0 }),
     body('categoryId').optional().isInt(),
-body('imageUrl').optional().isString()
+    body('imageUrl').optional().isString(),
+    body('phone').optional().isString()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -29,7 +34,7 @@ body('imageUrl').optional().isString()
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, description, price, stockCount, categoryId, imageUrl } = req.body;
+    const { name, description, price, stockCount, categoryId, imageUrl, phone } = req.body;
     const sellerId = req.user.userId;
 
     const product = await prisma.product.create({
@@ -38,8 +43,9 @@ body('imageUrl').optional().isString()
         description,
         price,
         stockCount,
-        categoryId,
+        categoryId: categoryId ? parseInt(categoryId) : null,
         imageUrl,
+        phone: phone || null,
         sellerId
       },
       include: {
@@ -56,6 +62,7 @@ body('imageUrl').optional().isString()
   }
 );
 
+// GET all products (Public - Only shows IN STOCK products)
 router.get('/products',
   [
     query('categoryId').optional().isInt(),
@@ -76,7 +83,9 @@ router.get('/products',
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
-    const where = {};
+    const where: any = {
+      stockCount: { gt: 0 }
+    };
 
     if (categoryId) where.categoryId = parseInt(categoryId);
     if (search) where.name = { contains: search, mode: 'insensitive' };
@@ -122,6 +131,7 @@ router.get('/products',
   }
 );
 
+// GET single product by ID (Public - Only shows if IN STOCK)
 router.get('/products/:id',
   [param('id').isInt()],
   async (req, res) => {
@@ -133,7 +143,10 @@ router.get('/products/:id',
     const { id } = req.params;
 
     const product = await prisma.product.findUnique({
-      where: { id: parseInt(id) },
+      where: { 
+        id: parseInt(id),
+        stockCount: { gt: 0 }
+      },
       include: {
         category: true,
         seller: {
@@ -155,13 +168,14 @@ router.get('/products/:id',
     });
 
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).json({ error: 'Product not found or out of stock' });
     }
 
     res.json(product);
   }
 );
 
+// UPDATE product (Seller/Admin only)
 router.put('/products/:id',
   authenticateToken,
   requireRole(['seller', 'admin']),
@@ -173,7 +187,7 @@ router.put('/products/:id',
     }
 
     const { id } = req.params;
-    const { name, description, price, stockCount, categoryId, imageUrl } = req.body;
+    const { name, description, price, stockCount, categoryId, imageUrl, phone } = req.body;
     const userId = req.user.userId;
 
     const existingProduct = await prisma.product.findUnique({
@@ -195,13 +209,14 @@ router.put('/products/:id',
       return res.status(403).json({ error: 'You can only edit your own products' });
     }
 
-    const updateData = {};
+    const updateData: any = {};
     if (name) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (price) updateData.price = price;
     if (stockCount !== undefined) updateData.stockCount = stockCount;
-    if (categoryId) updateData.categoryId = categoryId;
+    if (categoryId) updateData.categoryId = categoryId ? parseInt(categoryId) : null;
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+    if (phone !== undefined) updateData.phone = phone;
 
     const product = await prisma.product.update({
       where: { id: parseInt(id) },
@@ -213,6 +228,7 @@ router.put('/products/:id',
   }
 );
 
+// DELETE product (Seller/Admin only)
 router.delete('/products/:id',
   authenticateToken,
   requireRole(['seller', 'admin']),
@@ -251,9 +267,14 @@ router.delete('/products/:id',
   }
 );
 
+// ============================================
+// CART OPERATIONS - Buyers only (student, teacher, parent, scholar)
+// ============================================
+
+// GET cart
 router.get('/cart',
   authenticateToken,
-  requireRole(['student', 'scholar']),
+  requireRole(['student', 'teacher', 'parent', 'scholar']),
   async (req, res) => {
     const userId = req.user.userId;
 
@@ -282,9 +303,10 @@ router.get('/cart',
   }
 );
 
+// ADD item to cart - Buyers only (student, teacher, parent, scholar)
 router.post('/cart/add',
   authenticateToken,
-  requireRole(['student', 'scholar']),
+  requireRole(['student', 'teacher', 'parent', 'scholar']),
   [
     body('productId').isInt(),
     body('quantity').isInt({ min: 1 })
@@ -334,9 +356,10 @@ router.post('/cart/add',
   }
 );
 
+// UPDATE cart item quantity - Buyers only (student, teacher, parent, scholar)
 router.put('/cart/update',
   authenticateToken,
-  requireRole(['student', 'scholar']),
+  requireRole(['student', 'teacher', 'parent', 'scholar']),
   [
     body('productId').isInt(),
     body('quantity').isInt({ min: 0 })
@@ -377,9 +400,10 @@ router.put('/cart/update',
   }
 );
 
+// REMOVE item from cart - Buyers only (student, teacher, parent, scholar)
 router.delete('/cart/remove/:productId',
   authenticateToken,
-  requireRole(['student', 'scholar']),
+  requireRole(['student', 'teacher', 'parent', 'scholar']),
   [param('productId').isInt()],
   async (req, res) => {
     const errors = validationResult(req);
@@ -403,9 +427,14 @@ router.delete('/cart/remove/:productId',
   }
 );
 
+// ============================================
+// ORDER OPERATIONS - Buyers only (student, teacher, parent, scholar)
+// ============================================
+
+// CREATE order from cart - Buyers only (student, teacher, parent, scholar)
 router.post('/orders/create',
   authenticateToken,
-  requireRole(['student', 'scholar']),
+  requireRole(['student', 'teacher', 'parent', 'scholar']),
   checkoutLimiter,
   async (req, res) => {
     const userId = req.user.userId;
@@ -424,7 +453,9 @@ router.post('/orders/create',
 
     for (const item of cartItems) {
       if (item.product.stockCount < item.quantity) {
-        return res.status(400).json({ error: `${item.product.name} is out of stock` });
+        return res.status(400).json({ 
+          error: `${item.product.name} is out of stock. Only ${item.product.stockCount} left.` 
+        });
       }
       totalAmount += item.product.price * item.quantity;
       orderItems.push({
@@ -480,6 +511,7 @@ router.post('/orders/create',
   }
 );
 
+// GET all orders for logged-in user
 router.get('/orders',
   authenticateToken,
   async (req, res) => {
@@ -501,6 +533,7 @@ router.get('/orders',
   }
 );
 
+// GET single order by ID
 router.get('/orders/:id',
   authenticateToken,
   [param('id').isInt()],
@@ -556,9 +589,13 @@ router.get('/orders/:id',
   }
 );
 
+// ============================================
+// PRODUCT REVIEWS (Buyers only)
+// ============================================
+
 router.post('/products/:id/review',
   authenticateToken,
-  requireRole(['student', 'scholar']),
+  requireRole(['student', 'teacher', 'parent', 'scholar']),
   [
     param('id').isInt(),
     body('rating').isInt({ min: 1, max: 5 }),
@@ -610,7 +647,6 @@ router.post('/products/:id/review',
 
     res.status(201).json(review);
   }
-  
 );
 
 router.get('/product-categories', async (req, res) => {

@@ -107,11 +107,28 @@ export default function ParentDashboardPage() {
     },
   });
 
+  // ✅ FIX: Properly handle linking with email OR phone
   const handleLinkChild = () => {
     setLinkError('');
+    
+    // Validate at least one field is filled
     if (!linkEmail && !linkPhone) {
       setLinkError('Please enter either email or phone number');
       alert('Please enter either email or phone number');
+      return;
+    }
+    
+    // Validate phone format if provided
+    if (linkPhone && !/^(09|07)[0-9]{8}$/.test(linkPhone)) {
+      setLinkError('Phone must be in format: 09XXXXXXXX or 07XXXXXXXX');
+      alert('Phone must be in format: 09XXXXXXXX or 07XXXXXXXX');
+      return;
+    }
+    
+    // Validate email format if provided
+    if (linkEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(linkEmail)) {
+      setLinkError('Please enter a valid email address');
+      alert('Please enter a valid email address');
       return;
     }
     
@@ -121,6 +138,14 @@ export default function ParentDashboardPage() {
     
     console.log('Linking child with data:', linkData);
     linkChildMutation.mutate(linkData);
+  };
+
+  // Reset dialog state when opening
+  const openLinkDialog = () => {
+    setLinkEmail('');
+    setLinkPhone('');
+    setLinkError('');
+    setIsLinkDialogOpen(true);
   };
 
   if (authLoading || childrenLoading) {
@@ -155,61 +180,10 @@ export default function ParentDashboardPage() {
         {!children || children.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500 mb-4">No children linked yet</p>
-            <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Link Child
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Link a Child</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="childEmail">Child's Email</Label>
-                    <Input
-                      id="childEmail"
-                      type="email"
-                      placeholder="student@example.com"
-                      value={linkEmail}
-                      onChange={(e) => setLinkEmail(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Enter the student's email address</p>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white px-2 text-gray-500">Or</span>
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="childPhone">Child's Phone Number</Label>
-                    <Input
-                      id="childPhone"
-                      type="tel"
-                      placeholder="0912345678"
-                      value={linkPhone}
-                      onChange={(e) => setLinkPhone(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Ethiopian format: 09XXXXXXXX</p>
-                  </div>
-                  {linkError && (
-                    <p className="text-sm text-red-500 text-center">{linkError}</p>
-                  )}
-                  <Button 
-                    onClick={handleLinkChild} 
-                    disabled={linkChildMutation.isPending} 
-                    className="w-full"
-                  >
-                    {linkChildMutation.isPending ? 'Linking...' : 'Link Child'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button onClick={openLinkDialog}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Link Child
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -239,7 +213,7 @@ export default function ParentDashboardPage() {
             ))}
             <Card 
               className="cursor-pointer hover:shadow-md transition-shadow border-dashed"
-              onClick={() => setIsLinkDialogOpen(true)}
+              onClick={openLinkDialog}
             >
               <CardContent className="p-4 flex items-center justify-center gap-2">
                 <UserPlus className="h-5 w-5 text-purple-600" />
@@ -445,6 +419,7 @@ export default function ParentDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Parent</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
@@ -452,6 +427,7 @@ export default function ParentDashboardPage() {
         </button>
       </div>
 
+      {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b">
@@ -510,10 +486,12 @@ export default function ParentDashboardPage() {
         </div>
       </div>
 
+      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
+      {/* Main Content */}
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
@@ -523,6 +501,64 @@ export default function ParentDashboardPage() {
           {activeTab === 'children' ? <ChildrenView /> : <ProgressView />}
         </div>
       </div>
+
+      {/* Link Child Dialog */}
+      <Dialog open={isLinkDialogOpen} onOpenChange={(open) => {
+        setIsLinkDialogOpen(open);
+        if (!open) {
+          setLinkEmail('');
+          setLinkPhone('');
+          setLinkError('');
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Link a Child</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="childEmail">Child's Email</Label>
+              <Input
+                id="childEmail"
+                type="email"
+                placeholder="student@example.com"
+                value={linkEmail}
+                onChange={(e) => setLinkEmail(e.target.value)}
+              />
+              <p className="text-xs text-gray-500 mt-1">Enter the student's email address</p>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500">Or</span>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="childPhone">Child's Phone Number</Label>
+              <Input
+                id="childPhone"
+                type="tel"
+                placeholder="0912345678"
+                value={linkPhone}
+                onChange={(e) => setLinkPhone(e.target.value)}
+              />
+              <p className="text-xs text-gray-500 mt-1">Ethiopian format: 09XXXXXXXX or 07XXXXXXXX</p>
+            </div>
+            {linkError && (
+              <p className="text-sm text-red-500 text-center">{linkError}</p>
+            )}
+            <Button 
+              onClick={handleLinkChild} 
+              disabled={linkChildMutation.isPending} 
+              className="w-full"
+            >
+              {linkChildMutation.isPending ? 'Linking...' : 'Link Child'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

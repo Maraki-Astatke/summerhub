@@ -14,7 +14,8 @@ import api from '@/lib/api';
 import { 
   Package, ShoppingCart, DollarSign, AlertTriangle, Plus, Edit, Trash2, 
   Menu, X, LogOut, LayoutDashboard, BookOpen, Newspaper, Trophy, 
-  MessageSquare, Settings, Home, BarChart3, Store, Upload, XCircle, Star
+  MessageSquare, Settings, Home, BarChart3, Store, Upload, XCircle, Star,
+  Phone // ← ADDED Phone icon
 } from 'lucide-react';
 
 export default function SellerDashboardPage() {
@@ -32,6 +33,7 @@ export default function SellerDashboardPage() {
     stockCount: '',
     categoryId: '',
     imageUrl: '',
+    phone: '', // ← ADDED phone field
   });
 
   useEffect(() => {
@@ -113,6 +115,7 @@ export default function SellerDashboardPage() {
         stockCount: '',
         categoryId: '',
         imageUrl: '',
+        phone: '',
       });
       alert('Product created successfully!');
     },
@@ -209,6 +212,7 @@ export default function SellerDashboardPage() {
       price: parseFloat(formData.price),
       stockCount: parseInt(formData.stockCount),
       imageUrl: formData.imageUrl,
+      phone: formData.phone || null, // ← ADDED phone field
     };
     
     if (formData.categoryId && formData.categoryId !== '') {
@@ -226,6 +230,7 @@ export default function SellerDashboardPage() {
         description: formData.description,
         price: parseFloat(formData.price),
         stockCount: parseInt(formData.stockCount),
+        phone: formData.phone || null, // ← ADDED phone field
       };
       
       if (formData.imageUrl) {
@@ -316,6 +321,7 @@ export default function SellerDashboardPage() {
                             stockCount: product.stockCount.toString(),
                             categoryId: product.categoryId?.toString() || '',
                             imageUrl: product.imageUrl || '',
+                            phone: product.phone || '', // ← ADDED phone field
                           });
                         }}
                       >
@@ -337,6 +343,14 @@ export default function SellerDashboardPage() {
                   </div>
                   
                   <p className="text-gray-500 text-xs line-clamp-2 mb-2">{product.description || 'No description'}</p>
+                  
+                  {/* Display phone number if exists */}
+                  {product.phone && (
+                    <div className="flex items-center gap-1 mb-1 text-xs text-gray-600">
+                      <Phone className="h-3 w-3 text-purple-600" />
+                      <span>{product.phone}</span>
+                    </div>
+                  )}
                   
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-base font-bold text-purple-600">{product.price} ETB</span>
@@ -502,6 +516,20 @@ export default function SellerDashboardPage() {
                   />
                 </div>
               </div>
+
+              {/* Phone Number Field - NEW */}
+              <div>
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="e.g., 0912345678"
+                />
+                <p className="text-xs text-gray-400 mt-1">Buyers will see this number to contact you</p>
+              </div>
+
               <div>
                 <Label htmlFor="categoryId">Category (Optional)</Label>
                 <select
@@ -645,10 +673,6 @@ export default function SellerDashboardPage() {
               <Trophy className="w-5 h-5" />
               <span className="font-medium">Events</span>
             </Link>
-            <Link href="/chat" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
-              <MessageSquare className="w-5 h-5" />
-              <span className="font-medium">Messages</span>
-            </Link>
            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
             </Link>
@@ -726,6 +750,20 @@ export default function SellerDashboardPage() {
                     />
                   </div>
                 </div>
+
+                {/* Phone Number Field - Edit Mode */}
+                <div>
+                  <Label htmlFor="edit-phone">Phone Number</Label>
+                  <Input
+                    id="edit-phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="e.g., 0912345678"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Buyers will see this number to contact you</p>
+                </div>
+
                 <div>
                   <Label htmlFor="edit-categoryId">Category</Label>
                   <select

@@ -207,6 +207,7 @@ model Product {
   price             Float
   stockCount        Int             @default(0)
   imageUrl          String?
+  phone             String?         // ← ADD THIS - Seller's phone number
   categoryId        Int?
   sellerId          Int?
   createdAt         DateTime        @default(now())
@@ -218,7 +219,6 @@ model Product {
   orderItems        OrderItem[]
   reviews           ProductReview[]
 }
-
 model ProductCategory {
   id                Int      @id @default(autoincrement())
   name              String   @unique

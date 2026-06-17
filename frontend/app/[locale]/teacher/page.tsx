@@ -1302,7 +1302,7 @@ export default function TeacherDashboardPage() {
           </nav>
 
           <div className="p-4 border-t space-y-2">
-            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <ShoppingBag className="w-5 h-5" />
               <span className="font-medium">Shop</span>
             </Link>

@@ -64,7 +64,7 @@ router.get('/orders/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// CREATE order from cart
+// CREATE order from cart (with stock reduction)
 router.post('/orders', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -82,34 +82,63 @@ router.post('/orders', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Cart is empty' });
     }
     
+    // ✅ Check stock before creating order
+    for (const item of cartItems) {
+      if (item.product.stockCount < item.quantity) {
+        return res.status(400).json({ 
+          error: `${item.product.name} is out of stock. Only ${item.product.stockCount} left.` 
+        });
+      }
+    }
+    
     const totalAmount = cartItems.reduce((sum, item) => {
       return sum + (item.product.price * item.quantity);
     }, 0);
     
-    const order = await prisma.order.create({
-      data: {
-        userId,
-        totalAmount,
-        status: 'pending',
-        shippingAddress: shippingAddress || null,
-        paymentMethod: paymentMethod || null,
-        items: {
-          create: cartItems.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            priceAtTime: item.product.price
-          }))
-        }
-      },
-      include: { items: true }
-    });
-    
-    // Clear cart
-    await prisma.cartItem.deleteMany({
-      where: { userId }
+    // ✅ Use transaction to ensure both order creation AND stock reduction happen together
+    const order = await prisma.$transaction(async (tx) => {
+      // Create order
+      const newOrder = await tx.order.create({
+        data: {
+          userId,
+          totalAmount,
+          status: 'pending',
+          shippingAddress: shippingAddress || null,
+          paymentMethod: paymentMethod || null,
+          items: {
+            create: cartItems.map(item => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              priceAtTime: item.product.price
+            }))
+          }
+        },
+        include: { items: true }
+      });
+      
+      // ✅ Reduce stock for each product
+      for (const item of cartItems) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stockCount: {
+              decrement: item.quantity
+            }
+          }
+        });
+        console.log(`📦 Stock reduced for product ${item.productId}: -${item.quantity}`);
+      }
+      
+      // ✅ Clear cart
+      await tx.cartItem.deleteMany({
+        where: { userId }
+      });
+      
+      return newOrder;
     });
     
     console.log('✅ Order created:', order.id);
+    console.log('✅ Stock updated and cart cleared');
     res.status(201).json(order);
   } catch (error) {
     console.error('❌ Create order error:', error);

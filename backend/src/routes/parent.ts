@@ -10,7 +10,7 @@ router.post('/parent/children/link',
   authenticateToken,
   requireRole(['parent']),
   [
-    body('childEmail').isEmail().normalizeEmail(),
+    body('childEmail').optional().isEmail().normalizeEmail(), // ✅ FIX: Made optional
     body('childPhone').optional().matches(/^(09|07)[0-9]{8}$/)
   ],
   async (req, res) => {
@@ -22,11 +22,16 @@ router.post('/parent/children/link',
     const { childEmail, childPhone } = req.body;
     const parentId = req.user.userId;
 
+    // ✅ FIX: Validate at least one is provided
+    if (!childEmail && !childPhone) {
+      return res.status(400).json({ error: 'Please provide either email or phone number' });
+    }
+
     const child = await prisma.user.findFirst({
       where: {
         OR: [
-          { email: childEmail },
-          { phone: childPhone }
+          ...(childEmail ? [{ email: childEmail }] : []),
+          ...(childPhone ? [{ phone: childPhone }] : [])
         ]
       },
       include: {
@@ -42,15 +47,17 @@ router.post('/parent/children/link',
       return res.status(404).json({ error: 'Child not found' });
     }
 
+    // Check if user is a student
     const isStudent = child.roles.some(r => r.role.name === 'student');
     if (!isStudent) {
       return res.status(400).json({ error: 'User is not a student' });
     }
 
+    // ✅ FIX: Check if child is already linked to this parent
     const existingLink = await prisma.userRole.findFirst({
       where: {
         userId: child.id,
-        roleId: 5  // parent role ID
+        roleId: 5  // parent role ID - the parent role means "linked to a parent"
       }
     });
 
@@ -58,15 +65,20 @@ router.post('/parent/children/link',
       return res.status(400).json({ error: 'Child already linked to a parent' });
     }
 
+    // ✅ FIX: Create the link by adding parent role to the child
     await prisma.userRole.create({
       data: {
         userId: child.id,
-        roleId: 5,  // parent role ID
+        roleId: 5,  // parent role ID - indicates child is linked to a parent
         assignedAt: new Date()
       }
     });
 
-    res.status(201).json({ message: 'Child linked successfully', childId: child.id });
+    res.status(201).json({ 
+      message: 'Child linked successfully', 
+      childId: child.id,
+      childName: child.profile?.firstName || 'Student'
+    });
   }
 );
 
