@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/providers/auth-provider';
-import { useQuery, useQueryClient } from '@tanstack/react-query'; // ← CHANGE: add useQueryClient
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast, Toaster } from 'sonner';
 import { 
@@ -21,18 +22,22 @@ import {
 
 export default function SettingsPage() {
   const router = useRouter();
-  const queryClient = useQueryClient(); // ← ADD THIS
+  const queryClient = useQueryClient();
   const { user, isLoading: authLoading, logout } = useAuth();
   const currentLocale = useLocale();
+  const { theme, setTheme } = useTheme();
   
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
   const [language, setLanguage] = useState(currentLocale);
-
   const [isSaving, setIsSaving] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Fetch profile data - ADD user.id to query key to refetch when user changes
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { data: profile, isLoading: profileLoading } = useQuery({
-    queryKey: ['profile', user?.id], // ← CHANGE: add user?.id to key
+    queryKey: ['profile', user?.id],
     queryFn: async () => {
       const response = await api.get('/profile');
       return response.data;
@@ -40,33 +45,8 @@ export default function SettingsPage() {
     enabled: !!user,
   });
 
-  // Load saved preferences from localStorage on mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' || 'light';
-    
-    setTheme(savedTheme);
-    applyTheme(savedTheme);
-    
-  }, []);
-
-  const applyTheme = (newTheme: 'light' | 'dark' | 'system') => {
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else if (newTheme === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else {
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-  };
-
-  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
+  const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    applyTheme(newTheme);
     toast.success('Theme updated', {
       description: `Theme changed to ${newTheme}`,
     });
@@ -87,10 +67,7 @@ export default function SettingsPage() {
 
   const saveSettings = () => {
     setIsSaving(true);
-
     localStorage.setItem('language', language);
-    localStorage.setItem('theme', theme);
-    
     setTimeout(() => {
       setIsSaving(false);
       toast.success('Settings saved!', {

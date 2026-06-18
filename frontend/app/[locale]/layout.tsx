@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import "../globals.css";
 import { QueryProvider } from "../../providers/query-provider";
 import { AuthProvider } from "../../providers/auth-provider";
+import { ThemeProvider } from "../../providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ 
@@ -44,12 +45,14 @@ export default async function RootLayout({
     <html lang={locale} className="scroll-smooth">
       <body className={`${poppins.variable} ${inter.variable} antialiased`}>
         <NextIntlClientProvider messages={messages}>
-          <QueryProvider>
-            <AuthProvider>
-              {children}
-              <Toaster />
-            </AuthProvider>
-          </QueryProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <QueryProvider>
+              <AuthProvider>
+                {children}
+                <Toaster />
+              </AuthProvider>
+            </QueryProvider>
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

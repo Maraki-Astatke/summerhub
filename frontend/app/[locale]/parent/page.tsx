@@ -175,11 +175,11 @@ export default function ParentDashboardPage() {
   ];
 
   const ChildrenView = () => (
-    <Card>
+    <Card className="dark:bg-gray-800 dark:border-gray-700">
       <CardHeader className="flex flex-row justify-between items-center">
         <div>
-          <CardTitle>My Children</CardTitle>
-          <CardDescription>Select a child to view their progress</CardDescription>
+          <CardTitle className="dark:text-white">My Children</CardTitle>
+          <CardDescription className="dark:text-gray-400">Select a child to view their progress</CardDescription>
         </div>
         <Button variant="ghost" size="sm" onClick={() => refetchChildren()}>
           <RefreshCw className="h-4 w-4" />
@@ -188,7 +188,7 @@ export default function ParentDashboardPage() {
       <CardContent>
         {!children || children.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500 mb-4">No children linked yet</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">No children linked yet</p>
             <Button onClick={openLinkDialog}>
               <UserPlus className="h-4 w-4 mr-2" />
               Link Child
@@ -199,7 +199,7 @@ export default function ParentDashboardPage() {
             {children.map((child: any) => (
               <Card 
                 key={child.id} 
-                className={`cursor-pointer hover:shadow-md transition-shadow ${selectedChild?.id === child.id ? 'border-purple-500 border-2' : ''}`}
+                className={`cursor-pointer hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700 ${selectedChild?.id === child.id ? 'border-purple-500 border-2 dark:border-purple-500' : ''}`}
                 onClick={() => {
                   setSelectedChild(child);
                   setActiveTab('progress');
@@ -208,8 +208,8 @@ export default function ParentDashboardPage() {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="font-semibold">{child.profile?.firstName} {child.profile?.lastName}</h3>
-                      <p className="text-sm text-gray-500">{child.email}</p>
+                      <h3 className="font-semibold dark:text-white">{child.profile?.firstName} {child.profile?.lastName}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{child.email}</p>
                     </div>
                     {selectedChild?.id === child.id ? (
                       <CheckCircle className="h-5 w-5 text-green-500" />
@@ -221,12 +221,12 @@ export default function ParentDashboardPage() {
               </Card>
             ))}
             <Card 
-              className="cursor-pointer hover:shadow-md transition-shadow border-dashed"
+              className="cursor-pointer hover:shadow-md transition-shadow border-dashed dark:bg-gray-800 dark:border-gray-700"
               onClick={openLinkDialog}
             >
               <CardContent className="p-4 flex items-center justify-center gap-2">
-                <UserPlus className="h-5 w-5 text-purple-600" />
-                <span className="text-purple-600">Link Another Child</span>
+                <UserPlus className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <span className="text-purple-600 dark:text-purple-400">Link Another Child</span>
               </CardContent>
             </Card>
           </div>
@@ -238,9 +238,9 @@ export default function ParentDashboardPage() {
   const ProgressView = () => {
     if (!selectedChild) {
       return (
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="text-center py-12">
-            <p className="text-gray-500">Select a child first to view their progress</p>
+            <p className="text-gray-500 dark:text-gray-400">Select a child first to view their progress</p>
             <Button className="mt-4" onClick={() => setActiveTab('children')}>
               Go to My Children
             </Button>
@@ -253,45 +253,45 @@ export default function ParentDashboardPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold">{selectedChild.profile?.firstName} {selectedChild.profile?.lastName}</h2>
-            <p className="text-gray-500">{selectedChild.email}</p>
+            <h2 className="text-2xl font-bold dark:text-white">{selectedChild.profile?.firstName} {selectedChild.profile?.lastName}</h2>
+            <p className="text-gray-500 dark:text-gray-400">{selectedChild.email}</p>
           </div>
-          <Button variant="outline" onClick={() => setActiveTab('children')}>
+          <Button variant="outline" onClick={() => setActiveTab('children')} className="dark:border-gray-700 dark:text-gray-200">
             Change Child
           </Button>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Lessons Taken</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Lessons Taken</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{childProgress?.progress?.totalLessonsRegistered || 0}</div>
+              <div className="text-2xl font-bold dark:text-white">{childProgress?.progress?.totalLessonsRegistered || 0}</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Lessons Attended</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Lessons Attended</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{childProgress?.progress?.lessonsAttended || 0}</div>
+              <div className="text-2xl font-bold dark:text-white">{childProgress?.progress?.lessonsAttended || 0}</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Hobbies Discovered</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Hobbies Discovered</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{childProgress?.progress?.hobbiesDiscovered || 0}</div>
+              <div className="text-2xl font-bold dark:text-white">{childProgress?.progress?.hobbiesDiscovered || 0}</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Quiz Completed</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Quiz Completed</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold dark:text-white">
                 {childProgress?.progress?.quizCompleted ? 'Yes' : 'No'}
               </div>
             </CardContent>
@@ -299,42 +299,42 @@ export default function ParentDashboardPage() {
         </div>
 
         <Tabs defaultValue="progress" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="progress">Learning Progress</TabsTrigger>
-            <TabsTrigger value="lessons">Lesson History</TabsTrigger>
-            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+          <TabsList className="dark:bg-gray-800">
+            <TabsTrigger value="progress" className="dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">Learning Progress</TabsTrigger>
+            <TabsTrigger value="lessons" className="dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">Lesson History</TabsTrigger>
+            <TabsTrigger value="recommendations" className="dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">Recommendations</TabsTrigger>
           </TabsList>
 
           <TabsContent value="progress">
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
-                <CardTitle>Learning Progress</CardTitle>
-                <CardDescription>Track your child's learning journey</CardDescription>
+                <CardTitle className="dark:text-white">Learning Progress</CardTitle>
+                <CardDescription className="dark:text-gray-400">Track your child's learning journey</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span>Blog Posts Written</span>
-                    <span className="font-bold">{childProgress?.progress?.blogPostsWritten || 0}</span>
+                  <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                    <span className="dark:text-gray-300">Blog Posts Written</span>
+                    <span className="font-bold dark:text-white">{childProgress?.progress?.blogPostsWritten || 0}</span>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span>Orders Placed</span>
-                    <span className="font-bold">{childProgress?.progress?.ordersPlaced || 0}</span>
+                  <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
+                    <span className="dark:text-gray-300">Orders Placed</span>
+                    <span className="font-bold dark:text-white">{childProgress?.progress?.ordersPlaced || 0}</span>
                   </div>
                 </div>
 
                 {childProgress?.topHobbies?.length > 0 && (
                   <div className="mt-6">
-                    <h3 className="font-semibold mb-3">Top Hobbies</h3>
+                    <h3 className="font-semibold mb-3 dark:text-white">Top Hobbies</h3>
                     <div className="space-y-2">
                       {childProgress.topHobbies.map((item: any) => (
-                        <div key={item.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                          <span>{item.hobby.name}</span>
+                        <div key={item.id} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-900/50 rounded">
+                          <span className="dark:text-gray-200">{item.hobby.name}</span>
                           <div className="flex items-center gap-2">
-                            <div className="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                              <div className="h-full bg-purple-600 rounded-full" style={{ width: `${(item.interestLevel / 5) * 100}%` }} />
+                            <div className="w-24 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                              <div className="h-full bg-purple-600 dark:bg-purple-500 rounded-full" style={{ width: `${(item.interestLevel / 5) * 100}%` }} />
                             </div>
-                            <span className="text-sm">{item.interestLevel}/5</span>
+                            <span className="text-sm dark:text-gray-400">{item.interestLevel}/5</span>
                           </div>
                         </div>
                       ))}
@@ -346,23 +346,23 @@ export default function ParentDashboardPage() {
           </TabsContent>
 
           <TabsContent value="lessons">
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
-                <CardTitle>Lesson History</CardTitle>
-                <CardDescription>All lessons your child has registered for</CardDescription>
+                <CardTitle className="dark:text-white">Lesson History</CardTitle>
+                <CardDescription className="dark:text-gray-400">All lessons your child has registered for</CardDescription>
               </CardHeader>
               <CardContent>
                 {!childLessons || childLessons.length === 0 ? (
-                  <p className="text-center text-gray-500 py-8">No lessons registered yet</p>
+                  <p className="text-center text-gray-500 dark:text-gray-400 py-8">No lessons registered yet</p>
                 ) : (
                   <div className="space-y-3">
                     {childLessons.map((reg: any) => (
-                      <div key={reg.id} className="border rounded-lg p-4">
+                      <div key={reg.id} className="border dark:border-gray-700 rounded-lg p-4">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="font-semibold">{reg.lesson.title}</h4>
-                            <p className="text-sm text-gray-500">{reg.lesson.hobby?.name}</p>
-                            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                            <h4 className="font-semibold dark:text-white">{reg.lesson.title}</h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{reg.lesson.hobby?.name}</p>
+                            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
                                 {new Date(reg.lesson.dateTime).toLocaleDateString()}
@@ -396,32 +396,32 @@ export default function ParentDashboardPage() {
           </TabsContent>
 
           <TabsContent value="recommendations">
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
-                <CardTitle>Recommended Hobbies</CardTitle>
-                <CardDescription>Based on quiz results</CardDescription>
+                <CardTitle className="dark:text-white">Recommended Hobbies</CardTitle>
+                <CardDescription className="dark:text-gray-400">Based on quiz results</CardDescription>
               </CardHeader>
               <CardContent>
                 {!childQuizResults ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-500">No quiz results yet</p>
-                    <p className="text-sm text-gray-400 mt-2">Encourage your child to take the interest quiz</p>
+                    <p className="text-gray-500 dark:text-gray-400">No quiz results yet</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">Encourage your child to take the interest quiz</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {childQuizResults.recommendations?.map((rec: any) => (
-                      <div key={rec.id} className="p-4 border rounded-xl bg-gradient-to-br from-purple-50 to-white hover:shadow-md transition-all duration-300">
+                      <div key={rec.id} className="p-4 border dark:border-gray-700 rounded-xl bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-800 hover:shadow-md transition-all duration-300">
                         <div className="flex items-start gap-4">
                           <div className="flex-1">
-                            <h4 className="font-bold text-lg text-gray-800">{rec.hobby?.name}</h4>
-                            <p className="text-sm text-gray-500 mt-1">{rec.hobby?.category?.name}</p>
+                            <h4 className="font-bold text-lg text-gray-800 dark:text-gray-100">{rec.hobby?.name}</h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{rec.hobby?.category?.name}</p>
                             {rec.reason && (
-                              <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
-                                <p className="text-sm text-purple-700 italic">"{rec.reason}"</p>
+                              <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
+                                <p className="text-sm text-purple-700 dark:text-purple-300 italic">"{rec.reason}"</p>
                               </div>
                             )}
                             <div className="mt-3">
-                              <p className="text-xs text-gray-400">
+                              <p className="text-xs text-gray-400 dark:text-gray-500">
                                 Recommended by: {rec.admin?.profile?.firstName} {rec.admin?.profile?.lastName}
                               </p>
                             </div>
@@ -440,10 +440,10 @@ export default function ParentDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Parent</Link>
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
+        <Link href="/" className="text-xl font-bold text-purple-600 dark:text-purple-400">HobbyHub Parent</Link>
         <div className="flex items-center gap-2">
           <Link href="/cart" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
             <ShoppingCart className="w-6 h-6" />
@@ -460,23 +460,23 @@ export default function ParentDashboardPage() {
       </div>
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b">
-            <Link href="/" className="text-2xl font-bold text-purple-600">HobbyHub</Link>
-            <p className="text-sm text-gray-500 mt-1">Parent Portal</p>
+          <div className="p-6 border-b dark:border-gray-700">
+            <Link href="/" className="text-2xl font-bold text-purple-600 dark:text-purple-400">HobbyHub</Link>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Parent Portal</p>
           </div>
 
-          <div className="p-4 border-b bg-gray-50">
+          <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                <span className="text-purple-600 font-bold text-lg">
+              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">
                   {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'P'}
                 </span>
               </div>
               <div>
-                <p className="font-semibold text-gray-800">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-gray-500">{user?.email}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-100">{user?.profile?.firstName} {user?.profile?.lastName}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -490,7 +490,7 @@ export default function ParentDashboardPage() {
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'
+                  activeTab === item.id ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 {item.icon}
@@ -499,16 +499,16 @@ export default function ParentDashboardPage() {
             ))}
           </nav>
 
-          <div className="p-4 border-t space-y-2">
-            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+          <div className="p-4 border-t dark:border-gray-700 space-y-2">
+            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Home className="w-5 h-5" />
               <span className="font-medium">Home</span>
             </Link>
-            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <ShoppingBag className="w-5 h-5" />
               <span className="font-medium">Shop</span>
             </Link>
-            <Link href="/cart" className="w-full flex justify-between items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/cart" className="w-full flex justify-between items-center px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <div className="flex items-center gap-3">
                 <ShoppingCart className="w-5 h-5" />
                 <span className="font-medium">Cart</span>
@@ -519,12 +519,12 @@ export default function ParentDashboardPage() {
                 </span>
               )}
             </Link>
-            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
             >
               <LogOut className="w-5 h-5" />
               <span className="font-medium">Logout</span>
@@ -542,8 +542,8 @@ export default function ParentDashboardPage() {
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Parent Dashboard</h1>
-            <p className="text-gray-500 mt-1">Monitor your children's progress and activities</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Parent Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Monitor your children's progress and activities</p>
           </div>
           {activeTab === 'children' ? <ChildrenView /> : <ProgressView />}
         </div>
