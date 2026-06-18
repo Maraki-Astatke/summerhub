@@ -102,7 +102,7 @@ router.post('/orders', authenticateToken, async (req, res) => {
         data: {
           userId,
           totalAmount,
-          status: 'pending',
+          status: paymentMethod === 'chapa' ? 'pending' : 'paid',
           shippingAddress: shippingAddress || null,
           paymentMethod: paymentMethod || null,
           items: {
