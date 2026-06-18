@@ -15,7 +15,7 @@ import api from '@/lib/api';
 import { 
   Users, BookOpen, Calendar, ShoppingBag, Award, Star, 
   Menu, X, LogOut, LayoutDashboard, Home, Settings, 
-  UserPlus, Eye, CheckCircle, XCircle, Clock, TrendingUp, RefreshCw
+  UserPlus, Eye, CheckCircle, XCircle, Clock, TrendingUp, RefreshCw, ShoppingCart
 } from 'lucide-react';
 
 export default function ParentDashboardPage() {
@@ -29,6 +29,15 @@ export default function ParentDashboardPage() {
   const [linkPhone, setLinkPhone] = useState('');
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [linkError, setLinkError] = useState('');
+
+  const { data: cart } = useQuery({
+    queryKey: ['cart'],
+    queryFn: async () => {
+      const response = await api.get('/cart');
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes('parent'),
+  });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -435,9 +444,19 @@ export default function ParentDashboardPage() {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Parent</Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
-          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <Link href="/cart" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+            <ShoppingCart className="w-6 h-6" />
+            {cart?.itemCount > 0 && (
+              <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-white">
+                {cart.itemCount}
+              </span>
+            )}
+          </Link>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
+            {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Sidebar */}
@@ -484,6 +503,21 @@ export default function ParentDashboardPage() {
             <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <Home className="w-5 h-5" />
               <span className="font-medium">Home</span>
+            </Link>
+            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+              <ShoppingBag className="w-5 h-5" />
+              <span className="font-medium">Shop</span>
+            </Link>
+            <Link href="/cart" className="w-full flex justify-between items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-5 h-5" />
+                <span className="font-medium">Cart</span>
+              </div>
+              {cart?.itemCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {cart.itemCount}
+                </span>
+              )}
             </Link>
             <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
