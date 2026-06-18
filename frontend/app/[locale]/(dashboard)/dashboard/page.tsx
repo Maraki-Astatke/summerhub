@@ -274,7 +274,14 @@ export default function DashboardPage() {
     submitAssignmentMutation.mutate(formData);
   };
 
-  if (authLoading) {
+  const isRedirecting = user && (
+    user.roles?.includes("admin") ||
+    user.roles?.includes("teacher") ||
+    user.roles?.includes("seller") ||
+    user.roles?.includes("parent")
+  );
+
+  if (authLoading || isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">Loading...</div>
