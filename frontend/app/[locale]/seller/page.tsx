@@ -423,40 +423,40 @@ export default function SellerDashboardPage() {
 
     if (activeTab === 'stats') {
       return (
-        <div className="bg-white rounded-lg border overflow-hidden">
+        <div className="bg-white rounded-lg border overflow-hidden dark:bg-gray-800 dark:border-gray-700">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700">
               <tr>
-                <th className="text-left p-4 font-semibold text-gray-600">Metric</th>
-                <th className="text-right p-4 font-semibold text-gray-600">Value</th>
+                <th className="text-left p-4 font-semibold text-gray-600 dark:text-gray-300">Metric</th>
+                <th className="text-right p-4 font-semibold text-gray-600 dark:text-gray-300">Value</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b">
+              <tr className="border-b dark:border-gray-700">
                 <td className="p-4 flex items-center gap-2">
                   <Package className="h-5 w-5 text-purple-600" />
-                  <span className="font-medium">Total Products</span>
+                  <span className="font-medium dark:text-gray-200">Total Products</span>
                 </td>
-                <td className="p-4 text-right font-bold text-xl">{stats?.totalProducts || 0}</td>
+                <td className="p-4 text-right font-bold text-xl dark:text-white">{stats?.totalProducts || 0}</td>
               </tr>
-              <tr className="border-b">
+              <tr className="border-b dark:border-gray-700">
                 <td className="p-4 flex items-center gap-2">
                   <ShoppingCart className="h-5 w-5 text-purple-600" />
-                  <span className="font-medium">Total Orders</span>
+                  <span className="font-medium dark:text-gray-200">Total Orders</span>
                 </td>
-                <td className="p-4 text-right font-bold text-xl">{stats?.totalOrders || 0}</td>
+                <td className="p-4 text-right font-bold text-xl dark:text-white">{stats?.totalOrders || 0}</td>
               </tr>
-              <tr className="border-b">
+              <tr className="border-b dark:border-gray-700">
                 <td className="p-4 flex items-center gap-2">
                   <DollarSign className="h-5 w-5 text-green-600" />
-                  <span className="font-medium">Revenue</span>
+                  <span className="font-medium dark:text-gray-200">Revenue</span>
                 </td>
-                <td className="p-4 text-right font-bold text-xl">{stats?.totalRevenue || 0} ETB</td>
+                <td className="p-4 text-right font-bold text-xl dark:text-white">{stats?.totalRevenue || 0} ETB</td>
               </tr>
               <tr>
                 <td className="p-4 flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                  <span className="font-medium">Low Stock Products</span>
+                  <span className="font-medium dark:text-gray-200">Low Stock Products</span>
                 </td>
                 <td className="p-4 text-right font-bold text-xl text-yellow-600">{stats?.lowStockProducts || 0}</td>
               </tr>
@@ -611,31 +611,31 @@ export default function SellerDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Seller</Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
-          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
+        <Link href="/" className="text-xl font-bold text-purple-600 dark:text-purple-400">HobbyHub Seller</Link>
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+          {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
         </button>
       </div>
 
-      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b">
-            <Link href="/" className="text-2xl font-bold text-purple-600">HobbyHub</Link>
-            <p className="text-sm text-gray-500 mt-1">Seller Portal</p>
+          <div className="p-6 border-b dark:border-gray-700">
+            <Link href="/" className="text-2xl font-bold text-purple-600 dark:text-purple-400">HobbyHub</Link>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Seller Portal</p>
           </div>
 
-          <div className="p-4 border-b bg-gray-50">
+          <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                <span className="text-purple-600 font-bold text-lg">
+              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">
                   {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'S'}
                 </span>
               </div>
               <div>
-                <p className="font-semibold text-gray-800">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-gray-500">{user?.email}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-100">{user?.profile?.firstName} {user?.profile?.lastName}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -650,8 +650,8 @@ export default function SellerDashboardPage() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   activeTab === item.id
-                    ? 'bg-purple-50 text-purple-600'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 {item.icon}
@@ -660,25 +660,25 @@ export default function SellerDashboardPage() {
             ))}
           </nav>
 
-          <div className="p-4 border-t space-y-2">
-            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+          <div className="p-4 border-t dark:border-gray-700 space-y-2">
+            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Home className="w-5 h-5" />
               <span className="font-medium">Home</span>
             </Link>
-            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Store className="w-5 h-5" />
               <span className="font-medium">Marketplace</span>
             </Link>
-            <Link href="/events" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/events" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Trophy className="w-5 h-5" />
               <span className="font-medium">Events</span>
             </Link>
-           <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+           <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
             >
               <LogOut className="w-5 h-5" />
               <span className="font-medium">Logout</span>
@@ -694,8 +694,8 @@ export default function SellerDashboardPage() {
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Seller Dashboard</h1>
-            <p className="text-gray-500 mt-1">Manage your products and orders</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Seller Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your products and orders</p>
           </div>
           {renderContent()}
         </div>

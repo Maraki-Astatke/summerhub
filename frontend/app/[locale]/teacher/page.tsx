@@ -42,7 +42,7 @@ const Card = ({
   children: React.ReactNode;
   className?: string;
 }) => (
-  <div className={`bg-white rounded-lg border shadow-sm ${className}`}>
+  <div className={`bg-white rounded-lg border shadow-sm dark:bg-gray-800 dark:border-gray-700 ${className}`}>
     {children}
   </div>
 );
@@ -93,7 +93,7 @@ const Button = ({
     disabled={disabled}
     className={`px-4 py-2 rounded-lg font-medium transition ${
       variant === "outline"
-        ? "border border-gray-300 hover:bg-gray-50"
+        ? "border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
         : variant === "destructive"
         ? "bg-red-500 text-white hover:bg-red-600"
         : "bg-purple-600 text-white hover:bg-purple-700"
@@ -120,7 +120,7 @@ const Input = ({
     required={required}
     placeholder={placeholder}
     accept={accept}
-    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
   />
 );
 
@@ -133,7 +133,7 @@ const Label = ({
 }) => (
   <label
     htmlFor={htmlFor}
-    className="block text-sm font-medium text-gray-700 mb-1"
+    className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300"
   >
     {children}
   </label>
@@ -146,7 +146,7 @@ const Textarea = ({ id, value, onChange, rows = 3, placeholder }: any) => (
     onChange={onChange}
     rows={rows}
     placeholder={placeholder}
-    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
   />
 );
 
@@ -573,10 +573,10 @@ export default function TeacherDashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">Total Lessons</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-300">Total Lessons</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold flex items-center gap-2">
+                <div className="text-2xl font-bold flex items-center gap-2 dark:text-white">
                   <BookOpen className="h-5 w-5 text-gray-400" />
                   {stats?.totalLessons || 0}
                 </div>
@@ -584,10 +584,10 @@ export default function TeacherDashboardPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">Total Students</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-300">Total Students</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold flex items-center gap-2">
+                <div className="text-2xl font-bold flex items-center gap-2 dark:text-white">
                   <Users className="h-5 w-5 text-gray-400" />
                   {stats?.totalStudents || 0}
                 </div>
@@ -595,18 +595,18 @@ export default function TeacherDashboardPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">Upcoming Lessons</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-300">Upcoming Lessons</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats?.upcomingLessons || 0}</div>
+                <div className="text-2xl font-bold dark:text-white">{stats?.upcomingLessons || 0}</div>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-300">Revenue</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold flex items-center gap-2">
+                <div className="text-2xl font-bold flex items-center gap-2 dark:text-white">
                   <DollarSign className="h-5 w-5 text-green-500" />
                   {stats?.totalRevenue || 0}
                 </div>
@@ -617,7 +617,7 @@ export default function TeacherDashboardPage() {
           {/* Recent Lessons Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Lessons</CardTitle>
+              <CardTitle className="dark:text-white">Recent Lessons</CardTitle>
               <CardDescription>Your most recent lessons and their status</CardDescription>
             </CardHeader>
             <CardContent>
@@ -632,14 +632,14 @@ export default function TeacherDashboardPage() {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
                       <tr>
-                        <th className="text-left p-3">Lesson Title</th>
-                        <th className="text-left p-3">Hobby</th>
-                        <th className="text-left p-3">Date & Time</th>
-                        <th className="text-left p-3">Students</th>
-                        <th className="text-left p-3">Status</th>
-                        <th className="text-left p-3">Actions</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Lesson Title</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Hobby</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Date & Time</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Students</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Status</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -650,10 +650,10 @@ export default function TeacherDashboardPage() {
                         const isFull = studentCount >= lesson.maxStudents;
                         
                         return (
-                          <tr key={lesson.id} className="border-t hover:bg-gray-50">
-                            <td className="p-3 font-medium text-gray-800">{lesson.title}</td>
-                            <td className="p-3 text-gray-600">{lesson.hobby?.name}</td>
-                            <td className="p-3 text-gray-600">
+                          <tr key={lesson.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <td className="p-3 font-medium text-gray-800 dark:text-gray-200">{lesson.title}</td>
+                            <td className="p-3 text-gray-600 dark:text-gray-400">{lesson.hobby?.name}</td>
+                            <td className="p-3 text-gray-600 dark:text-gray-400">
                               {new Date(lesson.dateTime).toLocaleString()}
                             </td>
                             <td className="p-3">
@@ -720,7 +720,7 @@ export default function TeacherDashboardPage() {
           {/* Top Students Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Top Students</CardTitle>
+              <CardTitle className="dark:text-white">Top Students</CardTitle>
               <CardDescription>Students with most lesson registrations</CardDescription>
             </CardHeader>
             <CardContent>
@@ -732,21 +732,21 @@ export default function TeacherDashboardPage() {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
                       <tr>
-                        <th className="text-left p-3">Student Name</th>
-                        <th className="text-left p-3">Email</th>
-                        <th className="text-left p-3">Lessons Taken</th>
-                        <th className="text-left p-3">Status</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Student Name</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Email</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Lessons Taken</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {students?.slice(0, 5).map((student: any) => (
-                        <tr key={student.id} className="border-t hover:bg-gray-50">
-                          <td className="p-3 font-medium text-gray-800">
+                        <tr key={student.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                          <td className="p-3 font-medium text-gray-800 dark:text-gray-200">
                             {student.profile?.firstName} {student.profile?.lastName}
                           </td>
-                          <td className="p-3 text-gray-600">{student.email}</td>
+                          <td className="p-3 text-gray-600 dark:text-gray-400">{student.email}</td>
                           <td className="p-3">
                             <span className="font-medium text-purple-600">{student.registeredLessons}</span>
                           </td>
@@ -794,9 +794,9 @@ export default function TeacherDashboardPage() {
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-2">{lesson.title}</h3>
-                      <p className="text-gray-600 mb-3">{lesson.description}</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-500">
+                      <h3 className="text-xl font-semibold mb-2 dark:text-white">{lesson.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-3">{lesson.description}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-500 dark:text-gray-400">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
                           <span>{new Date(lesson.dateTime).toLocaleString()}</span>
@@ -832,7 +832,7 @@ export default function TeacherDashboardPage() {
       return (
         <Card>
           <CardHeader>
-            <CardTitle>My Students</CardTitle>
+            <CardTitle className="dark:text-white">My Students</CardTitle>
             <CardDescription>Students registered in your lessons</CardDescription>
           </CardHeader>
           <CardContent>
@@ -841,12 +841,12 @@ export default function TeacherDashboardPage() {
             ) : (
               <div className="space-y-3">
                 {students?.map((student: any) => (
-                  <div key={student.id} className="flex justify-between items-center p-3 border rounded-lg">
+                  <div key={student.id} className="flex justify-between items-center p-3 border rounded-lg dark:border-gray-700">
                     <div>
-                      <p className="font-medium">{student.profile?.firstName} {student.profile?.lastName}</p>
-                      <p className="text-sm text-gray-500">{student.email}</p>
+                      <p className="font-medium dark:text-gray-200">{student.profile?.firstName} {student.profile?.lastName}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{student.email}</p>
                     </div>
-                    <div className="text-sm text-gray-500">{student.registeredLessons} lesson(s)</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{student.registeredLessons} lesson(s)</div>
                   </div>
                 ))}
               </div>
@@ -861,7 +861,7 @@ export default function TeacherDashboardPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Share Resource</CardTitle>
+              <CardTitle className="dark:text-white">Share Resource</CardTitle>
               <CardDescription>Share files with your students</CardDescription>
             </CardHeader>
             <CardContent>
@@ -892,7 +892,7 @@ export default function TeacherDashboardPage() {
                   <Label htmlFor="lesson">Select Lesson *</Label>
                   <select
                     id="lesson"
-                    className="w-full border rounded-md px-3 py-2"
+                    className="w-full border rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     value={resourceForm.lessonId}
                     onChange={(e) => setResourceForm({ ...resourceForm, lessonId: e.target.value, receiverId: "" })}
                     required
@@ -907,7 +907,7 @@ export default function TeacherDashboardPage() {
                 {resourceForm.lessonId && (
                   <div>
                     <Label>Share to</Label>
-                    <div className="space-y-2">
+                    <div className="space-y-2 dark:text-gray-300">
                       <label className="flex items-center gap-2">
                         <input
                           type="radio"
@@ -933,7 +933,7 @@ export default function TeacherDashboardPage() {
                     <Label htmlFor="student">Select Student</Label>
                     <select
                       id="student"
-                      className="w-full border rounded-md px-3 py-2"
+                      className="w-full border rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       value={resourceForm.receiverId}
                       onChange={(e) => setResourceForm({ ...resourceForm, receiverId: e.target.value })}
                       required
@@ -968,7 +968,7 @@ export default function TeacherDashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Sent Resources</CardTitle>
+              <CardTitle className="dark:text-white">Sent Resources</CardTitle>
               <CardDescription>Resources you've shared with students</CardDescription>
             </CardHeader>
             <CardContent>
@@ -977,10 +977,10 @@ export default function TeacherDashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {sentResources?.map((resource: any) => (
-                    <div key={resource.id} className="flex justify-between items-center p-3 border rounded-lg">
+                    <div key={resource.id} className="flex justify-between items-center p-3 border rounded-lg dark:border-gray-700">
                       <div>
-                        <p className="font-medium">{resource.title}</p>
-                        {resource.description && <p className="text-sm text-gray-500">{resource.description}</p>}
+                        <p className="font-medium dark:text-gray-200">{resource.title}</p>
+                        {resource.description && <p className="text-sm text-gray-500 dark:text-gray-400">{resource.description}</p>}
                         <p className="text-xs text-gray-400 mt-1">
                           To: {resource.receiver?.profile?.firstName} {resource.receiver?.profile?.lastName} • 
                           Lesson: {resource.lesson?.title} • {new Date(resource.createdAt).toLocaleDateString()}
@@ -1010,7 +1010,7 @@ export default function TeacherDashboardPage() {
       return (
         <Card>
           <CardHeader>
-            <CardTitle>Student Submissions</CardTitle>
+            <CardTitle className="dark:text-white">Student Submissions</CardTitle>
             <CardDescription>Assignments submitted by students</CardDescription>
           </CardHeader>
           <CardContent>
@@ -1019,10 +1019,10 @@ export default function TeacherDashboardPage() {
             ) : (
               <div className="space-y-3">
                 {studentSubmissions?.map((sub: any) => (
-                  <div key={sub.id} className="flex justify-between items-center p-3 border rounded-lg">
+                  <div key={sub.id} className="flex justify-between items-center p-3 border rounded-lg dark:border-gray-700">
                     <div>
-                      <p className="font-medium">{sub.title}</p>
-                      {sub.description && <p className="text-sm text-gray-500">{sub.description}</p>}
+                      <p className="font-medium dark:text-gray-200">{sub.title}</p>
+                      {sub.description && <p className="text-sm text-gray-500 dark:text-gray-400">{sub.description}</p>}
                       <p className="text-xs text-gray-400 mt-1">
                         From: {sub.sender?.profile?.firstName} {sub.sender?.profile?.lastName} • 
                         {sub.lesson?.title && ` Lesson: ${sub.lesson.title}`} • 
@@ -1056,7 +1056,7 @@ export default function TeacherDashboardPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Upload Certificate</CardTitle>
+              <CardTitle className="dark:text-white">Upload Certificate</CardTitle>
               <CardDescription>Upload a certificate image (JPG, PNG) or PDF</CardDescription>
             </CardHeader>
             <CardContent>
@@ -1079,7 +1079,7 @@ export default function TeacherDashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Issue Certificate</CardTitle>
+              <CardTitle className="dark:text-white">Issue Certificate</CardTitle>
               <CardDescription>Select a student to issue a certificate</CardDescription>
             </CardHeader>
             <CardContent>
@@ -1087,7 +1087,7 @@ export default function TeacherDashboardPage() {
                 <div>
                   <Label>Select Student</Label>
                   <select
-                    className="w-full border rounded-md px-3 py-2"
+                    className="w-full border rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     value={selectedStudent?.id || ""}
                     onChange={(e) => {
                       const student = students?.find((s: any) => s.id === parseInt(e.target.value));
@@ -1120,7 +1120,7 @@ export default function TeacherDashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Issued Certificates</CardTitle>
+              <CardTitle className="dark:text-white">Issued Certificates</CardTitle>
               <CardDescription>View all certificates you've issued</CardDescription>
             </CardHeader>
             <CardContent>
@@ -1129,10 +1129,10 @@ export default function TeacherDashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {issuedCertificates?.map((cert: any) => (
-                    <div key={cert.id} className="flex justify-between items-center p-3 border rounded-lg">
+                    <div key={cert.id} className="flex justify-between items-center p-3 border rounded-lg dark:border-gray-700">
                       <div>
-                        <p className="font-medium">{cert.template?.title}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium dark:text-gray-200">{cert.template?.title}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           Issued to: {cert.student?.profile?.firstName} {cert.student?.profile?.lastName}
                         </p>
                         <p className="text-xs text-gray-400">Date: {new Date(cert.issuedAt).toLocaleDateString()}</p>
@@ -1158,7 +1158,7 @@ export default function TeacherDashboardPage() {
       return (
         <Card>
           <CardHeader>
-            <CardTitle>Create New Lesson</CardTitle>
+            <CardTitle className="dark:text-white">Create New Lesson</CardTitle>
             <CardDescription>Add a new lesson for students to join</CardDescription>
           </CardHeader>
           <CardContent>
@@ -1189,7 +1189,7 @@ export default function TeacherDashboardPage() {
                 <Label htmlFor="hobbyId">Hobby Category</Label>
                 <select
                   id="hobbyId"
-                  className="w-full border rounded-md px-3 py-2"
+                  className="w-full border rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   value={formData.hobbyId}
                   onChange={(e) => setFormData({ ...formData, hobbyId: e.target.value })}
                   required
@@ -1252,31 +1252,31 @@ export default function TeacherDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Teacher</Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
-          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+          {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
         </button>
       </div>
 
-      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b">
-            <Link href="/" className="text-2xl font-bold text-purple-600">HobbyHub</Link>
-            <p className="text-sm text-gray-500 mt-1">Teacher Portal</p>
+          <div className="p-6 border-b dark:border-gray-700">
+            <Link href="/" className="text-2xl font-bold text-purple-600 dark:text-purple-400">HobbyHub</Link>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Teacher Portal</p>
           </div>
 
-          <div className="p-4 border-b bg-gray-50">
+          <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                <span className="text-purple-600 font-bold text-lg">
+                <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">
                   {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "T"}
                 </span>
               </div>
               <div>
-                <p className="font-semibold text-gray-800">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-gray-500">{user?.email}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-100">{user?.profile?.firstName} {user?.profile?.lastName}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -1291,8 +1291,8 @@ export default function TeacherDashboardPage() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   activeTab === item.id
-                    ? "bg-purple-50 text-purple-600"
-                    : "text-gray-600 hover:bg-gray-50"
+                    ? "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 }`}
               >
                 {item.icon}
@@ -1301,23 +1301,23 @@ export default function TeacherDashboardPage() {
             ))}
           </nav>
 
-          <div className="p-4 border-t space-y-2">
-            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+          <div className="p-4 border-t dark:border-gray-700 space-y-2">
+            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <ShoppingBag className="w-5 h-5" />
               <span className="font-medium">Shop</span>
             </Link>
-            <Link href="/events" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/events" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Trophy className="w-5 h-5" />
               <span className="font-medium">Events</span>
             </Link>
-            <Link href="/chat" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/chat" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <MessageSquare className="w-5 h-5" />
               <span className="font-medium">Messages</span>
             </Link>
-           <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+           <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
             </Link>
-            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
+            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
               <LogOut className="w-5 h-5" />
               <span className="font-medium">Logout</span>
             </button>
