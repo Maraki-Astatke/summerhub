@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import prisma from '../lib/prisma.js';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -36,15 +37,29 @@ export function requireRole(allowedRoles: string[]) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     
-    const userRole = req.user.role;
-    
-    if (!allowedRoles.includes(userRole)) {
-      return res.status(403).json({ 
-        error: `Forbidden. Required roles: ${allowedRoles.join(', ')}. Your role: ${userRole}` 
+    try {
+      // Import prisma dynamically or at the top of the file
+      // Since it's not imported at the top, we'll import it here or at the top
+      const userRoles = await prisma.userRole.findMany({
+        where: { userId: req.user.userId },
+        include: { role: true }
       });
+      
+      const roleNames = userRoles.map(ur => ur.role.name);
+      
+      const hasAllowedRole = allowedRoles.some(role => roleNames.includes(role));
+      
+      if (!hasAllowedRole) {
+        return res.status(403).json({ 
+          error: `Forbidden. Required roles: ${allowedRoles.join(', ')}. Your role: ${req.user.role || 'undefined'}` 
+        });
+      }
+      
+      next();
+    } catch (error) {
+      console.error('Role check error:', error);
+      return res.status(500).json({ error: 'Internal server error while verifying roles' });
     }
-    
-    next();
   };
 }
 
