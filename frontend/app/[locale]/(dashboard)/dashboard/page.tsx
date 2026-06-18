@@ -78,6 +78,9 @@ export default function DashboardPage() {
     if (user?.roles?.includes("seller")) {
       router.push("/seller");
     }
+    if (user?.roles?.includes("parent")) {
+      router.push("/parent");
+    }
   }, [user, authLoading, router]);
 
   const handleLogout = () => {

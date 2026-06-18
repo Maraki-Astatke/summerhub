@@ -154,7 +154,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                     {user.profile?.firstName || user.email.split('@')[0]}
                   </p>
                   <p className="text-[9px] font-bold text-[#FF7A45] uppercase tracking-wider">
-                    {hasRole('admin') ? 'Admin' : hasRole('teacher') ? 'Teacher' : hasRole('seller') ? 'Seller' : 'Student'}
+                    {hasRole('admin') ? 'Admin' : hasRole('teacher') ? 'Teacher' : hasRole('seller') ? 'Seller' : hasRole('parent') ? 'Parent' : hasRole('scholarship_giver') ? 'Scholar Provider' : 'Student'}
                   </p>
                 </div>
                 
@@ -261,6 +261,13 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                   <Link href={`/${locale}/seller`} onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 text-base font-bold text-[#1F2937] hover:text-[#FF7A45]">
                     <ShoppingBag className="w-5 h-5 text-[#FF7A45]" />
                     Seller
+                  </Link>
+                )}
+
+                {hasRole('parent') && (
+                  <Link href={`/${locale}/parent`} onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 text-base font-bold text-[#1F2937] hover:text-[#FF7A45]">
+                    <User className="w-5 h-5 text-[#FF7A45]" />
+                    Parent
                   </Link>
                 )}
 
