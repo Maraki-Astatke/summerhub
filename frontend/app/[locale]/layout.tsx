@@ -45,7 +45,7 @@ export default async function RootLayout({
     <html lang={locale} className="scroll-smooth">
       <body className={`${poppins.variable} ${inter.variable} antialiased`}>
         <NextIntlClientProvider messages={messages}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
             <QueryProvider>
               <AuthProvider>
                 {children}

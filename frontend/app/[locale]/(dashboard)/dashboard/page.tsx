@@ -307,46 +307,46 @@ export default function DashboardPage() {
       return (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="border border-gray-100 rounded-xl">
+            <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl">
               <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">Hobbies Discovered</CardTitle>
+                <CardTitle className="text-xs font-medium text-gray-500 dark:text-gray-400">Hobbies Discovered</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <div className="text-2xl font-bold text-gray-800">{stats?.hobbiesDiscovered || 0}</div>
+                <div className="text-2xl font-bold text-gray-800 dark:text-white">{stats?.hobbiesDiscovered || 0}</div>
               </CardContent>
             </Card>
-            <Card className="border border-gray-100 rounded-xl">
+            <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl">
               <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">Lessons Taken</CardTitle>
+                <CardTitle className="text-xs font-medium text-gray-500 dark:text-gray-400">Lessons Taken</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <div className="text-2xl font-bold text-gray-800">{stats?.registeredLessons || 0}</div>
+                <div className="text-2xl font-bold text-gray-800 dark:text-white">{stats?.registeredLessons || 0}</div>
               </CardContent>
             </Card>
-            <Card className="border border-gray-100 rounded-xl">
+            <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl">
               <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">Blog Posts</CardTitle>
+                <CardTitle className="text-xs font-medium text-gray-500 dark:text-gray-400">Blog Posts</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <div className="text-2xl font-bold text-gray-800">{stats?.blogPostsWritten || 0}</div>
+                <div className="text-2xl font-bold text-gray-800 dark:text-white">{stats?.blogPostsWritten || 0}</div>
               </CardContent>
             </Card>
-            <Card className="border border-gray-100 rounded-xl">
+            <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl">
               <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">Orders</CardTitle>
+                <CardTitle className="text-xs font-medium text-gray-500 dark:text-gray-400">Orders</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <div className="text-2xl font-bold text-gray-800">{stats?.ordersPlaced || 0}</div>
+                <div className="text-2xl font-bold text-gray-800 dark:text-white">{stats?.ordersPlaced || 0}</div>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="border border-gray-100 rounded-xl overflow-hidden mt-8">
+          <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden mt-8">
             <CardHeader className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl font-bold">🔥 Popular Hobbies</CardTitle>
-                  <CardDescription>Most loved activities by our community</CardDescription>
+                  <CardTitle className="text-xl font-bold dark:text-white">🔥 Popular Hobbies</CardTitle>
+                  <CardDescription className="dark:text-gray-400">Most loved activities by our community</CardDescription>
                 </div>
                 <Link href="/hobbies">
                   <Button variant="ghost" className="text-[#FF7A45] hover:text-[#ff8f61]">View All →</Button>
@@ -359,18 +359,18 @@ export default function DashboardPage() {
                   <div
                     key={hobby.id}
                     onClick={() => router.push(`/hobbies/${hobby.id}`)}
-                    className="flex items-center gap-4 p-4 border border-gray-100 rounded-xl bg-white hover:shadow-md transition-all duration-300 cursor-pointer group"
+                    className="flex items-center gap-4 p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900/50 hover:shadow-md transition-all duration-300 cursor-pointer group"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-[#FFF2EB] flex items-center justify-center text-[#FF7A45] group-hover:bg-[#FF7A45] group-hover:text-white transition-colors duration-300">
+                    <div className="w-12 h-12 rounded-xl bg-[#FFF2EB] dark:bg-[#FF7A45]/10 flex items-center justify-center text-[#FF7A45] group-hover:bg-[#FF7A45] group-hover:text-white transition-colors duration-300">
                       {getIcon(hobby.icon)}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800 group-hover:text-[#FF7A45] transition-colors">{hobby.name}</h4>
-                      <p className="text-xs text-gray-500">{hobby.category?.name}</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-100 group-hover:text-[#FF7A45] transition-colors">{hobby.name}</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{hobby.category?.name}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-bold text-[#FF7A45]">{hobby.studentCount || 0}</p>
-                      <p className="text-xs text-gray-400">learners</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">learners</p>
                     </div>
                   </div>
                 ))}
@@ -379,7 +379,7 @@ export default function DashboardPage() {
           </Card>
 
           <div className="mt-8">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               <Button variant="outline" className="h-20 flex flex-col gap-2 rounded-xl" onClick={() => router.push("/hobbies")}>
                 <BookOpen className="h-5 w-5 text-[#FF7A45]" />
@@ -405,31 +405,31 @@ export default function DashboardPage() {
 
     if (activeTab === "progress") {
       return (
-        <Card className="border border-gray-100 rounded-xl overflow-hidden">
+        <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
           <CardHeader className="p-6">
-            <CardTitle className="text-xl font-bold">Learning Progress</CardTitle>
-            <CardDescription>Track your active courses and completion status</CardDescription>
+            <CardTitle className="text-xl font-bold dark:text-white">Learning Progress</CardTitle>
+            <CardDescription className="dark:text-gray-400">Track your active courses and completion status</CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0 space-y-4">
             {progress?.allHobbies?.length === 0 ? (
               <div className="text-center py-8 space-y-4">
-                <p className="text-gray-500">No active courses. Explore popular hobbies below to begin!</p>
+                <p className="text-gray-500 dark:text-gray-400">No active courses. Explore popular hobbies below to begin!</p>
                 <Button className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white" onClick={() => router.push("/hobbies")}>
                   Explore Hobbies
                 </Button>
               </div>
             ) : (
               progress?.allHobbies?.map((item: any) => (
-                <div key={item.id} className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 py-3 border-b border-gray-100 last:border-0">
+                <div key={item.id} className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
                   <div>
-                    <span className="font-semibold text-gray-800">{item.hobby.name}</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-100">{item.hobby.name}</span>
                     <p className="text-xs text-[#FF7A45] font-medium">{item.hobby.category?.name}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="w-32 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div className="h-full bg-[#FF7A45] rounded-full" style={{ width: `${(item.interestLevel / 5) * 100}%` }} />
                     </div>
-                    <span className="text-xs font-semibold text-gray-600">{item.interestLevel}/5</span>
+                    <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">{item.interestLevel}/5</span>
                   </div>
                 </div>
               ))
@@ -441,27 +441,27 @@ export default function DashboardPage() {
 
     if (activeTab === "certificates") {
       return (
-        <Card className="border border-gray-100 rounded-xl overflow-hidden">
+        <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
           <CardHeader className="p-6">
-            <CardTitle className="text-xl font-bold">Your Certificates</CardTitle>
-            <CardDescription>Certificates you've earned from your teachers</CardDescription>
+            <CardTitle className="text-xl font-bold dark:text-white">Your Certificates</CardTitle>
+            <CardDescription className="dark:text-gray-400">Certificates you've earned from your teachers</CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0">
             {certificates?.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No certificates earned yet. Complete courses to get certified!</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No certificates earned yet. Complete courses to get certified!</p>
             ) : (
               <div className="space-y-3">
                 {certificates?.map((cert: any) => (
-                  <div key={cert.id} className="flex justify-between items-center p-4 border border-gray-100 rounded-xl bg-gray-50">
+                  <div key={cert.id} className="flex justify-between items-center p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50">
                     <div>
-                      <p className="font-semibold text-gray-800">{cert.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="font-semibold text-gray-800 dark:text-gray-100">{cert.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                         {cert.hobby} • {cert.teacher}
                       </p>
                       {cert.customMessage && (
-                        <p className="text-xs text-purple-600 mt-1 italic">"{cert.customMessage}"</p>
+                        <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 italic">"{cert.customMessage}"</p>
                       )}
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                         Issued: {new Date(cert.issuedAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -494,30 +494,30 @@ export default function DashboardPage() {
           </div>
 
           {/* Resources List */}
-          <Card className="border border-gray-100 rounded-xl overflow-hidden">
+          <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
             <CardHeader className="p-6">
-              <CardTitle className="text-xl font-bold">My Resources</CardTitle>
-              <CardDescription>Files shared by your teachers</CardDescription>
+              <CardTitle className="text-xl font-bold dark:text-white">My Resources</CardTitle>
+              <CardDescription className="dark:text-gray-400">Files shared by your teachers</CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-0">
               {resourcesLoading ? (
-                <div className="text-center py-8">Loading...</div>
+                <div className="text-center py-8 dark:text-gray-400">Loading...</div>
               ) : !studentResources || studentResources.length === 0 ? (
                 <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No resources shared yet</p>
-                  <p className="text-sm text-gray-400 mt-1">Teachers will share learning materials here</p>
+                  <FileText className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-500 dark:text-gray-400">No resources shared yet</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Teachers will share learning materials here</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {studentResources?.map((resource: any) => (
-                    <div key={resource.id} className="flex justify-between items-center p-4 border border-gray-100 rounded-xl bg-gray-50">
+                    <div key={resource.id} className="flex justify-between items-center p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50">
                       <div>
-                        <p className="font-semibold text-gray-800">{resource.title}</p>
+                        <p className="font-semibold text-gray-800 dark:text-gray-100">{resource.title}</p>
                         {resource.description && (
-                          <p className="text-sm text-gray-500 mt-1">{resource.description}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{resource.description}</p>
                         )}
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                           From: {resource.sender?.profile?.firstName} {resource.sender?.profile?.lastName}
                           {resource.lesson?.title && ` • Lesson: ${resource.lesson.title}`}
                           {` • ${new Date(resource.createdAt).toLocaleDateString()}`}
@@ -548,33 +548,33 @@ export default function DashboardPage() {
       const hasRecommendations = recommendations && recommendations.length > 0;
 
       return (
-        <Card className="border border-gray-100 rounded-xl overflow-hidden">
+        <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
           <CardHeader className="p-6">
-            <CardTitle className="text-xl font-bold">Recommended for You</CardTitle>
-            <CardDescription>Personalized recommendations from our experts</CardDescription>
+            <CardTitle className="text-xl font-bold dark:text-white">Recommended for You</CardTitle>
+            <CardDescription className="dark:text-gray-400">Personalized recommendations from our experts</CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0">
             {!hasRecommendations ? (
               <div className="text-center py-8 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto">
-                  <MessageSquare className="h-8 w-8 text-gray-400" />
+                <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto">
+                  <MessageSquare className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                 </div>
-                <p className="text-gray-500">No recommendations yet. Our experts will review your quiz answers and suggest hobbies for you soon!</p>
+                <p className="text-gray-500 dark:text-gray-400">No recommendations yet. Our experts will review your quiz answers and suggest hobbies for you soon!</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {recommendations?.map((rec: any) => (
-                  <div key={rec.id} className="p-5 border rounded-xl bg-gradient-to-br from-purple-50 to-white hover:shadow-md transition-all duration-300">
+                  <div key={rec.id} className="p-5 border dark:border-gray-700 rounded-xl bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-800 hover:shadow-md transition-all duration-300">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <GraduationCap className="h-6 w-6 text-purple-600" />
+                      <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                        <GraduationCap className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-lg text-gray-800">{rec.hobby?.name}</h3>
-                        <p className="text-sm text-gray-500 mt-1">{rec.hobby?.category?.name}</p>
+                        <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{rec.hobby?.name}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{rec.hobby?.category?.name}</p>
                         {rec.reason && (
-                          <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
-                            <p className="text-sm text-purple-700 italic">"{rec.reason}"</p>
+                          <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
+                            <p className="text-sm text-purple-700 dark:text-purple-300 italic">"{rec.reason}"</p>
                           </div>
                         )}
                         <div className="flex items-center gap-4 mt-3">
@@ -585,7 +585,7 @@ export default function DashboardPage() {
                           >
                             Explore Hobby
                           </Button>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
                             Recommended by: {rec.admin?.profile?.firstName} {rec.admin?.profile?.lastName}
                           </p>
                         </div>
@@ -602,16 +602,16 @@ export default function DashboardPage() {
 
     if (activeTab === "orders") {
       return (
-        <Card className="border border-gray-100 rounded-xl overflow-hidden">
+        <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
           <CardHeader className="p-6">
-            <CardTitle className="text-xl font-bold">Order History</CardTitle>
-            <CardDescription>Track your purchases and delivery status</CardDescription>
+            <CardTitle className="text-xl font-bold dark:text-white">Order History</CardTitle>
+            <CardDescription className="dark:text-gray-400">Track your purchases and delivery status</CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0">
             {!orders || orders.length === 0 ? (
               <div className="text-center py-8">
-                <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No orders yet</p>
+                <Package className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-gray-500 dark:text-gray-400">No orders yet</p>
                 <Link href="/shops">
                   <Button className="mt-4 bg-[#FF7A45] hover:bg-[#ff8f61]">Start Shopping</Button>
                 </Link>
@@ -619,42 +619,42 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {orders?.map((order: any) => (
-                  <div key={order.id} className="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-all duration-300">
+                  <div key={order.id} className="border border-gray-100 dark:border-gray-700 rounded-xl p-5 hover:shadow-md transition-all duration-300">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
                       <div>
                         <div className="flex items-center gap-3 flex-wrap">
-                          <p className="font-bold text-gray-800">Order #{order.id}</p>
+                          <p className="font-bold text-gray-800 dark:text-gray-100">Order #{order.id}</p>
                           <span className={`text-xs px-3 py-1 rounded-full ${getOrderStatusBadge(order.status)}`}>
                             {getOrderStatusText(order.status)}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                           {new Date(order.createdAt).toLocaleDateString()} • {new Date(order.createdAt).toLocaleTimeString()}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-xl font-bold text-[#FF7A45]">{order.totalAmount} ETB</p>
-                        <p className="text-xs text-gray-400">{order.items?.length || 0} item(s)</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{order.items?.length || 0} item(s)</p>
                       </div>
                     </div>
                     
                     <div className="space-y-2 mb-4">
                       {order.items?.slice(0, 3).map((item: any) => (
                         <div key={item.id} className="flex justify-between text-sm">
-                          <span className="text-gray-600">
-                            {item.product?.name} <span className="text-gray-400">x{item.quantity}</span>
+                          <span className="text-gray-600 dark:text-gray-300">
+                            {item.product?.name} <span className="text-gray-400 dark:text-gray-500">x{item.quantity}</span>
                           </span>
-                          <span className="font-medium text-gray-700">{item.priceAtTime * item.quantity} ETB</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">{item.priceAtTime * item.quantity} ETB</span>
                         </div>
                       ))}
                       {order.items?.length > 3 && (
-                        <p className="text-sm text-gray-400">+{order.items.length - 3} more items</p>
+                        <p className="text-sm text-gray-400 dark:text-gray-500">+{order.items.length - 3} more items</p>
                       )}
                     </div>
                     
-                    <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                    <div className="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
                       {order.shippingAddress && (
-                        <p className="text-xs text-gray-400 truncate max-w-[200px]">
+                        <p className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[200px]">
                           📦 {order.shippingAddress}
                         </p>
                       )}
@@ -677,13 +677,13 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Submit Assignment Modal */}
       {showSubmitModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-auto">
-            <div className="p-6 border-b sticky top-0 bg-white">
-              <h2 className="text-xl font-bold">Submit Assignment</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-auto">
+            <div className="p-6 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
+              <h2 className="text-xl font-bold dark:text-white">Submit Assignment</h2>
             </div>
             <div className="p-6">
               <form onSubmit={handleSubmitAssignment} className="space-y-4">
@@ -713,7 +713,7 @@ export default function DashboardPage() {
                   <Label htmlFor="sub-teacher">Select Teacher *</Label>
                   <select
                     id="sub-teacher"
-                    className="w-full border rounded-md px-3 py-2"
+                    className="w-full border dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
                     value={submissionForm.teacherId}
                     onChange={(e) => setSubmissionForm({ ...submissionForm, teacherId: e.target.value })}
                     required
@@ -731,7 +731,7 @@ export default function DashboardPage() {
                   <Label htmlFor="sub-lesson">Related Lesson (Optional)</Label>
                   <select
                     id="sub-lesson"
-                    className="w-full border rounded-md px-3 py-2"
+                    className="w-full border dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
                     value={submissionForm.lessonId}
                     onChange={(e) => setSubmissionForm({ ...submissionForm, lessonId: e.target.value })}
                   >
@@ -766,21 +766,21 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-[#FF7A45]">HobbyHub</Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
-          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+          {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
         </button>
       </div>
 
-      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b">
+          <div className="p-6 border-b dark:border-gray-700">
             <Link href="/" className="text-2xl font-bold text-[#FF7A45]">HobbyHub</Link>
-            <p className="text-sm text-gray-500 mt-1">Student Portal</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Student Portal</p>
           </div>
 
-          <div className="p-4 border-b bg-gray-50">
+          <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 flex items-center justify-center">
                 <span className="text-[#FF7A45] font-bold text-lg">
@@ -788,8 +788,8 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div>
-                <p className="font-semibold text-gray-800">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-gray-500">{user?.email}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-100">{user?.profile?.firstName} {user?.profile?.lastName}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -800,7 +800,7 @@ export default function DashboardPage() {
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id ? "bg-[#FF7A45]/10 text-[#FF7A45]" : "text-gray-600 hover:bg-gray-50"
+                  activeTab === item.id ? "bg-[#FF7A45]/10 text-[#FF7A45]" : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 }`}
               >
                 {item.icon}
@@ -809,23 +809,23 @@ export default function DashboardPage() {
             ))}
           </nav>
 
-          <div className="p-4 border-t space-y-2">
-            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+          <div className="p-4 border-t dark:border-gray-700 space-y-2">
+            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Home className="w-5 h-5" /><span className="font-medium">Home</span>
             </Link>
-            <Link href="/lessons" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/lessons" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Video className="w-5 h-5" /><span className="font-medium">Lessons</span>
             </Link>
-            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <ShoppingBag className="w-5 h-5" /><span className="font-medium">Shop</span>
             </Link>
-            <Link href="/chat" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/chat" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <MessageCircle className="w-5 h-5" /><span className="font-medium">Messages</span>
             </Link>
-            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
             </Link>
-            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
+            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
               <LogOut className="w-5 h-5" /><span className="font-medium">Logout</span>
             </button>
           </div>
@@ -837,8 +837,8 @@ export default function DashboardPage() {
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Student Dashboard</h1>
-            <p className="text-gray-500 mt-1">Welcome back, {user?.profile?.firstName || "Student"}!</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Student Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Welcome back, {user?.profile?.firstName || "Student"}!</p>
           </div>
           {renderContent()}
         </div>
@@ -849,7 +849,7 @@ export default function DashboardPage() {
 
 // Helper components
 const Label = ({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) => (
-  <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 mb-1">
+  <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
     {children}
   </label>
 );
@@ -863,7 +863,7 @@ const Input = ({ id, value, onChange, required, placeholder, type = "text", acce
     required={required}
     placeholder={placeholder}
     accept={accept}
-    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
   />
 );
 
@@ -874,6 +874,6 @@ const Textarea = ({ id, value, onChange, rows = 3, placeholder }: any) => (
     onChange={onChange}
     rows={rows}
     placeholder={placeholder}
-    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
   />
 );

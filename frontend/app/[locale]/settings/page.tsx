@@ -14,10 +14,10 @@ import { useAuth } from '@/providers/auth-provider';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast, Toaster } from 'sonner';
-import { 
-  Moon, Sun, Bell, Globe, Shield, Save, CheckCircle, 
-  Languages, User, Mail, Phone, MapPin, School, Calendar, 
-  GraduationCap, Briefcase, Building2, LogOut 
+import {
+  Moon, Sun, Bell, Globe, Shield, Save, CheckCircle,
+  Languages, User, Mail, Phone, MapPin, School, Calendar,
+  GraduationCap, Briefcase, Building2, LogOut
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -26,7 +26,7 @@ export default function SettingsPage() {
   const { user, isLoading: authLoading, logout } = useAuth();
   const currentLocale = useLocale();
   const { theme, setTheme } = useTheme();
-  
+
   const [language, setLanguage] = useState(currentLocale);
   const [isSaving, setIsSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -55,11 +55,11 @@ export default function SettingsPage() {
   const handleLanguageChange = (newLanguage: string) => {
     setLanguage(newLanguage);
     localStorage.setItem('language', newLanguage);
-    
+
     const currentPath = window.location.pathname;
     const newPath = currentPath.replace(`/${currentLocale}`, `/${newLanguage}`);
     router.push(newPath);
-    
+
     toast.success('Language changed', {
       description: `Language updated to ${newLanguage === 'en' ? 'English' : 'አማርኛ'}`,
     });
@@ -106,7 +106,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Toaster position="top-center" richColors />
-      
+
       <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-4 flex justify-between items-center">
           <Link href="/" className="text-xl font-bold text-[#FF7A45]">
@@ -154,14 +154,13 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div
                     onClick={() => handleThemeChange('light')}
-                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
-                      theme === 'light' 
-                        ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
-                    }`}
+                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${theme === 'light'
+                      ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <Sun className="w-6 h-6 text-yellow-500" />
@@ -173,11 +172,10 @@ export default function SettingsPage() {
 
                   <div
                     onClick={() => handleThemeChange('dark')}
-                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
-                      theme === 'dark' 
-                        ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
-                    }`}
+                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${theme === 'dark'
+                      ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <Moon className="w-6 h-6 text-indigo-500" />
@@ -187,21 +185,7 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">Dark mode for reduced eye strain</p>
                   </div>
 
-                  <div
-                    onClick={() => handleThemeChange('system')}
-                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
-                      theme === 'system' 
-                        ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <Globe className="w-6 h-6 text-green-500" />
-                      {theme === 'system' && <CheckCircle className="w-5 h-5 text-[#FF7A45]" />}
-                    </div>
-                    <h3 className="font-semibold text-gray-800 dark:text-white mb-1">System</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Follow your device settings</p>
-                  </div>
+
                 </div>
               </CardContent>
             </Card>
@@ -223,11 +207,10 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div
                     onClick={() => handleLanguageChange('en')}
-                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
-                      language === 'en' 
-                        ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
-                    }`}
+                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${language === 'en'
+                      ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -240,11 +223,10 @@ export default function SettingsPage() {
 
                   <div
                     onClick={() => handleLanguageChange('am')}
-                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
-                      language === 'am' 
-                        ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
-                    }`}
+                    className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${language === 'am'
+                      ? 'border-[#FF7A45] bg-orange-50 dark:bg-orange-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-[#FF7A45]/50'
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -393,9 +375,9 @@ export default function SettingsPage() {
 
                 {/* Logout Button */}
                 <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
-                  <Button 
+                  <Button
                     onClick={handleLogout}
-                    variant="destructive" 
+                    variant="destructive"
                     className="rounded-xl"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
