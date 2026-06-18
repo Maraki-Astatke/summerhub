@@ -254,16 +254,18 @@ router.get('/parent/child/:id/quiz-results',
       return res.status(404).json({ error: 'No quiz results found' });
     }
 
-    const recommendedHobbies = await prisma.hobby.findMany({
-      where: {
-        id: { in: quizResult.topHobbyIds }
+    const adminRecommendations = await prisma.studentRecommendation.findMany({
+      where: { studentId: parseInt(id) },
+      include: {
+        hobby: { include: { category: true } },
+        admin: { include: { profile: true } }
       },
-      include: { category: true }
+      orderBy: { createdAt: 'desc' }
     });
 
     res.json({
       completedAt: quizResult.completedAt,
-      recommendations: recommendedHobbies
+      recommendations: adminRecommendations
     });
   }
 );

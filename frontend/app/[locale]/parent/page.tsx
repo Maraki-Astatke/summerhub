@@ -400,11 +400,24 @@ export default function ParentDashboardPage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {childQuizResults.recommendations?.map((hobby: any) => (
-                      <div key={hobby.id} className="p-3 border rounded-lg">
-                        <h4 className="font-semibold">{hobby.name}</h4>
-                        <p className="text-sm text-gray-500">{hobby.category?.name}</p>
-                        <p className="text-xs text-gray-400 mt-1">{hobby.description}</p>
+                    {childQuizResults.recommendations?.map((rec: any) => (
+                      <div key={rec.id} className="p-4 border rounded-xl bg-gradient-to-br from-purple-50 to-white hover:shadow-md transition-all duration-300">
+                        <div className="flex items-start gap-4">
+                          <div className="flex-1">
+                            <h4 className="font-bold text-lg text-gray-800">{rec.hobby?.name}</h4>
+                            <p className="text-sm text-gray-500 mt-1">{rec.hobby?.category?.name}</p>
+                            {rec.reason && (
+                              <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
+                                <p className="text-sm text-purple-700 italic">"{rec.reason}"</p>
+                              </div>
+                            )}
+                            <div className="mt-3">
+                              <p className="text-xs text-gray-400">
+                                Recommended by: {rec.admin?.profile?.firstName} {rec.admin?.profile?.lastName}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
