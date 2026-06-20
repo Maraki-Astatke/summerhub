@@ -1,0 +1,114 @@
+import axios from 'axios';
+const CHAPA_API = 'https://api.chapa.co/v1';
+const CHAPA_SECRET = process.env.CHAPA_SECRET_KEY;
+// ✅ SET THIS TO TRUE FOR DEVELOPMENT
+const USE_MOCK_PAYMENT = true;
+export async function initializePayment(email, amount, orderId, firstName, lastName) {
+    // 🔧 MOCK MODE - Skip real Chapa during development
+    if (USE_MOCK_PAYMENT) {
+        console.log('🔧 MOCK PAYMENT MODE - Chapa bypassed');
+        const tx_ref = `mock-${orderId}-${Date.now()}`;
+        // Auto-mark order as paid after 1 second
+        setTimeout(async () => {
+            try {
+                const { default: prisma } = await import('../lib/prisma.js');
+                await prisma.order.update({
+                    where: { id: orderId },
+                    data: { status: 'paid', paymentId: tx_ref }
+                });
+                console.log(`✅ Mock: Order ${orderId} marked as paid`);
+            }
+            catch (err) {
+                console.error('Mock payment update error:', err);
+            }
+        }, 1000);
+        return {
+            checkoutUrl: `http://localhost:3000/orders/${orderId}?payment=success&mock=true`,
+            tx_ref: tx_ref
+        };
+    }
+    // REAL CHAPA INTEGRATION (for production)
+    try {
+        const tx_ref = `hobbyhub-${orderId}-${Date.now()}`;
+        console.log('📤 Sending to Chapa:', {
+            amount: amount.toString(),
+            email,
+            orderId,
+            tx_ref
+        });
+        const response = await axios.post(`${CHAPA_API}/transaction/initialize`, {
+            amount: amount.toString(),
+            currency: 'ETB',
+            email: email,
+            first_name: firstName,
+            last_name: lastName,
+            tx_ref: tx_ref,
+            callback_url: `https://yourdomain.com/api/payment/verify/${tx_ref}`, // Must be HTTPS in production
+            return_url: `https://yourdomain.com/orders/${orderId}`,
+            customization: {
+                title: 'HobbyHub Payment',
+                description: `Order #${orderId}`,
+                logo: 'https://hobbyhub.com/logo.png'
+            }
+        }, {
+            headers: {
+                Authorization: `Bearer ${CHAPA_SECRET}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log('✅ Chapa response:', response.data);
+        if (response.data.status === 'success') {
+            return {
+                checkoutUrl: response.data.data.checkout_url,
+                tx_ref: tx_ref
+            };
+        }
+        throw new Error(response.data.message || 'Payment initialization failed');
+    }
+    catch (error) {
+        console.error('❌ Chapa Error Details:');
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Data:', JSON.stringify(error.response.data, null, 2));
+            // Extract the actual error message
+            const chapaError = error.response.data;
+            if (chapaError.message) {
+                if (typeof chapaError.message === 'object') {
+                    const errorMessages = Object.entries(chapaError.message)
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join(', ');
+                    throw new Error(errorMessages);
+                }
+                else {
+                    throw new Error(chapaError.message);
+                }
+            }
+        }
+        throw new Error(`Payment initialization failed: ${error.message}`);
+    }
+}
+export async function verifyPayment(tx_ref) {
+    // Mock mode
+    if (USE_MOCK_PAYMENT && tx_ref.startsWith('mock-')) {
+        console.log('🔧 Mock verification for:', tx_ref);
+        return {
+            data: {
+                status: 'success',
+                tx_ref: tx_ref
+            }
+        };
+    }
+    // Real verification
+    try {
+        const response = await axios.get(`${CHAPA_API}/transaction/verify/${tx_ref}`, {
+            headers: {
+                Authorization: `Bearer ${CHAPA_SECRET}`
+            }
+        });
+        return response.data;
+    }
+    catch (error) {
+        console.error('Verify payment error:', error.response?.data || error.message);
+        throw new Error('Payment verification failed');
+    }
+}

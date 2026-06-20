@@ -137,6 +137,7 @@ router.post('/register', registerLimiter, [
         password: hashedPassword,
         phone,
         isVerified: false,
+        isActive: false,
         emailVerifications: {
           create: {
             code: verificationToken,
@@ -168,9 +169,9 @@ router.post('/register', registerLimiter, [
 
     try {
       await sendVerificationEmail(email, verificationToken);
-      console.log(`✅ Verification email sent to ${email}`);
+      console.log(`\u2705 Verification email sent to ${email}`);
     } catch (emailError) {
-      console.error('❌ Failed to send email:', emailError);
+      console.error('\u274C Failed to send email:', emailError);
     }
 
     const { password: _, ...userWithoutPassword } = user;
@@ -216,7 +217,7 @@ async function trackFailedLogin(email, ipAddress) {
         where: { email },
         data: { isActive: false }
       });
-      console.log(`🔒 Account locked for ${email} due to too many failed attempts`);
+      console.log(`\ud83d\udd14 Account locked for ${email} due to too many failed attempts`);
     }
     
     return failedCount;
@@ -266,7 +267,7 @@ router.post('/login', loginLimiter, [
 
     if (!user.isActive) {
       return res.status(401).json({ 
-        error: 'Account is locked due to too many failed attempts. Please contact support.' 
+        error: 'Your account is pending admin approval or has been deactivated. Please contact support.' 
       });
     }
 

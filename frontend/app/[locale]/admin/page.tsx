@@ -57,6 +57,7 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState("users");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
+  const [userFilter, setUserFilter] = useState<"all" | "pending" | "active">("all");
   
   // Quiz state - SIMPLIFIED (no isActive)
   const [isQuizDialogOpen, setIsQuizDialogOpen] = useState(false);
@@ -255,11 +256,51 @@ export default function AdminDashboardPage() {
     }
 
     if (activeTab === "users") {
+      const filteredUsers = users?.data?.filter((u: any) => {
+        if (userFilter === "pending") return !u.isActive;
+        if (userFilter === "active") return u.isActive;
+        return true;
+      }) || [];
+
       return (
         <Card className="dark:bg-gray-800 dark:border-gray-700">
-          <CardHeader>
-            <CardTitle className="dark:text-white">All Users</CardTitle>
-            <CardDescription className="dark:text-gray-400">Manage user accounts, roles, and status</CardDescription>
+          <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between pb-4 space-y-4 md:space-y-0">
+            <div>
+              <CardTitle className="dark:text-white">User Management</CardTitle>
+              <CardDescription className="dark:text-gray-400">Manage user accounts, roles, and approvals</CardDescription>
+            </div>
+            <div className="flex gap-2 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg self-start md:self-auto">
+              <button
+                onClick={() => setUserFilter("all")}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  userFilter === "all"
+                    ? "bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                }`}
+              >
+                All ({users?.data?.length || 0})
+              </button>
+              <button
+                onClick={() => setUserFilter("pending")}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  userFilter === "pending"
+                    ? "bg-white dark:bg-gray-800 text-yellow-600 dark:text-yellow-400 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                }`}
+              >
+                Pending Approval ({users?.data?.filter((u: any) => !u.isActive).length || 0})
+              </button>
+              <button
+                onClick={() => setUserFilter("active")}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  userFilter === "active"
+                    ? "bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                }`}
+              >
+                Active ({users?.data?.filter((u: any) => u.isActive).length || 0})
+              </button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -276,53 +317,61 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users?.data?.map((user: any) => (
-                    <tr key={user.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td className="p-3 dark:text-gray-300">{user.id}</td>
-                      <td className="p-3 dark:text-gray-300">{user.email}</td>
-                      <td className="p-3 dark:text-gray-300">
-                        {user.profile?.firstName} {user.profile?.lastName}
-                      </td>
-                      <td className="p-3">
-                        <div className="flex flex-wrap gap-1">
-                          {user.roles?.map((r: any) => (
-                            <span key={r.role.id} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 rounded">
-                              {r.role.name}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-3">
-                        <span className={`text-xs px-2 py-1 rounded ${user.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                          {user.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td className="p-3">
-                        <span className={`text-xs px-2 py-1 rounded ${user.isVerified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                          {user.isVerified ? "Yes" : "No"}
-                        </span>
-                      </td>
-                      <td className="p-3">
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => {
-                            setSelectedUserId(user.id);
-                            setSelectedRoles(user.roles?.map((r: any) => r.role.id) || []);
-                          }}>
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          {user.isActive ? (
-                            <Button size="sm" variant="outline" className="text-red-500" onClick={() => deactivateUserMutation.mutate(user.id)}>
-                              Deactivate
-                            </Button>
-                          ) : (
-                            <Button size="sm" variant="outline" className="text-green-500" onClick={() => activateUserMutation.mutate(user.id)}>
-                              Activate
-                            </Button>
-                          )}
-                        </div>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center p-8 text-gray-500 dark:text-gray-400">
+                        No users found matching this filter.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredUsers.map((user: any) => (
+                      <tr key={user.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td className="p-3 dark:text-gray-300">{user.id}</td>
+                        <td className="p-3 dark:text-gray-300">{user.email}</td>
+                        <td className="p-3 dark:text-gray-300">
+                          {user.profile?.firstName} {user.profile?.lastName}
+                        </td>
+                        <td className="p-3">
+                          <div className="flex flex-wrap gap-1">
+                            {user.roles?.map((r: any) => (
+                              <span key={r.role.id} className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+                                {r.role.name}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <span className={`text-xs px-2 py-1 rounded font-semibold ${user.isActive ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"}`}>
+                            {user.isActive ? "Active" : "Pending Approval"}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <span className={`text-xs px-2 py-1 rounded ${user.isVerified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                            {user.isVerified ? "Yes" : "No"}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" onClick={() => {
+                              setSelectedUserId(user.id);
+                              setSelectedRoles(user.roles?.map((r: any) => r.role.id) || []);
+                            }}>
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            {user.isActive ? (
+                              <Button size="sm" variant="outline" className="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20" onClick={() => deactivateUserMutation.mutate(user.id)}>
+                                Deactivate
+                              </Button>
+                            ) : (
+                              <Button size="sm" variant="default" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => activateUserMutation.mutate(user.id)}>
+                                Approve
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
