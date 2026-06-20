@@ -382,80 +382,92 @@ export default function AdminDashboardPage() {
 
     if (activeTab === "stats") {
       return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold dark:text-white flex items-center gap-2">
+                  <Users className="h-5 w-5 text-gray-400" />
+                  {stats?.totalUsers || 0}
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Students</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold dark:text-white">{stats?.totalStudents || 0}</div>
+              </CardContent>
+            </Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Teachers</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold dark:text-white">{stats?.totalTeachers || 0}</div>
+              </CardContent>
+            </Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Sellers</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold dark:text-white">{stats?.totalSellers || 0}</div>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</CardTitle>
+            <CardHeader>
+              <CardTitle className="dark:text-white">Business Metrics</CardTitle>
+              <CardDescription className="dark:text-gray-400">Overview of platform products, lessons, orders, and revenue stats</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold dark:text-white flex items-center gap-2">
-                <Users className="h-5 w-5 text-gray-400" />
-                {stats?.totalUsers || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Students</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold dark:text-white">{stats?.totalStudents || 0}</div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Teachers</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold dark:text-white">{stats?.totalTeachers || 0}</div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Sellers</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold dark:text-white">{stats?.totalSellers || 0}</div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Products</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold dark:text-white flex items-center gap-2">
-                <Package className="h-5 w-5 text-gray-400" />
-                {stats?.totalProducts || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Lessons</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold dark:text-white flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-gray-400" />
-                {stats?.totalLessons || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Orders</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold dark:text-white">{stats?.totalOrders || 0}</div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold dark:text-white flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-green-500" />
-                {stats?.totalRevenue || 0}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 dark:bg-gray-900/50">
+                    <tr>
+                      <th className="text-left p-3 dark:text-gray-300">Metric</th>
+                      <th className="text-left p-3 dark:text-gray-300">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      <td className="p-3 dark:text-gray-300 font-medium flex items-center gap-2">
+                        <Package className="h-4 w-4 text-gray-400" />
+                        Products
+                      </td>
+                      <td className="p-3 dark:text-gray-300">{stats?.totalProducts || 0}</td>
+                    </tr>
+                    <tr className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      <td className="p-3 dark:text-gray-300 font-medium flex items-center gap-2">
+                        <BookOpen className="h-4 w-4 text-gray-400" />
+                        Lessons
+                      </td>
+                      <td className="p-3 dark:text-gray-300">{stats?.totalLessons || 0}</td>
+                    </tr>
+                    <tr className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      <td className="p-3 dark:text-gray-300 font-medium flex items-center gap-2">
+                        <ShoppingBag className="h-4 w-4 text-gray-400" />
+                        Orders
+                      </td>
+                      <td className="p-3 dark:text-gray-300">{stats?.totalOrders || 0}</td>
+                    </tr>
+                    <tr className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      <td className="p-3 dark:text-gray-300 font-medium flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-green-500" />
+                        Revenue
+                      </td>
+                      <td className="p-3 dark:text-gray-300 font-semibold text-green-600 dark:text-green-400">
+                        ${stats?.totalRevenue || 0}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </CardContent>
           </Card>
