@@ -39,8 +39,7 @@ import userRoutes from './routes/users.js';
 import resourceRoutes from './routes/resource.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/orders.js';
-
-
+import eventPostRoutes from './routes/event-posts.js';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -85,7 +84,7 @@ app.use('/api', marketplaceRoutes);
 app.use('/api', blogRoutes);
 app.use('/api', scholarshipRoutes);
 app.use('/api', eventRoutes);
-
+app.use('/api', eventPostRoutes);
 
 app.use('/api', adminRoutes);
 app.use('/api', quizRoutes);

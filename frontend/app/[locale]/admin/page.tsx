@@ -68,6 +68,8 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (activeTab === "quiz-responses") {
       router.push("/admin/quiz-responses");
+    } else if (activeTab === "talent-events") {
+      router.push("/admin/event-posts");
     }
   }, [activeTab, router]);
 
@@ -247,11 +249,12 @@ export default function AdminDashboardPage() {
     { id: "quiz", label: "Quiz Management", icon: <GraduationCap className="w-5 h-5" /> },
     { id: "quiz-responses", label: "Quiz Responses", icon: <FileText className="w-5 h-5" /> },
     { id: "content", label: "Content", icon: <BookOpen className="w-5 h-5" /> },
+    { id: "talent-events", label: "Manage Talent Events", icon: <Trophy className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
-    // Quiz responses handled by useEffect - just return null
-    if (activeTab === "quiz-responses") {
+    // Quiz responses and talent-events handled by useEffect - just return null
+    if (activeTab === "quiz-responses" || activeTab === "talent-events") {
       return null;
     }
 

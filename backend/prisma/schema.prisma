@@ -49,6 +49,10 @@ model User {
   receivedResources  Resource[] @relation("ReceivedResources")
   studentCertificates      Certificate[] @relation("StudentCertificates")
   teacherCertificates      Certificate[] @relation("TeacherCertificates")
+  
+  eventPosts        EventPost[]         @relation("EventPostAuthor")
+  eventPostComments EventPostComment[]
+  eventPostLikes    EventPostLike[]
 }
 
 model Profile {
@@ -497,4 +501,51 @@ model Resource {
   sender      User      @relation("SentResources", fields: [senderId], references: [id])
   receiver    User?     @relation("ReceivedResources", fields: [receiverId], references: [id])
   lesson      Lesson?   @relation(fields: [lessonId], references: [id])
+}
+
+// ============================================
+// TALENT EVENT POSTS (3 tables)
+// ============================================
+
+model EventPost {
+  id                Int      @id @default(autoincrement())
+  title             String
+  date              String
+  time              String
+  location          String
+  about             String
+  whoCanJoin        String
+  howToRegister     String
+  contact           String
+  imageUrl          String?
+  authorId          Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  author            User     @relation("EventPostAuthor", fields: [authorId], references: [id])
+  comments          EventPostComment[]
+  likes             EventPostLike[]
+}
+
+model EventPostComment {
+  id                Int      @id @default(autoincrement())
+  postId            Int
+  userId            Int
+  content           String
+  createdAt         DateTime @default(now())
+  
+  post              EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EventPostLike {
+  id                Int      @id @default(autoincrement())
+  postId            Int
+  userId            Int
+  createdAt         DateTime @default(now())
+  
+  post              EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([postId, userId])
 }

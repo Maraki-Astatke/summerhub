@@ -60,6 +60,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
     { label: t('nav.courses'), href: `/${locale}/hobbies` },
     { label: t('nav.lessons'), href: `/${locale}/lessons` },
     { label: t('nav.events'), href: `/${locale}/events` },
+    { label: 'Talent Events', href: `/${locale}/talent-events` },
     { label: t('nav.about'), href: `/${locale}/about` },
   ];
 

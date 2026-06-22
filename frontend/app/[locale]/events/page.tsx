@@ -11,19 +11,29 @@ import { useAuth } from '@/providers/auth-provider';
 import Navbar from '@/components/Navbar';
 import api from '@/lib/api';
 import { Calendar, Users, Trophy, Clock, Award } from 'lucide-react';
-
+import EventPostCard from '@/components/events/EventPostCard';
 export default function EventsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: eventsData, isLoading } = useQuery({
-    queryKey: ['events'],
+  const { data: eventsData, isLoading: eventsLoading } = useQuery({
+    queryKey: ['events-all'],
     queryFn: async () => {
-      const response = await api.get('/events?upcoming=true');
+      const response = await api.get('/events');
       return response.data;
     },
   });
+
+  const { data: talentEventsData, isLoading: talentLoading } = useQuery({
+    queryKey: ['talent-events'],
+    queryFn: async () => {
+      const response = await api.get('/event-posts');
+      return response.data;
+    },
+  });
+
+  const isLoading = eventsLoading || talentLoading;
 
   const { data: myEvents } = useQuery({
     queryKey: ['my-events'],
@@ -70,7 +80,10 @@ export default function EventsPage() {
     );
   }
 
-  const upcomingEvents = eventsData?.data || [];
+  const allEvents = eventsData?.data || [];
+  const upcomingEvents = allEvents.filter((e: any) => new Date(e.date) > new Date());
+  const talentEvents = talentEventsData || [];
+
   const myUpcomingEvents = myEvents?.upcoming || [];
   const myPastEvents = myEvents?.past || [];
 
@@ -157,12 +170,52 @@ export default function EventsPage() {
         </div>
 
         {user ? (
-          <Tabs defaultValue="upcoming" className="space-y-8">
-            <TabsList className="bg-gray-100/70 p-1.5 rounded-xl border border-gray-100 max-w-lg">
+          <Tabs defaultValue="all" className="space-y-8">
+            <TabsList className="bg-gray-100/70 p-1.5 rounded-xl border border-gray-100 flex flex-wrap gap-1 max-w-fit mx-auto md:mx-0">
+              <TabsTrigger value="all" className="rounded-lg py-2.5 font-semibold text-sm">All ({allEvents.length + talentEvents.length})</TabsTrigger>
               <TabsTrigger value="upcoming" className="rounded-lg py-2.5 font-semibold text-sm">Upcoming ({upcomingEvents.length})</TabsTrigger>
               <TabsTrigger value="my-upcoming" className="rounded-lg py-2.5 font-semibold text-sm">Registered ({myUpcomingEvents.length})</TabsTrigger>
               <TabsTrigger value="my-past" className="rounded-lg py-2.5 font-semibold text-sm">Past Events ({myPastEvents.length})</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="all" className="space-y-6">
+              {allEvents.length === 0 && talentEvents.length === 0 ? (
+                <Card className="rounded-[24px] border-gray-100 shadow-sm text-center py-16">
+                  <CardContent>
+                    <p className="text-gray-500 font-medium">No events found.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-12">
+                  {talentEvents.length > 0 && (
+                    <div className="space-y-6">
+                      <h2 className="text-2xl font-bold text-gray-900">Talent Event Announcements</h2>
+                      <div className="grid gap-8">
+                        {talentEvents.map((post: any) => (
+                          <EventPostCard 
+                            key={`post-${post.id}`} 
+                            post={post} 
+                            currentUser={user} 
+                            onPostUpdated={() => queryClient.invalidateQueries({ queryKey: ['talent-events'] })} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {allEvents.length > 0 && (
+                    <div className="space-y-6">
+                      <h2 className="text-2xl font-bold text-gray-900">Standard Events & Tournaments</h2>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {allEvents.map((event: any) => (
+                          <EventCard key={`event-${event.id}`} event={event} showRegister={true} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </TabsContent>
 
             <TabsContent value="upcoming" className="space-y-6">
               {upcomingEvents.length === 0 ? (
@@ -225,19 +278,40 @@ export default function EventsPage() {
           </Tabs>
         ) : (
           <div className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              {upcomingEvents.length === 0 ? (
-                <Card className="col-span-full rounded-[24px] border-gray-100 shadow-sm text-center py-16">
-                  <CardContent>
-                    <Calendar className="h-14 w-14 mx-auto text-[#FF7A45] mb-4 opacity-80" />
-                    <p className="text-gray-500 font-medium">No upcoming events scheduled right now</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                upcomingEvents.map((event: any) => (
-                  <EventCard key={event.id} event={event} showRegister={false} />
-                ))
+            <div className="space-y-12">
+              {talentEvents.length > 0 && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Talent Event Announcements</h2>
+                  <div className="grid gap-8">
+                    {talentEvents.map((post: any) => (
+                      <EventPostCard 
+                        key={`post-${post.id}`} 
+                        post={post} 
+                        currentUser={user} 
+                        onPostUpdated={() => queryClient.invalidateQueries({ queryKey: ['talent-events'] })} 
+                      />
+                    ))}
+                  </div>
+                </div>
               )}
+
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-gray-900">Standard Events & Tournaments</h2>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {upcomingEvents.length === 0 ? (
+                    <Card className="col-span-full rounded-[24px] border-gray-100 shadow-sm text-center py-16">
+                      <CardContent>
+                        <Calendar className="h-14 w-14 mx-auto text-[#FF7A45] mb-4 opacity-80" />
+                        <p className="text-gray-500 font-medium">No upcoming events scheduled right now</p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    upcomingEvents.map((event: any) => (
+                      <EventCard key={`event-${event.id}`} event={event} showRegister={false} />
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
             
             <Card className="rounded-[24px] border border-gray-155 bg-white p-2 shadow-sm text-center py-10 max-w-xl mx-auto">
