@@ -53,6 +53,7 @@ model User {
   eventPosts        EventPost[]         @relation("EventPostAuthor")
   eventPostComments EventPostComment[]
   eventPostLikes    EventPostLike[]
+  talentEventRegistrations TalentEventRegistration[]
 }
 
 model Profile {
@@ -559,12 +560,15 @@ model EventPostLike {
 model TalentEventRegistration {
   id          Int      @id @default(autoincrement())
   postId      Int
+  userId      Int?
   name        String
   phone       String
   email       String
+  description String?
   fileUrl     String?
   fileName    String?
   createdAt   DateTime @default(now())
   
   post        EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 }

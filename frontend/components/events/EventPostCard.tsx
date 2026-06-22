@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, Users, Mail, CheckCircle, Heart, MessageCircle, Send, MoreVertical, Trash2, Edit, UserCheck, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Mail, CheckCircle, Heart, MessageCircle, Send, MoreVertical, Trash2, Edit, UserCheck, ToggleLeft, ToggleRight, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   DropdownMenu,
@@ -33,9 +33,21 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [registrationOpen, setRegistrationOpen] = useState(post.registrationOpen || false);
   const [isTogglingReg, setIsTogglingReg] = useState(false);
+  const [myRegistration, setMyRegistration] = useState<any | null>(null);
+  const [checkingReg, setCheckingReg] = useState(false);
 
   const isAdmin = currentUser?.roles?.includes('admin');
   const isAuthor = post.authorId === currentUser?.id;
+
+  useEffect(() => {
+    if (currentUser && registrationOpen && !isAdmin) {
+      setCheckingReg(true);
+      api.get(`/event-posts/${post.id}/my-registration`)
+        .then(res => setMyRegistration(res.data.registration))
+        .catch(() => {})
+        .finally(() => setCheckingReg(false));
+    }
+  }, [currentUser, post.id, registrationOpen]);
 
   const handleToggleRegistration = async () => {
     setIsTogglingReg(true);
@@ -227,12 +239,21 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
             </Button>
           </div>
         ) : registrationOpen ? (
-          <Link href={`/talent-events/${post.id}/register`}>
-            <Button className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff6224] text-white font-bold rounded-xl shadow-md shadow-[#FF7A45]/20 gap-2 transition-all">
-              <UserCheck className="w-5 h-5" />
-              Register for This Event
-            </Button>
-          </Link>
+          myRegistration ? (
+            <Link href={`/talent-events/${post.id}/register`}>
+              <Button className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-md gap-2 transition-all">
+                <CheckCircle2 className="w-5 h-5" />
+                Registered — View or Unregister
+              </Button>
+            </Link>
+          ) : (
+            <Link href={`/talent-events/${post.id}/register`}>
+              <Button className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff6224] text-white font-bold rounded-xl shadow-md shadow-[#FF7A45]/20 gap-2 transition-all">
+                <UserCheck className="w-5 h-5" />
+                Register for This Event
+              </Button>
+            </Link>
+          )
         ) : null}
       </CardContent>
 

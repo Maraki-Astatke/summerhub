@@ -410,8 +410,23 @@ router.post('/event-posts/:id/register', regUpload.single('file'), [
       fileName = req.file.originalname;
     }
 
+    // Save userId if user is authenticated (token in header)
+    let userId: number | null = null;
+    const authHeader = req.headers['authorization'];
+    if (authHeader) {
+      try {
+        const jwt = await import('jsonwebtoken');
+        const decoded = jwt.default.verify(authHeader.split(' ')[1], process.env.JWT_SECRET!) as any;
+        userId = decoded.userId;
+        // Prevent duplicate registration by same user
+        const existing = await prisma.talentEventRegistration.findFirst({ where: { postId, userId } });
+        if (existing) return res.status(409).json({ error: 'You have already registered for this event', registration: existing });
+      } catch { /* ignore invalid token */ }
+    }
+
+    const { description } = req.body;
     const registration = await prisma.talentEventRegistration.create({
-      data: { postId, name, phone, email, fileUrl, fileName }
+      data: { postId, name, phone, email, description: description || null, fileUrl, fileName, userId }
     });
     res.status(201).json({ message: 'Registration submitted successfully!', registration });
   } catch (error) {
@@ -463,6 +478,38 @@ router.patch('/admin/event-posts/:id/toggle-registration', authenticateToken, re
   } catch (error) {
     console.error('Error toggling registration:', error);
     res.status(500).json({ error: 'Failed to toggle registration' });
+  }
+});
+
+// Get current user's registration for a specific event
+router.get('/event-posts/:id/my-registration', authenticateToken, [param('id').isInt()], async (req: any, res: any) => {
+  const postId = parseInt(req.params.id);
+  const userId = req.user.userId;
+  try {
+    const registration = await prisma.talentEventRegistration.findFirst({
+      where: { postId, userId }
+    });
+    res.json({ registration: registration || null });
+  } catch (error) {
+    console.error('Error fetching my registration:', error);
+    res.status(500).json({ error: 'Failed to fetch registration' });
+  }
+});
+
+// Unregister current user from a talent event
+router.delete('/event-posts/:id/my-registration', authenticateToken, [param('id').isInt()], async (req: any, res: any) => {
+  const postId = parseInt(req.params.id);
+  const userId = req.user.userId;
+  try {
+    const registration = await prisma.talentEventRegistration.findFirst({
+      where: { postId, userId }
+    });
+    if (!registration) return res.status(404).json({ error: 'Registration not found' });
+    await prisma.talentEventRegistration.delete({ where: { id: registration.id } });
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error unregistering:', error);
+    res.status(500).json({ error: 'Failed to unregister' });
   }
 });
 
