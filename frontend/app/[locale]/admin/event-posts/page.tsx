@@ -108,10 +108,10 @@ export default function AdminEventPostsPage() {
           <div className="grid gap-8">
             <h2 className="text-xl font-bold text-gray-900 px-2">Your Post History ({posts.length})</h2>
             {posts.map(post => (
-              <EventPostCard 
-                key={post.id} 
-                post={post} 
-                currentUser={user} 
+              <EventPostCard
+                key={post.id}
+                post={post}
+                currentUser={user}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 isAdminView={true}
@@ -129,9 +129,9 @@ export default function AdminEventPostsPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="mt-6">
-            <EventPostForm 
-              initialData={editingPost} 
-              onSubmit={handleSubmit} 
+            <EventPostForm
+              initialData={editingPost}
+              onSubmit={handleSubmit}
               onCancel={() => setIsModalOpen(false)}
               isLoading={isSubmitting}
             />

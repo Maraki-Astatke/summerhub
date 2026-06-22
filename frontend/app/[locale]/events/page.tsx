@@ -83,6 +83,8 @@ export default function EventsPage() {
   const allEvents = eventsData?.data || [];
   const upcomingEvents = allEvents.filter((e: any) => new Date(e.date) > new Date());
   const talentEvents = talentEventsData || [];
+  const upcomingTalentEvents = talentEvents.filter((e: any) => new Date(e.date) > new Date());
+  const pastTalentEvents = talentEvents.filter((e: any) => new Date(e.date) <= new Date());
 
   const myUpcomingEvents = myEvents?.upcoming || [];
   const myPastEvents = myEvents?.past || [];
@@ -173,9 +175,9 @@ export default function EventsPage() {
           <Tabs defaultValue="all" className="space-y-8">
             <TabsList className="bg-gray-100/70 p-1.5 rounded-xl border border-gray-100 flex flex-wrap gap-1 max-w-fit mx-auto md:mx-0">
               <TabsTrigger value="all" className="rounded-lg py-2.5 font-semibold text-sm">All ({allEvents.length + talentEvents.length})</TabsTrigger>
-              <TabsTrigger value="upcoming" className="rounded-lg py-2.5 font-semibold text-sm">Upcoming ({upcomingEvents.length})</TabsTrigger>
+              <TabsTrigger value="upcoming" className="rounded-lg py-2.5 font-semibold text-sm">Upcoming ({upcomingEvents.length + upcomingTalentEvents.length})</TabsTrigger>
               <TabsTrigger value="my-upcoming" className="rounded-lg py-2.5 font-semibold text-sm">Registered ({myUpcomingEvents.length})</TabsTrigger>
-              <TabsTrigger value="my-past" className="rounded-lg py-2.5 font-semibold text-sm">Past Events ({myPastEvents.length})</TabsTrigger>
+              <TabsTrigger value="my-past" className="rounded-lg py-2.5 font-semibold text-sm">Past Events ({myPastEvents.length + pastTalentEvents.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="all" className="space-y-6">
@@ -218,7 +220,7 @@ export default function EventsPage() {
             </TabsContent>
 
             <TabsContent value="upcoming" className="space-y-6">
-              {upcomingEvents.length === 0 ? (
+              {upcomingEvents.length === 0 && upcomingTalentEvents.length === 0 ? (
                 <Card className="rounded-[24px] border-gray-100 shadow-sm text-center py-16">
                   <CardContent>
                     <Calendar className="h-14 w-14 mx-auto text-[#FF7A45] mb-4 opacity-80" />
@@ -226,10 +228,33 @@ export default function EventsPage() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid md:grid-cols-2 gap-6">
-                  {upcomingEvents.map((event: any) => (
-                    <EventCard key={event.id} event={event} showRegister={true} />
-                  ))}
+                <div className="space-y-12">
+                  {upcomingTalentEvents.length > 0 && (
+                    <div className="space-y-6">
+                      <h2 className="text-xl font-bold text-gray-900">Upcoming Talent Events</h2>
+                      <div className="grid gap-8">
+                        {upcomingTalentEvents.map((post: any) => (
+                          <EventPostCard 
+                            key={`post-${post.id}`} 
+                            post={post} 
+                            currentUser={user} 
+                            onPostUpdated={() => queryClient.invalidateQueries({ queryKey: ['talent-events'] })} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {upcomingEvents.length > 0 && (
+                    <div className="space-y-6">
+                      <h2 className="text-xl font-bold text-gray-900">Upcoming Standard Events</h2>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {upcomingEvents.map((event: any) => (
+                          <EventCard key={event.id} event={event} showRegister={true} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </TabsContent>
@@ -261,17 +286,40 @@ export default function EventsPage() {
             </TabsContent>
 
             <TabsContent value="my-past" className="space-y-6">
-              {myPastEvents.length === 0 ? (
+              {myPastEvents.length === 0 && pastTalentEvents.length === 0 ? (
                 <Card className="rounded-[24px] border-gray-100 shadow-sm text-center py-16">
                   <CardContent>
                     <p className="text-gray-500 font-medium">No past events recorded</p>
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid md:grid-cols-2 gap-6">
-                  {myPastEvents.map((reg: any) => (
-                    <EventCard key={reg.event.id} event={reg.event} showRegister={false} />
-                  ))}
+                <div className="space-y-12">
+                  {pastTalentEvents.length > 0 && (
+                    <div className="space-y-6">
+                      <h2 className="text-xl font-bold text-gray-900">Past Talent Events</h2>
+                      <div className="grid gap-8">
+                        {pastTalentEvents.map((post: any) => (
+                          <EventPostCard 
+                            key={`post-${post.id}`} 
+                            post={post} 
+                            currentUser={user} 
+                            onPostUpdated={() => queryClient.invalidateQueries({ queryKey: ['talent-events'] })} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {myPastEvents.length > 0 && (
+                    <div className="space-y-6">
+                      <h2 className="text-xl font-bold text-gray-900">Past Standard Events</h2>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {myPastEvents.map((reg: any) => (
+                          <EventCard key={reg.event.id} event={reg.event} showRegister={false} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </TabsContent>

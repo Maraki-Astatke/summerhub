@@ -44,13 +44,13 @@ export default function EventPostForm({ initialData, onSubmit, onCancel, isLoadi
           <Label htmlFor="title" className="flex items-center gap-2">
             Title
           </Label>
-          <Input 
-            id="title" 
-            name="title" 
-            placeholder="e.g. HobbyHub Monthly Talent Event" 
-            value={formData.title} 
-            onChange={handleChange} 
-            required 
+          <Input
+            id="title"
+            name="title"
+            placeholder="e.g. HobbyHub Monthly Talent Event"
+            value={formData.title}
+            onChange={handleChange}
+            required
             className="text-lg font-semibold"
           />
         </div>
@@ -59,14 +59,14 @@ export default function EventPostForm({ initialData, onSubmit, onCancel, isLoadi
           <Label htmlFor="date" className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-gray-500" /> Date
           </Label>
-          <Input 
-            id="date" 
-            name="date" 
+          <Input
+            id="date"
+            name="date"
             type="text"
-            placeholder="e.g. October 15, 2026" 
-            value={formData.date} 
-            onChange={handleChange} 
-            required 
+            placeholder="e.g. October 15, 2026"
+            value={formData.date}
+            onChange={handleChange}
+            required
           />
         </div>
 
@@ -74,13 +74,13 @@ export default function EventPostForm({ initialData, onSubmit, onCancel, isLoadi
           <Label htmlFor="time" className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-gray-500" /> Time
           </Label>
-          <Input 
-            id="time" 
-            name="time" 
-            placeholder="e.g. 2:00 PM - 5:00 PM" 
-            value={formData.time} 
-            onChange={handleChange} 
-            required 
+          <Input
+            id="time"
+            name="time"
+            placeholder="e.g. 2:00 PM - 5:00 PM"
+            value={formData.time}
+            onChange={handleChange}
+            required
           />
         </div>
 
@@ -88,13 +88,13 @@ export default function EventPostForm({ initialData, onSubmit, onCancel, isLoadi
           <Label htmlFor="location" className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-gray-500" /> Location (Venue or Link)
           </Label>
-          <Input 
-            id="location" 
-            name="location" 
-            placeholder="e.g. Main Auditorium or Zoom Link" 
-            value={formData.location} 
-            onChange={handleChange} 
-            required 
+          <Input
+            id="location"
+            name="location"
+            placeholder="e.g. Main Auditorium or Zoom Link"
+            value={formData.location}
+            onChange={handleChange}
+            required
           />
         </div>
 
@@ -102,13 +102,13 @@ export default function EventPostForm({ initialData, onSubmit, onCancel, isLoadi
           <Label htmlFor="about" className="flex items-center gap-2">
             About the Event
           </Label>
-          <Textarea 
-            id="about" 
-            name="about" 
-            placeholder="What is this event about?" 
-            value={formData.about} 
-            onChange={handleChange} 
-            required 
+          <Textarea
+            id="about"
+            name="about"
+            placeholder="What is this event about?"
+            value={formData.about}
+            onChange={handleChange}
+            required
             rows={4}
           />
         </div>
@@ -117,54 +117,54 @@ export default function EventPostForm({ initialData, onSubmit, onCancel, isLoadi
           <Label htmlFor="whoCanJoin" className="flex items-center gap-2">
             <Users className="w-4 h-4 text-gray-500" /> Who Can Join
           </Label>
-          <Input 
-            id="whoCanJoin" 
-            name="whoCanJoin" 
-            placeholder="e.g. All students and scholars" 
-            value={formData.whoCanJoin} 
-            onChange={handleChange} 
-            required 
+          <Input
+            id="whoCanJoin"
+            name="whoCanJoin"
+            placeholder="e.g. All students and scholars"
+            value={formData.whoCanJoin}
+            onChange={handleChange}
+            required
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 md:col-span-2">
           <Label htmlFor="howToRegister" className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-gray-500" /> How to Register
           </Label>
-          <Input 
-            id="howToRegister" 
-            name="howToRegister" 
-            placeholder="e.g. Register below by Oct 10th" 
-            value={formData.howToRegister} 
-            onChange={handleChange} 
-            required 
+          <Input
+            id="howToRegister"
+            name="howToRegister"
+            placeholder="e.g. Register below by Oct 10th"
+            value={formData.howToRegister}
+            onChange={handleChange}
+            required
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 md:col-span-2">
           <Label htmlFor="contact" className="flex items-center gap-2">
             <Mail className="w-4 h-4 text-gray-500" /> Contact Info
           </Label>
-          <Input 
-            id="contact" 
-            name="contact" 
-            placeholder="e.g. talent@hobbieshub.com" 
-            value={formData.contact} 
-            onChange={handleChange} 
-            required 
+          <Input
+            id="contact"
+            name="contact"
+            placeholder="e.g. talent@hobbieshub.com"
+            value={formData.contact}
+            onChange={handleChange}
+            required
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 md:col-span-2">
           <Label htmlFor="imageUrl" className="flex items-center gap-2">
             <ImageIcon className="w-4 h-4 text-gray-500" /> Image URL (Optional)
           </Label>
-          <Input 
-            id="imageUrl" 
-            name="imageUrl" 
-            placeholder="https://example.com/banner.jpg" 
-            value={formData.imageUrl} 
-            onChange={handleChange} 
+          <Input
+            id="imageUrl"
+            name="imageUrl"
+            placeholder="https://example.com/banner.jpg"
+            value={formData.imageUrl}
+            onChange={handleChange}
           />
         </div>
       </div>
