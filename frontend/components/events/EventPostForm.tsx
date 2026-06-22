@@ -22,7 +22,6 @@ export default function EventPostForm({ initialData, onSubmit, onCancel, isLoadi
     location: initialData?.location || '',
     about: initialData?.about || '',
     whoCanJoin: initialData?.whoCanJoin || '',
-    howToRegister: initialData?.howToRegister || '',
     contact: initialData?.contact || '',
     imageUrl: initialData?.imageUrl || '',
   });
@@ -122,20 +121,6 @@ export default function EventPostForm({ initialData, onSubmit, onCancel, isLoadi
             name="whoCanJoin"
             placeholder="e.g. All students and scholars"
             value={formData.whoCanJoin}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="howToRegister" className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-gray-500" /> How to Register
-          </Label>
-          <Input
-            id="howToRegister"
-            name="howToRegister"
-            placeholder="e.g. Register below by Oct 10th"
-            value={formData.howToRegister}
             onChange={handleChange}
             required
           />

@@ -2,8 +2,35 @@ import { Router } from 'express';
 import { body, param, validationResult } from 'express-validator';
 import prisma from '../lib/prisma.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router = Router();
+
+// Multer setup for registration file uploads
+const regStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = 'uploads/talent-registrations';
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  }
+});
+const regUpload = multer({
+  storage: regStorage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = /pdf|jpeg|jpg|png|gif|mp4|mov|avi|mkv|webp/;
+    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
+    const mime = allowed.test(file.mimetype);
+    if (ext && mime) return cb(null, true);
+    cb(new Error('Only PDF, image, or video files are allowed'));
+  }
+});
 
 // ============================================
 // PUBLIC/AUTHENTICATED ROUTES
@@ -231,7 +258,7 @@ router.post('/admin/event-posts', authenticateToken, requireRole(['admin']), [
   body('location').notEmpty().trim(),
   body('about').notEmpty().trim(),
   body('whoCanJoin').notEmpty().trim(),
-  body('howToRegister').notEmpty().trim(),
+  body('howToRegister').optional().trim(),
   body('contact').notEmpty().trim(),
   body('imageUrl').optional({ nullable: true, checkFalsy: true }).isURL()
 ], async (req: any, res: any) => {
@@ -331,6 +358,111 @@ router.delete('/admin/event-posts/:id', authenticateToken, requireRole(['admin']
   } catch (error) {
     console.error('Error deleting event post:', error);
     res.status(500).json({ error: 'Failed to delete event post' });
+  }
+});
+
+// ============================================
+// TALENT EVENT REGISTRATIONS
+// ============================================
+
+// Get a single post by ID (public) — for the registration page
+router.get('/event-posts/:id', [param('id').isInt()], async (req: any, res: any) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  const { id } = req.params;
+  try {
+    const post = await prisma.eventPost.findUnique({
+      where: { id: parseInt(id) },
+      include: { author: { include: { profile: true } }, _count: { select: { comments: true, likes: true } }, likes: true, comments: { include: { user: { include: { profile: true } } }, orderBy: { createdAt: 'desc' } } }
+    });
+    if (!post) return res.status(404).json({ error: 'Event post not found' });
+    res.json(post);
+  } catch (error) {
+    console.error('Error fetching event post:', error);
+    res.status(500).json({ error: 'Failed to fetch event post' });
+  }
+});
+
+// Submit registration for a talent event (public — no auth required)
+router.post('/event-posts/:id/register', regUpload.single('file'), [
+  param('id').isInt(),
+  body('name').notEmpty().trim(),
+  body('phone').notEmpty().trim(),
+  body('email').notEmpty().isEmail().normalizeEmail(),
+], async (req: any, res: any) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+  const postId = parseInt(req.params.id);
+  const { name, phone, email } = req.body;
+
+  try {
+    const post = await prisma.eventPost.findUnique({ where: { id: postId } });
+    if (!post) return res.status(404).json({ error: 'Event post not found' });
+    if (!post.registrationOpen) return res.status(403).json({ error: 'Registration is not open for this event' });
+
+    let fileUrl = null;
+    let fileName = null;
+    if (req.file) {
+      const protocol = req.protocol;
+      const host = req.get('host');
+      fileUrl = `${protocol}://${host}/uploads/talent-registrations/${req.file.filename}`;
+      fileName = req.file.originalname;
+    }
+
+    const registration = await prisma.talentEventRegistration.create({
+      data: { postId, name, phone, email, fileUrl, fileName }
+    });
+    res.status(201).json({ message: 'Registration submitted successfully!', registration });
+  } catch (error) {
+    console.error('Error registering for event:', error);
+    res.status(500).json({ error: 'Failed to submit registration' });
+  }
+});
+
+// Get all registrations for an event (admin only)
+router.get('/admin/event-posts/:id/registrations', authenticateToken, requireRole(['admin']), [param('id').isInt()], async (req: any, res: any) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  const postId = parseInt(req.params.id);
+  try {
+    const registrations = await prisma.talentEventRegistration.findMany({
+      where: { postId },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(registrations);
+  } catch (error) {
+    console.error('Error fetching registrations:', error);
+    res.status(500).json({ error: 'Failed to fetch registrations' });
+  }
+});
+
+// Delete a registration (admin only)
+router.delete('/admin/event-posts/registrations/:regId', authenticateToken, requireRole(['admin']), [param('regId').isInt()], async (req: any, res: any) => {
+  const regId = parseInt(req.params.regId);
+  try {
+    await prisma.talentEventRegistration.delete({ where: { id: regId } });
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting registration:', error);
+    res.status(500).json({ error: 'Failed to delete registration' });
+  }
+});
+
+// Toggle registration open/closed (admin only)
+router.patch('/admin/event-posts/:id/toggle-registration', authenticateToken, requireRole(['admin']), [param('id').isInt()], async (req: any, res: any) => {
+  const postId = parseInt(req.params.id);
+  try {
+    const post = await prisma.eventPost.findUnique({ where: { id: postId } });
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    const updated = await prisma.eventPost.update({
+      where: { id: postId },
+      data: { registrationOpen: !post.registrationOpen }
+    });
+    res.json({ registrationOpen: updated.registrationOpen });
+  } catch (error) {
+    console.error('Error toggling registration:', error);
+    res.status(500).json({ error: 'Failed to toggle registration' });
   }
 });
 

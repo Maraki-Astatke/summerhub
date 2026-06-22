@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, Users, Mail, CheckCircle, Heart, MessageCircle, Send, MoreVertical, Trash2, Edit } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Mail, CheckCircle, Heart, MessageCircle, Send, MoreVertical, Trash2, Edit, UserCheck, ToggleLeft, ToggleRight } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   DropdownMenu,
@@ -30,9 +31,23 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState(post.comments || []);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [registrationOpen, setRegistrationOpen] = useState(post.registrationOpen || false);
+  const [isTogglingReg, setIsTogglingReg] = useState(false);
 
   const isAdmin = currentUser?.roles?.includes('admin');
   const isAuthor = post.authorId === currentUser?.id;
+
+  const handleToggleRegistration = async () => {
+    setIsTogglingReg(true);
+    try {
+      const res = await api.patch(`/admin/event-posts/${post.id}/toggle-registration`);
+      setRegistrationOpen(res.data.registrationOpen);
+    } catch (error) {
+      console.error('Failed to toggle registration:', error);
+    } finally {
+      setIsTogglingReg(false);
+    }
+  };
 
   const handleLike = async () => {
     if (!currentUser) return;
@@ -184,6 +199,41 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
             <p className="text-gray-600 text-sm">{post.contact}</p>
           </div>
         </div>
+
+        {/* Register Button or Admin Toggle */}
+        {isAdminView ? (
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Registration Status</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {registrationOpen ? 'Students can currently register for this event' : 'Registration is closed for this event'}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleToggleRegistration}
+              disabled={isTogglingReg}
+              className={`gap-2 rounded-full font-semibold transition-all ${
+                registrationOpen 
+                  ? 'border-green-300 text-green-700 hover:bg-green-50' 
+                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {registrationOpen 
+                ? <><ToggleRight className="w-4 h-4" /> Registration Open</>
+                : <><ToggleLeft className="w-4 h-4" /> Open Registration</>
+              }
+            </Button>
+          </div>
+        ) : registrationOpen ? (
+          <Link href={`/talent-events/${post.id}/register`}>
+            <Button className="w-full h-12 bg-[#FF7A45] hover:bg-[#ff6224] text-white font-bold rounded-xl shadow-md shadow-[#FF7A45]/20 gap-2 transition-all">
+              <UserCheck className="w-5 h-5" />
+              Register for This Event
+            </Button>
+          </Link>
+        ) : null}
       </CardContent>
 
       <CardFooter className="flex flex-col border-t bg-gray-50/50 p-4">

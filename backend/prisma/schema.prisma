@@ -518,6 +518,7 @@ model EventPost {
   howToRegister     String
   contact           String
   imageUrl          String?
+  registrationOpen  Boolean  @default(false)
   authorId          Int
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -525,6 +526,7 @@ model EventPost {
   author            User     @relation("EventPostAuthor", fields: [authorId], references: [id])
   comments          EventPostComment[]
   likes             EventPostLike[]
+  registrations     TalentEventRegistration[]
 }
 
 model EventPostComment {
@@ -548,4 +550,21 @@ model EventPostLike {
   user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@unique([postId, userId])
+}
+
+// ============================================
+// TALENT EVENT REGISTRATIONS
+// ============================================
+
+model TalentEventRegistration {
+  id          Int      @id @default(autoincrement())
+  postId      Int
+  name        String
+  phone       String
+  email       String
+  fileUrl     String?
+  fileName    String?
+  createdAt   DateTime @default(now())
+  
+  post        EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
