@@ -57,7 +57,7 @@ export default function OrderDetailPage() {
       case 'pending': return 'text-yellow-600 bg-yellow-50 border border-yellow-100';
       case 'paid': return 'text-green-600 bg-green-50 border border-green-100';
       case 'shipped': return 'text-blue-600 bg-blue-50 border border-blue-100';
-      case 'delivered': return 'text-purple-600 bg-purple-50 border border-purple-100';
+      case 'delivered': return 'text-[#FF7A45] bg-[#FFF2EB] border border-[#FFF2EB]';
       case 'cancelled': return 'text-red-600 bg-red-50 border border-red-100';
       default: return 'text-gray-600 bg-gray-50';
     }
@@ -74,7 +74,6 @@ export default function OrderDetailPage() {
     }
   };
 
-  // 3-step progress: Order Placed → In Progress → Completed
   const getProgressStep = () => {
     switch (order.status) {
       case 'pending':
@@ -136,11 +135,11 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        {/* 3-Step Order Progress Bar */}
+        {}
         <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden mb-8">
           <CardContent className="p-6">
             <div className="flex items-center justify-between gap-2">
-              {/* Step 1: Order Placed */}
+              {}
               <div className="flex-1 text-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-sm font-bold transition-all duration-300 ${
                   progress.current >= 1 
@@ -156,14 +155,14 @@ export default function OrderDetailPage() {
                 </p>
               </div>
 
-              {/* Connector Line 1 */}
+              {}
               <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                 <div className={`h-full bg-green-500 transition-all duration-500 ${
                   progress.current >= 2 ? 'w-full' : 'w-0'
                 }`} />
               </div>
 
-              {/* Step 2: In Progress */}
+              {}
               <div className="flex-1 text-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-sm font-bold transition-all duration-300 ${
                   progress.current >= 2 
@@ -179,14 +178,14 @@ export default function OrderDetailPage() {
                 </p>
               </div>
 
-              {/* Connector Line 2 */}
+              {}
               <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                 <div className={`h-full bg-green-500 transition-all duration-500 ${
                   progress.current >= 3 ? 'w-full' : 'w-0'
                 }`} />
               </div>
 
-              {/* Step 3: Completed */}
+              {}
               <div className="flex-1 text-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-sm font-bold transition-all duration-300 ${
                   progress.current >= 3 
@@ -206,7 +205,7 @@ export default function OrderDetailPage() {
         </Card>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Order Items */}
+          {}
           <div className="md:col-span-2">
             <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
               <CardHeader className="p-6 pb-4 border-b border-gray-50">
@@ -229,7 +228,7 @@ export default function OrderDetailPage() {
             </Card>
           </div>
 
-          {/* Order Summary */}
+          {}
           <div className="space-y-6">
             <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
               <CardHeader className="p-6 pb-4 border-b border-gray-50">

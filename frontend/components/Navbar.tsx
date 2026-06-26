@@ -75,7 +75,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
     }`}>
       <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 h-full flex justify-between items-center">
         
-        {/* Logo */}
+        {}
         <Link href={`/${locale}`} className="flex items-center focus:outline-none">
           <Image 
             src="/logo.png" 
@@ -87,7 +87,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
           />
         </Link>
         
-        {/* Desktop Navigation Links */}
+        {}
         <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
@@ -107,10 +107,10 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
           })}
         </nav>
 
-        {/* Desktop CTA Action Buttons */}
+        {}
         <div className="hidden lg:flex items-center gap-4">
           
-          {/* Language Switcher */}
+          {}
           <div className="flex items-center bg-gray-100/80 rounded-xl p-0.5 border border-gray-200/50 mr-2">
             <button 
               onClick={() => switchLanguage('en')}
@@ -136,7 +136,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
 
           {user ? (
             <>
-              {/* Cart link for students/scholars */}
+              {}
               {(hasRole('student') || hasRole('scholar')) && (
                 <Link href={`/${locale}/cart`} className="relative p-2 rounded-xl text-gray-500 hover:text-[#FF7A45] hover:bg-[#FFF2EB] transition-all">
                   <ShoppingBag className="w-5.5 h-5.5" />
@@ -148,7 +148,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                 </Link>
               )}
 
-              {/* Workspace / Dashboard Dropdown Panel */}
+              {}
               <div className="flex items-center gap-2 border border-gray-100 bg-gray-50/50 rounded-2xl p-1.5 pl-3">
                 <div className="text-right pr-2">
                   <p className="text-xs font-bold text-[#1F2937] leading-tight">
@@ -210,7 +210,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
           )}
         </div>
 
-        {/* Mobile Hamburguer Toggle */}
+        {}
         <button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="lg:hidden p-2 rounded-xl text-[#1F2937] hover:bg-gray-100 focus:outline-none"
@@ -220,7 +220,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
         </button>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {}
       {isMenuOpen && (
         <div className="lg:hidden bg-white border-t py-4 px-6 absolute top-20 left-0 right-0 shadow-lg">
           <div className="flex flex-col gap-4">

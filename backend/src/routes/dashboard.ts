@@ -86,7 +86,6 @@ router.get('/dashboard/progress',
   }
 );
 
-// UPDATED: Fetch certificates from Certificate table (issued by teachers)
 router.get('/dashboard/certificates',
   authenticateToken,
   requireRole(['student', 'scholar']),

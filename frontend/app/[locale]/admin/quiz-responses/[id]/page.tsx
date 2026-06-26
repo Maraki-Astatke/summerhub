@@ -35,7 +35,6 @@ export default function StudentQuizDetailPage() {
   const [recommendReason, setRecommendReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch student details and answers
   const { data: student, isLoading, refetch, error } = useQuery({
     queryKey: ['admin-quiz-student', studentId],
     queryFn: async () => {
@@ -46,7 +45,6 @@ export default function StudentQuizDetailPage() {
     enabled: !!user && user?.roles?.includes('admin') && !!studentId,
   });
 
-  // Fetch hobbies for dropdown
   const { data: hobbies } = useQuery({
     queryKey: ['admin-hobbies-list'],
     queryFn: async () => {
@@ -56,7 +54,6 @@ export default function StudentQuizDetailPage() {
     enabled: !!user && user?.roles?.includes('admin'),
   });
 
-  // Send recommendation mutation
   const recommendMutation = useMutation({
     mutationFn: async () => {
       const response = await api.post(`/admin/quiz-responses/${studentId}/recommend`, {
@@ -99,7 +96,7 @@ export default function StudentQuizDetailPage() {
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF7A45]" />
       </div>
     );
   }
@@ -109,7 +106,6 @@ export default function StudentQuizDetailPage() {
     return null;
   }
 
-  // Check for error
   if (error) {
     console.error('Error fetching student:', error);
     return (
@@ -127,7 +123,6 @@ export default function StudentQuizDetailPage() {
     );
   }
 
-  // Check if student data exists
   if (!student || !student.id) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -144,7 +139,6 @@ export default function StudentQuizDetailPage() {
     );
   }
 
-  // Safely get values with fallbacks
   const hasTakenQuiz = student.hasTakenQuiz === true;
   const quizAnswers = student.quizAnswers || [];
   const recommendations = student.recommendations || [];
@@ -155,10 +149,10 @@ export default function StudentQuizDetailPage() {
     <div className="min-h-screen bg-gray-50">
       <Toaster position="top-center" richColors />
       
-      {/* Header */}
+      {}
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/admin" className="text-xl font-bold text-purple-600">
+          <Link href="/admin" className="text-xl font-bold text-[#FF7A45]">
             HobbyHub Admin
           </Link>
           <Link href="/admin/quiz-responses">
@@ -171,12 +165,12 @@ export default function StudentQuizDetailPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Student Info Card */}
+        {}
         <Card className="mb-6 border-0 shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                <User className="h-6 w-6 text-purple-600" />
+              <div className="w-12 h-12 rounded-full bg-[#FF7A45]/10 flex items-center justify-center">
+                <User className="h-6 w-6 text-[#FF7A45]" />
               </div>
               <div>
                 <CardTitle className="text-2xl">
@@ -212,7 +206,7 @@ export default function StudentQuizDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Student Answers Card */}
+        {}
         <Card className="mb-6 border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl">Student's Answers</CardTitle>
@@ -235,16 +229,16 @@ export default function StudentQuizDetailPage() {
                 {quizAnswers.map((answer: any, idx: number) => (
                   <div key={answer.id || idx} className="p-5 border rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-start gap-3 mb-3">
-                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-purple-600 font-bold text-sm">{idx + 1}</span>
+                      <div className="w-8 h-8 rounded-full bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-[#FF7A45] font-bold text-sm">{idx + 1}</span>
                       </div>
                       <h3 className="font-semibold text-gray-800 text-lg">
                         {answer.questionText || `Question ${idx + 1}`}
                       </h3>
                     </div>
                     
-                    <div className="ml-11 pl-4 border-l-4 border-purple-200">
-                      <div className="bg-purple-50 rounded-lg p-4">
+                    <div className="ml-11 pl-4 border-l-4 border-[#FF7A45]/20">
+                      <div className="bg-[#FFF2EB] rounded-lg p-4">
                         <p className="text-sm text-gray-500 mb-1">Student's Response:</p>
                         <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
                           {answer.answerText || 'No answer provided'}
@@ -258,7 +252,7 @@ export default function StudentQuizDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Previous Recommendations Card */}
+        {}
         {recommendations.length > 0 && (
           <Card className="mb-6 border-0 shadow-sm">
             <CardHeader>
@@ -289,7 +283,7 @@ export default function StudentQuizDetailPage() {
           </Card>
         )}
 
-        {/* Recommend Form Card */}
+        {}
         {hasTakenQuiz ? (
           <Card className="border-0 shadow-sm">
             <CardHeader>
@@ -337,7 +331,7 @@ export default function StudentQuizDetailPage() {
                 <Button 
                   onClick={handleSendRecommendation}
                   disabled={!selectedHobby || isSubmitting}
-                  className="w-full bg-purple-600 hover:bg-purple-700 rounded-xl h-11"
+                  className="w-full bg-[#FF7A45] hover:bg-[#ff8f61] rounded-xl h-11"
                 >
                   {isSubmitting ? (
                     <>

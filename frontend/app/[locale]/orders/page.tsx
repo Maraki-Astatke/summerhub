@@ -48,7 +48,7 @@ export default function OrdersPage() {
       case 'pending': return 'text-yellow-600 bg-yellow-50 border border-yellow-100';
       case 'approved_by_parent': return 'text-blue-600 bg-blue-50 border border-blue-100';
       case 'paid': return 'text-green-600 bg-green-50 border border-green-100';
-      case 'shipped': return 'text-purple-600 bg-purple-50 border border-purple-100';
+      case 'shipped': return 'text-[#FF7A45] bg-[#FFF2EB] border border-[#FFF2EB]';
       case 'delivered': return 'text-green-700 bg-green-100 border border-green-200';
       case 'cancelled': return 'text-red-600 bg-red-50 border border-red-100';
       default: return 'text-gray-600 bg-gray-50';
@@ -117,7 +117,7 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
-      {/* Sticky Header */}
+      {}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center focus:outline-none">

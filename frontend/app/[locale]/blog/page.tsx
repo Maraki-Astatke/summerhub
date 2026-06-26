@@ -16,7 +16,6 @@ export default function BlogPage() {
   const { user } = useAuth();
   const [search, setSearch] = useState('');
 
-  // Check if user is student (only students can create posts)
   const isStudent = user?.roles?.[0] === 'student';
 
   const { data: postsData, isLoading } = useQuery({
@@ -37,7 +36,7 @@ export default function BlogPage() {
       <Navbar alwaysWhite={true} />
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32">
-        {/* Banner */}
+        {}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <span className="text-xs font-bold text-[#FF7A45] tracking-wider uppercase mb-2 block">Academy Blog</span>
           <h1 className="text-3xl md:text-4xl lg:text-[48px] font-extrabold tracking-tight text-[#1F2937] mb-4">
@@ -48,7 +47,7 @@ export default function BlogPage() {
           </p>
         </div>
 
-        {/* Search and Action bar */}
+        {}
         <div className="flex flex-col sm:flex-row justify-center items-center max-w-lg mx-auto mb-12 gap-3">
           <Input
             placeholder="Search articles..."
@@ -56,7 +55,7 @@ export default function BlogPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="h-11 px-4 rounded-xl border-gray-200 focus-visible:ring-[#FF7A45] w-full"
           />
-          {/* Only show Write Post button for students */}
+          {}
           {user && isStudent && (
             <Link href="/blog/create" className="w-full sm:w-auto shrink-0">
               <Button className="w-full sm:w-auto h-11 bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937] font-semibold rounded-xl px-6">
@@ -66,7 +65,7 @@ export default function BlogPage() {
           )}
         </div>
 
-        {/* Results */}
+        {}
         {isLoading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(3)].map((_, idx) => (
@@ -151,7 +150,7 @@ export default function BlogPage() {
           </div>
         )}
 
-        {/* Pagination */}
+        {}
         {postsData?.pagination?.pages > 1 && (
           <div className="flex justify-center gap-3 mt-12">
             <Button variant="outline" className="rounded-xl" disabled>

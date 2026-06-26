@@ -300,7 +300,6 @@ router.get('/admin/reports/scholarships', async (req, res) => {
   });
 });
 
-// Hobby Categories (for hobbies)
 router.post('/admin/categories', async (req, res) => {
   const { name, description } = req.body;
   
@@ -335,7 +334,6 @@ router.delete('/admin/categories/:id', async (req, res) => {
   res.status(204).send();
 });
 
-// Hobbies
 router.post('/admin/hobbies', async (req, res) => {
   const { name, description, ageGroup, categoryId, imageUrl } = req.body;
   
@@ -362,7 +360,6 @@ router.delete('/admin/hobbies/:id', async (req, res) => {
   res.status(204).send();
 });
 
-// Product Categories (for marketplace - sellers use these)
 router.post('/admin/product-categories', async (req, res) => {
   const { name, description } = req.body;
   

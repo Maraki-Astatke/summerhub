@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',  
+  host: 'smtp.gmail.com',
   port: 587,
   secure: false,
   auth: {
@@ -20,7 +20,7 @@ transporter.verify((error, success) => {
 
 export async function sendVerificationEmail(to, token) {
   const verificationLink = `http://localhost:5001/api/auth/verify/${token}`;
-  
+
   const mailOptions = {
     from: `"HobbyHub" <${process.env.EMAIL_USER}>`,
     to: to,
@@ -49,7 +49,7 @@ export async function sendVerificationEmail(to, token) {
 
 export async function sendResetEmail(to, token) {
   const resetLink = `http://localhost:3000/reset-password/${token}`;
-  
+
   const mailOptions = {
     from: `"HobbyHub" <${process.env.EMAIL_USER}>`,
     to: to,
@@ -76,6 +76,6 @@ export async function sendResetEmail(to, token) {
 }
 
 export function generateVerificationToken() {
-  return Math.random().toString(36).substring(2, 15) + 
-         Math.random().toString(36).substring(2, 15);
+  return Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
 }

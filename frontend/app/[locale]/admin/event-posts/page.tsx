@@ -52,7 +52,7 @@ export default function AdminEventPostsPage() {
       return;
     }
     setOpenRegPanel(postId);
-    if (expandedRegistrations[postId]) return; // already loaded
+    if (expandedRegistrations[postId]) return;
     setLoadingRegs(prev => ({ ...prev, [postId]: true }));
     try {
       const res = await api.get(`/admin/event-posts/${postId}/registrations`);
@@ -156,7 +156,7 @@ export default function AdminEventPostsPage() {
                   isAdminView={true}
                 />
 
-                {/* Registrations Panel */}
+                {}
                 <button
                   onClick={() => fetchRegistrations(post.id)}
                   className="flex items-center gap-2 w-full px-5 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-[#FF7A45]/30 hover:bg-[#FFF8F5] transition-all text-sm font-semibold text-gray-700 group"
@@ -264,3 +264,4 @@ export default function AdminEventPostsPage() {
     </div>
   );
 }
+

@@ -22,7 +22,6 @@ export default function CreateBlogPage() {
   const [titleError, setTitleError] = useState('');
   const [contentError, setContentError] = useState('');
 
-  // Check if user is student
   const isStudent = user?.roles?.[0] === 'student';
   const isTeacher = user?.roles?.[0] === 'teacher';
   const isAdmin = user?.roles?.[0] === 'admin';
@@ -84,7 +83,6 @@ export default function CreateBlogPage() {
     return null;
   }
 
-  // Show forbidden message for non-students
   if (!isStudent) {
     let roleName = '';
     if (isTeacher) roleName = 'Teacher';
@@ -121,11 +119,11 @@ export default function CreateBlogPage() {
                 Only <strong>Students</strong> can create blog posts.
               </p>
               <p className="text-gray-500 text-sm mb-6">
-                Your role: <span className="font-semibold text-purple-600">{roleName}</span>
+                Your role: <span className="font-semibold text-[#FF7A45]">{roleName}</span>
               </p>
               <div className="flex gap-4 justify-center">
                 <Link href="/blog">
-                  <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Button className="bg-[#FF7A45] hover:bg-[#ff8f61]">
                     Back to Blog
                   </Button>
                 </Link>

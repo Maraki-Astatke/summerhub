@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -21,9 +22,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/providers/auth-provider";
 import api from "@/lib/api";
+import { toast } from "sonner";
 import {
   Users,
   Package,
@@ -47,6 +57,17 @@ import {
   HelpCircle,
   GraduationCap,
   FileText,
+  Briefcase,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Calendar,
+  Gift,
+  HandCoins,
+  Eye,
+  UserCheck,
+  UserX,
+  Sparkles,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -58,13 +79,15 @@ export default function AdminDashboardPage() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
   const [userFilter, setUserFilter] = useState<"all" | "pending" | "active">("all");
-  
-  // Quiz state - SIMPLIFIED (no isActive)
+  const [rejectReason, setRejectReason] = useState("");
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [rejectType, setRejectType] = useState<"sponsorship" | "job">("sponsorship");
+
   const [isQuizDialogOpen, setIsQuizDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<any>(null);
   const [question, setQuestion] = useState('');
 
-  // Redirect for quiz-responses tab
   useEffect(() => {
     if (activeTab === "quiz-responses") {
       router.push("/admin/quiz-responses");
@@ -114,7 +137,6 @@ export default function AdminDashboardPage() {
     enabled: !!user && user?.roles?.includes("admin"),
   });
 
-  // Quiz queries - SIMPLIFIED
   const { data: questions, isLoading: quizLoading } = useQuery({
     queryKey: ['quiz-questions'],
     queryFn: async () => {
@@ -124,6 +146,33 @@ export default function AdminDashboardPage() {
     enabled: !!user && user?.roles?.includes('admin'),
   });
 
+  const { data: scholarshipGivers } = useQuery({
+    queryKey: ["admin-scholarship-givers"],
+    queryFn: async () => {
+      const response = await api.get("/admin/scholarship-givers");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes("admin"),
+  });
+
+  const { data: sponsorships } = useQuery({
+    queryKey: ["admin-sponsorships"],
+    queryFn: async () => {
+      const response = await api.get("/admin/sponsorships");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes("admin"),
+  });
+
+  const { data: jobPosts } = useQuery({
+    queryKey: ["admin-job-posts"],
+    queryFn: async () => {
+      const response = await api.get("/admin/job-posts");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes("admin"),
+  });
+
   const updateRolesMutation = useMutation({
     mutationFn: async ({ userId, roleIds }: { userId: number; roleIds: number[] }) => {
       await api.put(`/admin/users/${userId}/roles`, { roleIds });
@@ -131,7 +180,10 @@ export default function AdminDashboardPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       setSelectedUserId(null);
-      alert("Roles updated successfully");
+      toast.success("Roles updated successfully");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Failed to update roles");
     },
   });
 
@@ -141,7 +193,10 @@ export default function AdminDashboardPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      alert("User activated");
+      toast.success("User activated");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Failed to activate user");
     },
   });
 
@@ -151,11 +206,69 @@ export default function AdminDashboardPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      alert("User deactivated");
+      toast.success("User deactivated");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Failed to deactivate user");
     },
   });
 
-  // Quiz mutations - SIMPLIFIED (no isActive)
+  const approveSponsorshipMutation = useMutation({
+    mutationFn: async (sponsorshipId: number) => {
+      await api.put(`/admin/sponsorships/${sponsorshipId}/approve`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-sponsorships"] });
+      toast.success("Sponsorship approved!");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Failed to approve sponsorship");
+    },
+  });
+
+  const rejectSponsorshipMutation = useMutation({
+    mutationFn: async ({ sponsorshipId, reason }: { sponsorshipId: number; reason: string }) => {
+      await api.put(`/admin/sponsorships/${sponsorshipId}/reject`, { reason });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-sponsorships"] });
+      toast.success("Sponsorship rejected");
+      setShowRejectDialog(false);
+      setRejectReason("");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Failed to reject sponsorship");
+    },
+  });
+
+  const approveJobPostMutation = useMutation({
+    mutationFn: async (jobId: number) => {
+      await api.put(`/admin/job-posts/${jobId}/approve`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-job-posts"] });
+      toast.success("Job post approved!");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Failed to approve job post");
+    },
+  });
+
+  const rejectJobPostMutation = useMutation({
+    mutationFn: async ({ jobId, reason }: { jobId: number; reason: string }) => {
+      await api.put(`/admin/job-posts/${jobId}/reject`, { reason });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-job-posts"] });
+      toast.success("Job post rejected");
+      setShowRejectDialog(false);
+      setRejectReason("");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Failed to reject job post");
+    },
+  });
+
   const createQuizMutation = useMutation({
     mutationFn: async (data: { question: string }) => {
       const response = await api.post('/admin/quiz/questions', data);
@@ -165,10 +278,10 @@ export default function AdminDashboardPage() {
       queryClient.invalidateQueries({ queryKey: ['quiz-questions'] });
       setIsQuizDialogOpen(false);
       resetQuizForm();
-      alert('Question created successfully!');
+      toast.success('Question created successfully!');
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || 'Failed to create question');
+      toast.error(error.response?.data?.error || 'Failed to create question');
     },
   });
 
@@ -182,7 +295,7 @@ export default function AdminDashboardPage() {
       setIsQuizDialogOpen(false);
       setEditingQuestion(null);
       resetQuizForm();
-      alert('Question updated successfully!');
+      toast.success('Question updated successfully!');
     },
   });
 
@@ -192,7 +305,7 @@ export default function AdminDashboardPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['quiz-questions'] });
-      alert('Question deleted');
+      toast.success('Question deleted');
     },
   });
 
@@ -204,7 +317,7 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     
     if (!question.trim()) {
-      alert('Question is required');
+      toast.error('Question is required');
       return;
     }
     
@@ -231,6 +344,40 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const openRejectDialog = (id: number, type: "sponsorship" | "job") => {
+    setSelectedItemId(id);
+    setRejectType(type);
+    setRejectReason("");
+    setShowRejectDialog(true);
+  };
+
+  const handleReject = () => {
+    if (!selectedItemId) return;
+    
+    if (rejectType === "sponsorship") {
+      rejectSponsorshipMutation.mutate({ sponsorshipId: selectedItemId, reason: rejectReason });
+    } else if (rejectType === "job") {
+      rejectJobPostMutation.mutate({ jobId: selectedItemId, reason: rejectReason });
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "approved":
+        return <Badge className="bg-green-500">Approved</Badge>;
+      case "rejected":
+        return <Badge className="bg-red-500">Rejected</Badge>;
+      case "pending":
+        return <Badge className="bg-yellow-500">Pending</Badge>;
+      case "active":
+        return <Badge className="bg-green-500">Active</Badge>;
+      case "inactive":
+        return <Badge className="bg-gray-500">Inactive</Badge>;
+      default:
+        return <Badge className="bg-gray-500">{status}</Badge>;
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -250,10 +397,12 @@ export default function AdminDashboardPage() {
     { id: "quiz-responses", label: "Quiz Responses", icon: <FileText className="w-5 h-5" /> },
     { id: "content", label: "Content", icon: <BookOpen className="w-5 h-5" /> },
     { id: "talent-events", label: "Manage Talent Events", icon: <Trophy className="w-5 h-5" /> },
+    { id: "scholarship-givers", label: "Scholarship Givers", icon: <Users className="w-5 h-5" /> },
+    { id: "sponsorships", label: "Sponsorships", icon: <HandCoins className="w-5 h-5" /> },
+    { id: "job-posts", label: "Job Posts", icon: <Briefcase className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
-    // Quiz responses and talent-events handled by useEffect - just return null
     if (activeTab === "quiz-responses" || activeTab === "talent-events") {
       return null;
     }
@@ -291,7 +440,7 @@ export default function AdminDashboardPage() {
                     : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                 }`}
               >
-                Pending Approval ({users?.data?.filter((u: any) => !u.isActive).length || 0})
+                Pending ({users?.data?.filter((u: any) => !u.isActive).length || 0})
               </button>
               <button
                 onClick={() => setUserFilter("active")}
@@ -315,14 +464,13 @@ export default function AdminDashboardPage() {
                     <th className="text-left p-3 dark:text-gray-300">Name</th>
                     <th className="text-left p-3 dark:text-gray-300">Roles</th>
                     <th className="text-left p-3 dark:text-gray-300">Status</th>
-                    <th className="text-left p-3 dark:text-gray-300">Verified</th>
                     <th className="text-left p-3 dark:text-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center p-8 text-gray-500 dark:text-gray-400">
+                      <td colSpan={6} className="text-center p-8 text-gray-500 dark:text-gray-400">
                         No users found matching this filter.
                       </td>
                     </tr>
@@ -345,12 +493,7 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="p-3">
                           <span className={`text-xs px-2 py-1 rounded font-semibold ${user.isActive ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"}`}>
-                            {user.isActive ? "Active" : "Pending Approval"}
-                          </span>
-                        </td>
-                        <td className="p-3">
-                          <span className={`text-xs px-2 py-1 rounded ${user.isVerified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                            {user.isVerified ? "Yes" : "No"}
+                            {user.isActive ? "Active" : "Pending"}
                           </span>
                         </td>
                         <td className="p-3">
@@ -488,7 +631,7 @@ export default function AdminDashboardPage() {
             </div>
             <Dialog open={isQuizDialogOpen} onOpenChange={setIsQuizDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => { resetQuizForm(); setEditingQuestion(null); }} className="bg-purple-600 hover:bg-purple-700">
+                <Button onClick={() => { resetQuizForm(); setEditingQuestion(null); }} className="bg-[#FF7A45] hover:bg-[#ff8f61]">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Question
                 </Button>
@@ -514,7 +657,7 @@ export default function AdminDashboardPage() {
                     </p>
                   </div>
                   
-                  <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+                  <Button type="submit" className="w-full bg-[#FF7A45] hover:bg-[#ff8f61]">
                     {editingQuestion ? 'Update Question' : 'Create Question'}
                   </Button>
                 </form>
@@ -527,7 +670,7 @@ export default function AdminDashboardPage() {
             ) : questions?.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-500">No quiz questions yet</p>
-                <Button className="mt-4 bg-purple-600 hover:bg-purple-700" onClick={() => setIsQuizDialogOpen(true)}>
+                <Button className="mt-4 bg-[#FF7A45] hover:bg-[#ff8f61]" onClick={() => setIsQuizDialogOpen(true)}>
                   Create First Question
                 </Button>
               </div>
@@ -538,8 +681,8 @@ export default function AdminDashboardPage() {
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-1">
-                            <span className="text-purple-600 font-bold text-sm">{idx + 1}</span>
+                          <div className="w-8 h-8 rounded-full bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-[#FF7A45] font-bold text-sm">{idx + 1}</span>
                           </div>
                           <div>
                             <CardTitle className="text-lg text-gray-800">{q.question}</CardTitle>
@@ -625,29 +768,240 @@ export default function AdminDashboardPage() {
       );
     }
 
+    if (activeTab === "scholarship-givers") {
+      return (
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="dark:text-white">Scholarship Givers</CardTitle>
+            <CardDescription className="dark:text-gray-400">View all registered scholarship givers</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="dark:text-gray-300">Name</TableHead>
+                    <TableHead className="dark:text-gray-300">Email</TableHead>
+                    <TableHead className="dark:text-gray-300">Organization</TableHead>
+                    <TableHead className="dark:text-gray-300">Status</TableHead>
+                    <TableHead className="dark:text-gray-300">Joined</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {scholarshipGivers?.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        No scholarship givers registered yet
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    scholarshipGivers?.map((giver: any) => (
+                      <TableRow key={giver.id}>
+                        <TableCell className="font-medium dark:text-gray-100">
+                          {giver.profile?.firstName} {giver.profile?.lastName}
+                        </TableCell>
+                        <TableCell className="dark:text-gray-300">{giver.email}</TableCell>
+                        <TableCell className="dark:text-gray-300">{giver.organization || "N/A"}</TableCell>
+                        <TableCell>{getStatusBadge(giver.isActive ? "active" : "inactive")}</TableCell>
+                        <TableCell className="dark:text-gray-300">
+                          {new Date(giver.createdAt).toLocaleDateString()}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activeTab === "sponsorships") {
+      return (
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="dark:text-white">Sponsorships</CardTitle>
+            <CardDescription className="dark:text-gray-400">
+              Review and manage event sponsorships from scholarship givers
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="dark:text-gray-300">Scholarship Giver</TableHead>
+                    <TableHead className="dark:text-gray-300">Event</TableHead>
+                    <TableHead className="dark:text-gray-300">Amount</TableHead>
+                    <TableHead className="dark:text-gray-300">Type</TableHead>
+                    <TableHead className="dark:text-gray-300">Status</TableHead>
+                    <TableHead className="dark:text-gray-300">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sponsorships?.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        No sponsorships yet
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    sponsorships?.map((sponsorship: any) => (
+                      <TableRow key={sponsorship.id}>
+                        <TableCell className="dark:text-gray-300">
+                          {sponsorship.giver?.profile?.firstName} {sponsorship.giver?.profile?.lastName}
+                        </TableCell>
+                        <TableCell className="dark:text-gray-300">{sponsorship.event?.title}</TableCell>
+                        <TableCell className="dark:text-gray-300">{sponsorship.amount} ETB</TableCell>
+                        <TableCell className="dark:text-gray-300">{sponsorship.sponsorType}</TableCell>
+                        <TableCell>{getStatusBadge(sponsorship.status)}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            {sponsorship.status === "pending" && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  className="bg-green-500 hover:bg-green-600 text-white"
+                                  onClick={() => approveSponsorshipMutation.mutate(sponsorship.id)}
+                                  disabled={approveSponsorshipMutation.isPending}
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => openRejectDialog(sponsorship.id, "sponsorship")}
+                                >
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                            {sponsorship.status !== "pending" && (
+                              <Badge className={sponsorship.status === "approved" ? "bg-green-500" : "bg-red-500"}>
+                                {sponsorship.status}
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (activeTab === "job-posts") {
+      return (
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="dark:text-white">Job Posts</CardTitle>
+            <CardDescription className="dark:text-gray-400">
+              Review and manage job posts from scholarship givers
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="dark:text-gray-300">Title</TableHead>
+                    <TableHead className="dark:text-gray-300">Scholarship Giver</TableHead>
+                    <TableHead className="dark:text-gray-300">Category</TableHead>
+                    <TableHead className="dark:text-gray-300">Type</TableHead>
+                    <TableHead className="dark:text-gray-300">Status</TableHead>
+                    <TableHead className="dark:text-gray-300">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {jobPosts?.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        No job posts yet
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    jobPosts?.map((job: any) => (
+                      <TableRow key={job.id}>
+                        <TableCell className="font-medium dark:text-gray-100">{job.title}</TableCell>
+                        <TableCell className="dark:text-gray-300">
+                          {job.giver?.profile?.firstName} {job.giver?.profile?.lastName}
+                        </TableCell>
+                        <TableCell className="dark:text-gray-300">{job.hobbyCategory}</TableCell>
+                        <TableCell className="dark:text-gray-300">{job.jobType}</TableCell>
+                        <TableCell>{getStatusBadge(job.status)}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            {job.status === "pending" && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  className="bg-green-500 hover:bg-green-600 text-white"
+                                  onClick={() => approveJobPostMutation.mutate(job.id)}
+                                  disabled={approveJobPostMutation.isPending}
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => openRejectDialog(job.id, "job")}
+                                >
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                            {job.status !== "pending" && (
+                              <Badge className={job.status === "approved" ? "bg-green-500" : "bg-red-500"}>
+                                {job.status}
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
     return null;
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-purple-600 dark:text-purple-400">HobbyHub Admin</Link>
+        <Link href="/" className="text-xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub Admin</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
           {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
         </button>
       </div>
 
+      {}
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b dark:border-gray-700">
-            <Link href="/" className="text-2xl font-bold text-purple-600 dark:text-purple-400">HobbyHub</Link>
+            <Link href="/" className="text-2xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub</Link>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Admin Portal</p>
           </div>
 
           <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
-                <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">
+              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 dark:bg-[#FF7A45]/10 flex items-center justify-center">
+                <span className="text-[#FF7A45] dark:text-[#FF7A45] font-bold text-lg">
                   {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'A'}
                 </span>
               </div>
@@ -658,7 +1012,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {menuItems.map((item) => (
               <button
                 key={item.id}
@@ -668,7 +1022,7 @@ export default function AdminDashboardPage() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   activeTab === item.id
-                    ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                    ? 'bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
@@ -693,10 +1047,12 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
+      {}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
+      {}
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
@@ -707,6 +1063,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
+      {}
       {selectedUserId && roles && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full mx-4">
@@ -746,6 +1103,38 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       )}
+
+      {}
+      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reject {rejectType === "sponsorship" ? "Sponsorship" : "Job Post"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Reason for Rejection</Label>
+              <Textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Please provide a reason for rejection..."
+                rows={3}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                className="bg-red-500 hover:bg-red-600 text-white"
+                onClick={handleReject}
+                disabled={rejectSponsorshipMutation.isPending || rejectJobPostMutation.isPending}
+              >
+                Confirm Rejection
+              </Button>
+              <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

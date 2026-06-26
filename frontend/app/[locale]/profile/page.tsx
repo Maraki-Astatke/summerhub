@@ -30,7 +30,6 @@ export default function ProfilePage() {
     company: '',
   });
 
-  // Apply saved theme
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' || 'light';
     if (savedTheme === 'dark') {
@@ -164,7 +163,7 @@ export default function ProfilePage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* TAB 1: PERSONAL INFORMATION */}
+          {}
           <TabsContent value="info">
             <Card className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
               <CardHeader>
@@ -176,7 +175,7 @@ export default function ProfilePage() {
               <CardContent>
                 {isEditing ? (
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* First & Last Name - ALL ROLES */}
+                    {}
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="firstName" className="text-gray-700 dark:text-gray-300">First Name</Label>
@@ -199,7 +198,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-4">
-                      {/* Age - STUDENT ONLY */}
+                      {}
                       {isStudent && (
                         <div>
                           <Label htmlFor="age" className="text-gray-700 dark:text-gray-300">Age</Label>
@@ -213,7 +212,7 @@ export default function ProfilePage() {
                         </div>
                       )}
                       
-                      {/* Grade - STUDENT ONLY */}
+                      {}
                       {isStudent && (
                         <div>
                           <Label htmlFor="grade" className="text-gray-700 dark:text-gray-300">Grade</Label>
@@ -226,7 +225,7 @@ export default function ProfilePage() {
                         </div>
                       )}
                       
-                      {/* Profession - TEACHER ONLY */}
+                      {}
                       {isTeacher && (
                         <div>
                           <Label htmlFor="profession" className="text-gray-700 dark:text-gray-300">Profession</Label>
@@ -241,7 +240,7 @@ export default function ProfilePage() {
                       )}
                     </div>
 
-                    {/* School Name - STUDENT ONLY */}
+                    {}
                     {isStudent && (
                       <div>
                         <Label htmlFor="schoolName" className="text-gray-700 dark:text-gray-300">School Name</Label>
@@ -254,7 +253,7 @@ export default function ProfilePage() {
                       </div>
                     )}
 
-                    {/* Company - TEACHER & SELLER ONLY */}
+                    {}
                     {(isTeacher || isSeller) && (
                       <div>
                         <Label htmlFor="company" className="text-gray-700 dark:text-gray-300">Organization/Company</Label>
@@ -268,7 +267,7 @@ export default function ProfilePage() {
                       </div>
                     )}
 
-                    {/* City - ALL ROLES */}
+                    {}
                     <div>
                       <Label htmlFor="city" className="text-gray-700 dark:text-gray-300">City</Label>
                       <Input
@@ -279,7 +278,7 @@ export default function ProfilePage() {
                       />
                     </div>
 
-                    {/* Bio - ALL ROLES */}
+                    {}
                     <div>
                       <Label htmlFor="bio" className="text-gray-700 dark:text-gray-300">Bio</Label>
                       <Input
@@ -304,7 +303,7 @@ export default function ProfilePage() {
                 ) : (
                   <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
-                      {/* Full Name - ALL ROLES */}
+                      {}
                       <div className="flex items-center gap-2">
                         <User className="h-5 w-5 text-gray-400" />
                         <div>
@@ -315,7 +314,7 @@ export default function ProfilePage() {
                         </div>
                       </div>
                       
-                      {/* Email - ALL ROLES */}
+                      {}
                       <div className="flex items-center gap-2">
                         <Mail className="h-5 w-5 text-gray-400" />
                         <div>
@@ -324,7 +323,7 @@ export default function ProfilePage() {
                         </div>
                       </div>
                       
-                      {/* Phone - ALL ROLES */}
+                      {}
                       <div className="flex items-center gap-2">
                         <Phone className="h-5 w-5 text-gray-400" />
                         <div>
@@ -333,7 +332,7 @@ export default function ProfilePage() {
                         </div>
                       </div>
 
-                      {/* Role - ALL ROLES */}
+                      {}
                       <div className="flex items-center gap-2">
                         <Shield className="h-5 w-5 text-gray-400" />
                         <div>
@@ -342,7 +341,7 @@ export default function ProfilePage() {
                         </div>
                       </div>
                       
-                      {/* Grade - STUDENT ONLY */}
+                      {}
                       {isStudent && profile?.profile?.grade && (
                         <div className="flex items-center gap-2">
                           <GraduationCap className="h-5 w-5 text-gray-400" />
@@ -353,7 +352,7 @@ export default function ProfilePage() {
                         </div>
                       )}
                       
-                      {/* Profession - TEACHER ONLY */}
+                      {}
                       {isTeacher && profile?.profile?.profession && (
                         <div className="flex items-center gap-2">
                           <Briefcase className="h-5 w-5 text-gray-400" />
@@ -364,7 +363,7 @@ export default function ProfilePage() {
                         </div>
                       )}
                       
-                      {/* Company - TEACHER & SELLER ONLY */}
+                      {}
                       {(isTeacher || isSeller) && profile?.profile?.company && (
                         <div className="flex items-center gap-2">
                           <Building2 className="h-5 w-5 text-gray-400" />
@@ -376,7 +375,7 @@ export default function ProfilePage() {
                       )}
                     </div>
                     
-                    {/* Age - STUDENT ONLY */}
+                    {}
                     {isStudent && profile?.profile?.age && (
                       <div className="flex items-center gap-2">
                         <Calendar className="h-5 w-5 text-gray-400" />
@@ -387,7 +386,7 @@ export default function ProfilePage() {
                       </div>
                     )}
                     
-                    {/* School Name - STUDENT ONLY */}
+                    {}
                     {isStudent && profile?.profile?.schoolName && (
                       <div className="flex items-center gap-2">
                         <School className="h-5 w-5 text-gray-400" />
@@ -398,7 +397,7 @@ export default function ProfilePage() {
                       </div>
                     )}
                     
-                    {/* City - ALL ROLES */}
+                    {}
                     {profile?.profile?.city && (
                       <div className="flex items-center gap-2">
                         <MapPin className="h-5 w-5 text-gray-400" />
@@ -409,7 +408,7 @@ export default function ProfilePage() {
                       </div>
                     )}
                     
-                    {/* Bio - ALL ROLES */}
+                    {}
                     {profile?.profile?.bio && (
                       <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">About Me</p>
@@ -422,7 +421,7 @@ export default function ProfilePage() {
             </Card>
           </TabsContent>
 
-          {/* TAB 2: ACCOUNT SETTINGS */}
+          {}
           <TabsContent value="account">
             <Card className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
               <CardHeader>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const locale = useLocale();
   const { login } = useAuth();
   const t = useTranslations();
   const [email, setEmail] = useState("");
@@ -54,21 +56,28 @@ export default function LoginPage() {
       toast.success("Logged in successfully!");
 
       const storedUser = localStorage.getItem("user");
+      console.log("Stored user:", storedUser);
+
       if (storedUser) {
         const user = JSON.parse(storedUser);
-        if (user.roles?.includes("admin")) {
-          router.push("/admin");
+        console.log("User roles:", user.roles);
+
+        if (user.roles?.includes("scholarship_giver")) {
+          console.log(`Redirecting to /${locale}/scholarship-giver`);
+          router.push(`/${locale}/scholarship-giver`);
+        } else if (user.roles?.includes("admin")) {
+          router.push(`/${locale}/admin`);
         } else if (user.roles?.includes("teacher")) {
-          router.push("/teacher");
+          router.push(`/${locale}/teacher`);
         } else if (user.roles?.includes("seller")) {
-          router.push("/seller");
+          router.push(`/${locale}/seller`);
         } else if (user.roles?.includes("parent")) {
-          router.push("/parent");
+          router.push(`/${locale}/parent`);
         } else {
-          router.push("/dashboard");
+          router.push(`/${locale}/dashboard`);
         }
       } else {
-        router.push("/dashboard");
+        router.push(`/${locale}/dashboard`);
       }
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Login failed");
@@ -99,7 +108,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FFF2EB] p-4 relative overflow-hidden">
-      {/* Decorative Blob */}
+      {}
       <div className="absolute top-[-10%] right-[-10%] w-[350px] h-[350px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-70 z-0 pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-70 z-0 pointer-events-none" />
 

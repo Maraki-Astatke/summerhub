@@ -38,7 +38,7 @@ export default function TalentEventsPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 py-12">
       <div className="max-w-5xl mx-auto px-6 space-y-12">
-        {/* Header Section */}
+        {}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center p-3 bg-[#FF7A45]/10 rounded-full mb-2">
             <Sparkles className="w-8 h-8 text-[#FF7A45]" />
@@ -51,7 +51,7 @@ export default function TalentEventsPage() {
           </p>
         </div>
 
-        {/* Feed Section */}
+        {}
         <div className="space-y-8">
           {posts.length === 0 ? (
             <div className="bg-white p-12 rounded-[32px] text-center border border-gray-100 shadow-sm">
@@ -76,3 +76,4 @@ export default function TalentEventsPage() {
     </div>
   );
 }
+

@@ -73,7 +73,6 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
       if (onPostUpdated) onPostUpdated();
     } catch (error) {
       console.error('Failed to toggle like:', error);
-      // Revert optimistic update
       setIsLiked(isLiked);
       setLikesCount(likesCount);
     }
@@ -149,7 +148,7 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
       </CardHeader>
       
       <CardContent className="space-y-6">
-        {/* Main Details Grid */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
           <div className="flex items-center gap-3 text-gray-700">
             <div className="bg-white p-2 rounded-lg shadow-sm">
@@ -180,7 +179,7 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
           </div>
         </div>
 
-        {/* Content Blocks */}
+        {}
         <div className="space-y-4">
           <div>
             <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
@@ -212,7 +211,7 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
           </div>
         </div>
 
-        {/* Register Button or Admin Toggle */}
+        {}
         {isAdminView ? (
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
             <div>
@@ -258,7 +257,7 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
       </CardContent>
 
       <CardFooter className="flex flex-col border-t bg-gray-50/50 p-4">
-        {/* Interaction Bar */}
+        {}
         <div className="flex items-center justify-between w-full">
           <div className="flex gap-2">
             <Button 
@@ -285,7 +284,7 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
           </div>
         </div>
 
-        {/* Comments Section */}
+        {}
         {showComments && (
           <div className="w-full mt-4 space-y-4 pt-4 border-t border-gray-100">
             {currentUser ? (
@@ -329,7 +328,7 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
                     </div>
                     <p className="text-sm text-gray-600">{comment.content}</p>
                     
-                    {/* Delete Comment Button */}
+                    {}
                     {(isAdmin || comment.userId === currentUser?.id) && (
                       <button 
                         onClick={() => handleDeleteComment(comment.id)}
@@ -351,3 +350,4 @@ export default function EventPostCard({ post, currentUser, onPostUpdated, onEdit
     </Card>
   );
 }
+

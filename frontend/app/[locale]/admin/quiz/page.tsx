@@ -168,7 +168,7 @@ export default function AdminQuizPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
-          <Link href="/admin" className="text-xl font-bold text-purple-600">Admin Panel</Link>
+          <Link href="/admin" className="text-xl font-bold text-[#FF7A45]">Admin Panel</Link>
         </div>
       </header>
 
@@ -288,7 +288,7 @@ export default function AdminQuizPage() {
                     {q.options?.map((opt: any, optIdx: number) => (
                       <div key={optIdx} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
                         <span>{opt.text}</span>
-                        <span className="text-xs text-purple-600">
+                        <span className="text-xs text-[#FF7A45]">
                           {hobbiesList?.find((h: any) => h.id === opt.hobbyId)?.name || `Hobby ID: ${opt.hobbyId}`}
                         </span>
                       </div>

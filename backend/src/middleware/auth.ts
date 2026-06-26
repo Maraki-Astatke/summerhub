@@ -13,11 +13,11 @@ export interface AuthRequest extends Request {
 export function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  
+
   if (!token) {
     return res.status(401).json({ error: 'Access denied. No token provided.' });
   }
-  
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
     req.user = {
@@ -36,7 +36,7 @@ export function requireRole(allowedRoles: string[]) {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    
+
     try {
       // Import prisma dynamically or at the top of the file
       // Since it's not imported at the top, we'll import it here or at the top
@@ -44,17 +44,17 @@ export function requireRole(allowedRoles: string[]) {
         where: { userId: req.user.userId },
         include: { role: true }
       });
-      
+
       const roleNames = userRoles.map(ur => ur.role.name);
-      
+
       const hasAllowedRole = allowedRoles.some(role => roleNames.includes(role));
-      
+
       if (!hasAllowedRole) {
-        return res.status(403).json({ 
-          error: `Forbidden. Required roles: ${allowedRoles.join(', ')}. Your role: ${req.user.role || 'undefined'}` 
+        return res.status(403).json({
+          error: `Forbidden. Required roles: ${allowedRoles.join(', ')}. Your role: ${req.user.role || 'undefined'}`
         });
       }
-      
+
       next();
     } catch (error) {
       console.error('Role check error:', error);
@@ -68,18 +68,18 @@ export function requireOwnershipOrAdmin(getResourceUserId: (req: AuthRequest) =>
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    
+
     const isAdmin = req.user.role === 'admin';
-    
+
     if (isAdmin) {
       return next();
     }
-    
+
     const resourceUserId = await getResourceUserId(req);
     if (resourceUserId === req.user.userId) {
       return next();
     }
-    
+
     return res.status(403).json({ error: 'Forbidden. You can only access your own data.' });
   };
 }

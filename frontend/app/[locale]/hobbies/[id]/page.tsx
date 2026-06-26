@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';  // ← ADD THIS LINE
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,6 @@ export default function HobbyDetailPage() {
   const t = useTranslations();
   const [showUnregisterDialog, setShowUnregisterDialog] = useState(false);
 
-  // Fetch hobby details
   const { data: hobby, isLoading: hobbyLoading } = useQuery({
     queryKey: ['hobby', id],
     queryFn: async () => {
@@ -41,7 +40,6 @@ export default function HobbyDetailPage() {
     },
   });
 
-  // Check if student is registered for this hobby
   const { data: isRegistered, refetch: refetchRegistration } = useQuery({
     queryKey: ['hobby-registered', id],
     queryFn: async () => {
@@ -52,7 +50,6 @@ export default function HobbyDetailPage() {
     enabled: !!user && !!id,
   });
 
-  // Fetch lessons - ONLY if registered
   const { data: lessons, refetch: refetchLessons } = useQuery({
     queryKey: ['lessons', id],
     queryFn: async () => {
@@ -62,7 +59,6 @@ export default function HobbyDetailPage() {
     enabled: !!isRegistered,
   });
 
-  // Register for hobby mutation
   const registerForHobbyMutation = useMutation({
     mutationFn: async () => {
       const response = await api.post(`/hobbies/${id}/register`);
@@ -86,7 +82,6 @@ export default function HobbyDetailPage() {
     },
   });
 
-  // Unregister from hobby mutation
   const unregisterFromHobbyMutation = useMutation({
     mutationFn: async () => {
       const response = await api.delete(`/hobbies/${id}/unregister`);
@@ -112,7 +107,6 @@ export default function HobbyDetailPage() {
     },
   });
 
-  // Register for lesson mutation
   const registerForLessonMutation = useMutation({
     mutationFn: async (lessonId: number) => {
       const response = await api.post(`/lessons/${lessonId}/register`);
@@ -198,7 +192,7 @@ export default function HobbyDetailPage() {
       <Navbar alwaysWhite={true} />
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32">
-        {/* Hobby Info Hero Banner */}
+        {}
         <div className="bg-white rounded-[24px] border border-gray-100 p-8 md:p-10 shadow-sm mb-10 relative overflow-hidden">
           <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] rounded-full bg-[#FFF2EB] filter blur-3xl opacity-60 pointer-events-none" />
           
@@ -223,9 +217,9 @@ export default function HobbyDetailPage() {
               {hobby.description}
             </p>
 
-            {/* Button container */}
+            {}
             <div className="flex flex-wrap gap-4 items-center">
-              {/* Register for Hobby Button - Only show for students not registered */}
+              {}
               {isStudent && !isRegistered && (
                 <Button 
                   onClick={handleRegisterForHobby}
@@ -237,7 +231,7 @@ export default function HobbyDetailPage() {
                 </Button>
               )}
 
-              {/* Already Registered Badge with Unregister button */}
+              {}
               {isStudent && isRegistered && (
                 <div className="flex flex-wrap items-center gap-4">
                   <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full border border-green-200 shadow-sm">
@@ -258,7 +252,7 @@ export default function HobbyDetailPage() {
           </div>
         </div>
 
-        {/* Only show tabs if registered or not a student */}
+        {}
         {(!isStudent || isRegistered) ? (
           <Tabs defaultValue="lessons" className="space-y-8">
             <TabsList className="bg-gray-100/70 p-1.5 rounded-xl border border-gray-100 max-w-md">
@@ -396,7 +390,6 @@ export default function HobbyDetailPage() {
             )}
           </Tabs>
         ) : (
-          // Not registered message for students
           <Card className="rounded-[24px] border-gray-100 shadow-sm bg-gradient-to-br from-white to-gray-50">
             <CardContent className="text-center py-16">
               <div className="w-20 h-20 rounded-full bg-[#FFF2EB] flex items-center justify-center mx-auto mb-4">
@@ -419,7 +412,7 @@ export default function HobbyDetailPage() {
         )}
       </main>
 
-      {/* Unregister Confirmation Dialog */}
+      {}
       <AlertDialog open={showUnregisterDialog} onOpenChange={setShowUnregisterDialog}>
         <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>

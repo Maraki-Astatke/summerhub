@@ -30,7 +30,6 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<any>(null);
 
-  // Fetch existing conversations
   const { data: conversations, refetch: refetchConversations } = useQuery({
     queryKey: ['conversations'],
     queryFn: async () => {
@@ -40,7 +39,6 @@ export default function ChatPage() {
     enabled: !!user,
   });
 
-  // Fetch all teachers (for students to chat with)
   const { data: teachers } = useQuery({
     queryKey: ['teachers'],
     queryFn: async () => {
@@ -50,7 +48,6 @@ export default function ChatPage() {
     enabled: !!user && user?.roles?.[0] === 'student',
   });
 
-  // Fetch all students (for teachers to chat with)
   const { data: students } = useQuery({
     queryKey: ['students'],
     queryFn: async () => {
@@ -60,7 +57,6 @@ export default function ChatPage() {
     enabled: !!user && (user?.roles?.[0] === 'teacher' || user?.roles?.[0] === 'seller'),
   });
 
-  // Fetch messages for selected user
   const { data: messagesData, refetch: refetchMessages } = useQuery({
     queryKey: ['messages', selectedUser?.id],
     queryFn: async () => {
@@ -77,7 +73,6 @@ export default function ChatPage() {
     }
   }, [messagesData]);
 
-  // Socket connection
   useEffect(() => {
     if (!user) return;
 
@@ -198,7 +193,7 @@ export default function ChatPage() {
 
       <main className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-8">
         <div className="grid md:grid-cols-3 gap-6 h-[80vh]">
-          {/* Left Panel - Conversations & Contacts */}
+          {}
           <Card className="overflow-hidden border border-gray-100 bg-white rounded-[24px] shadow-sm flex flex-col">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
               <TabsList className="grid w-full grid-cols-2 rounded-none border-b bg-transparent p-0">
@@ -383,7 +378,7 @@ export default function ChatPage() {
             </Tabs>
           </Card>
 
-          {/* Chat Area */}
+          {}
           <Card className="md:col-span-2 overflow-hidden border border-gray-100 bg-white rounded-[24px] shadow-sm flex flex-col h-full">
             {selectedUser ? (
               <>

@@ -8,9 +8,9 @@ import { useAuth } from '@/providers/auth-provider';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import api from '@/lib/api';
-import { 
-  BookOpen, Video, ShoppingBag, Users, Calendar, Award, 
-  Mail, Phone, MapPin, Sparkles, GraduationCap, 
+import {
+  BookOpen, Video, ShoppingBag, Users, Calendar, Award,
+  Mail, Phone, MapPin, Sparkles, GraduationCap,
   UserCheck, Building2, Music, Palette, Code2, Cpu, Camera,
   PenTool, ShieldCheck, ClipboardList, BarChart2, Newspaper, Trophy,
   Star, ChevronLeft, ChevronRight, Globe, Send, MessageSquare
@@ -91,27 +91,27 @@ export default function Home() {
       {/* HERO SECTION */}
       <section className="pt-32 pb-20 md:py-40 bg-[#FFF2EB] overflow-hidden relative">
         <div className="absolute top-1/2 right-[-10%] w-[600px] h-[600px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-60 z-0 pointer-events-none" />
-        
+
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-            
+
             <div className="lg:col-span-6 flex flex-col items-start text-left">
               <h1 className="text-4xl md:text-5xl lg:text-[64px] lg:leading-[72px] font-extrabold text-[#1F2937] tracking-tight mb-6">
                 {t('hero.title')} <br />
                 <span className="text-[#FF7A45]">{t('hero.titleHighlight')}</span>
               </h1>
-              
+
               <p className="text-base md:text-lg lg:text-[18px] text-[#6B7280] leading-relaxed mb-8 max-w-xl">
                 {t('hero.subtitle')}
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mb-12">
                 <Link href="/register" className="w-full sm:w-auto">
                   <button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#FF7A45] text-[#1F2937] font-bold hover:bg-[#ff8f61] transition-all duration-200 shadow-lg shadow-[#FF7A45]/30">
                     {t('nav.getStarted')}
                   </button>
                 </Link>
-             <Link href="/quiz" className="w-full sm:w-auto">
+                <Link href="/quiz" className="w-full sm:w-auto">
                   <button className="w-full sm:w-auto h-14 px-10 rounded-2xl border border-[#FF7A45] text-[#FF7A45] hover:bg-[#FF7A45]/5 font-bold transition-all">
                     {t('button.takeQuiz')}
                   </button>
@@ -201,7 +201,7 @@ export default function Home() {
               <h2 className="text-2xl md:text-3xl lg:text-[40px] font-extrabold text-[#1F2937] tracking-tight mb-8">
                 {t('howItWorks.title')}
               </h2>
-              
+
               <div className="flex flex-col gap-8 w-full">
                 {steps.map((step, index) => (
                   <div key={index} className="flex gap-5 items-start">
@@ -226,7 +226,7 @@ export default function Home() {
           <h2 className="text-2xl md:text-3xl lg:text-[36px] font-extrabold text-[#1F2937] tracking-tight mb-12">
             {t('whoIsFor.title')}
           </h2>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {targets.map((target, index) => (
               <div key={index} className="bg-white border border-gray-100 rounded-[24px] p-8 flex flex-col items-center text-center hover:translate-y-[-6px] hover:shadow-xl transition-all duration-300 group cursor-default">
@@ -336,7 +336,6 @@ export default function Home() {
               <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">{t('footer.support')}</h4>
               <ul className="flex flex-col gap-4">
                 <li><Link href="/help" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{t('footer.helpCenter')}</Link></li>
-                <li><Link href="/contact" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{t('footer.contactUs')}</Link></li>
                 <li><Link href="/privacy" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{t('footer.privacy')}</Link></li>
                 <li><Link href="/terms" className="text-sm text-[#9CA3AF] hover:text-white transition-colors">{t('footer.terms')}</Link></li>
               </ul>

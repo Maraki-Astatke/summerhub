@@ -31,7 +31,6 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -76,9 +75,8 @@ export default function SettingsPage() {
     }, 500);
   };
 
-  // ← CHANGE: Update handleLogout to clear cache
   const handleLogout = () => {
-    queryClient.clear(); // ← ADD THIS - clears all cached queries
+    queryClient.clear();
     logout();
     router.push('/');
   };
@@ -141,7 +139,7 @@ export default function SettingsPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Appearance Tab - SAME FOR ALL ROLES */}
+          {}
           <TabsContent value="appearance">
             <Card className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <CardHeader>
@@ -185,13 +183,12 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">Dark mode for reduced eye strain</p>
                   </div>
 
-
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Language Tab - SAME FOR ALL ROLES */}
+          {}
           <TabsContent value="language">
             <Card className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <CardHeader>
@@ -241,7 +238,7 @@ export default function SettingsPage() {
             </Card>
           </TabsContent>
 
-          {/* Account Tab - Shows Role-Specific Profile Info + Edit Profile Button */}
+          {}
           <TabsContent value="account">
             <Card className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <CardHeader>
@@ -254,7 +251,7 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Basic Account Info */}
+                {}
                 <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                   <div className="flex items-center justify-between flex-wrap gap-4">
                     <div>
@@ -272,7 +269,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                {/* Profile Summary - Role-specific fields */}
+                {}
                 <div>
                   <h3 className="font-semibold text-gray-800 dark:text-white mb-4">Profile Summary</h3>
                   <div className="grid md:grid-cols-2 gap-4">
@@ -373,7 +370,7 @@ export default function SettingsPage() {
                   )}
                 </div>
 
-                {/* Logout Button */}
+                {}
                 <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
                   <Button
                     onClick={handleLogout}

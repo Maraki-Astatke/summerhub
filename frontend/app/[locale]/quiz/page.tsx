@@ -23,7 +23,6 @@ export default function QuizPage() {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState('');
 
-  // Check if user is allowed to take quiz (only students)
   const isStudent = user?.roles?.[0] === 'student';
   const isTeacher = user?.roles?.[0] === 'teacher';
   const isAdmin = user?.roles?.[0] === 'admin';
@@ -35,7 +34,7 @@ export default function QuizPage() {
       const response = await api.get('/quiz/questions');
       return response.data;
     },
-    enabled: !!user && isStudent, // Only fetch if user is student
+    enabled: !!user && isStudent,
   });
 
   const { data: existingResult } = useQuery({
@@ -142,22 +141,19 @@ export default function QuizPage() {
     return answers.some(a => a.questionId === questionId);
   };
 
-  // Show loading state
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF7A45]" />
       </div>
     );
   }
 
-  // Redirect to login if not logged in
   if (!user) {
     router.push('/login');
     return null;
   }
 
-  // Show forbidden message for non-students
   if (!isStudent) {
     let roleName = '';
     if (isTeacher) roleName = 'Teacher';
@@ -166,7 +162,7 @@ export default function QuizPage() {
     else roleName = user?.roles?.[0] || 'User';
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
+      <div className="min-h-screen bg-gradient-to-br from-[#FFF2EB] to-white">
         <Navbar alwaysWhite={true} />
         <main className="container mx-auto px-4 py-12 pt-32 max-w-2xl">
           <Card className="shadow-xl border-0">
@@ -181,11 +177,11 @@ export default function QuizPage() {
                 This quiz is only available for <strong>Students</strong>.
               </p>
               <p className="text-gray-500 text-sm mb-6">
-                Your role: <span className="font-semibold text-purple-600">{roleName}</span>
+                Your role: <span className="font-semibold text-[#FF7A45]">{roleName}</span>
               </p>
               <div className="flex gap-4 justify-center">
                 <Link href="/dashboard">
-                  <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Button className="bg-[#FF7A45] hover:bg-[#ff8f61]">
                     Go to Dashboard
                   </Button>
                 </Link>
@@ -212,10 +208,9 @@ export default function QuizPage() {
     );
   }
 
-  // Show if no questions available
   if (!questions || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
+      <div className="min-h-screen bg-gradient-to-br from-[#FFF2EB] to-white">
         <Toaster position="top-center" richColors />
         <Navbar alwaysWhite={true} />
         <main className="container mx-auto px-4 py-12 pt-32 max-w-2xl">
@@ -228,7 +223,7 @@ export default function QuizPage() {
                 No quiz questions have been added yet. Please check back later.
               </p>
               <Link href="/dashboard">
-                <Button className="bg-purple-600 hover:bg-purple-700">
+                <Button className="bg-[#FF7A45] hover:bg-[#ff8f61]">
                   Go to Dashboard
                 </Button>
               </Link>
@@ -239,10 +234,9 @@ export default function QuizPage() {
     );
   }
 
-  // Show quiz completed state
   if (quizCompleted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
+      <div className="min-h-screen bg-gradient-to-br from-[#FFF2EB] to-white">
         <Toaster position="top-center" richColors />
         <Navbar alwaysWhite={true} />
         <main className="container mx-auto px-4 py-12 pt-32 max-w-3xl">
@@ -264,7 +258,7 @@ export default function QuizPage() {
               </div>
               <div className="flex gap-4 justify-center pt-4">
                 <Link href="/hobbies">
-                  <Button className="bg-purple-600 hover:bg-purple-700">Explore Hobbies</Button>
+                  <Button className="bg-[#FF7A45] hover:bg-[#ff8f61]">Explore Hobbies</Button>
                 </Link>
                 <Link href="/dashboard">
                   <Button variant="outline">Go to Dashboard</Button>
@@ -281,7 +275,7 @@ export default function QuizPage() {
   const progress = ((currentQuestionIndex + 1) / (questions?.length || 1)) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFF2EB] to-white">
       <Toaster position="top-center" richColors />
       <Navbar alwaysWhite={true} />
       
@@ -297,8 +291,8 @@ export default function QuizPage() {
         <Card className="shadow-xl border-0">
           <CardHeader>
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <span className="text-purple-600 font-bold text-sm">{currentQuestionIndex + 1}</span>
+              <div className="w-8 h-8 rounded-full bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-[#FF7A45] font-bold text-sm">{currentQuestionIndex + 1}</span>
               </div>
               <CardTitle className="text-xl text-gray-800 pt-1">{currentQuestion?.question}</CardTitle>
             </div>
@@ -310,7 +304,7 @@ export default function QuizPage() {
                 value={currentAnswer}
                 onChange={(e) => setCurrentAnswer(e.target.value)}
                 rows={6}
-                className="resize-none text-base rounded-xl border-gray-200 focus:border-purple-400 focus:ring-purple-400"
+                className="resize-none text-base rounded-xl border-gray-200 focus:border-[#FF7A45] focus:ring-[#FF7A45]"
               />
               <div className="flex justify-between mt-2">
                 <p className="text-xs text-gray-400">
@@ -358,7 +352,7 @@ export default function QuizPage() {
                 <Button 
                   onClick={handleNext}
                   disabled={!currentAnswer.trim()}
-                  className="bg-purple-600 hover:bg-purple-700 rounded-xl"
+                  className="bg-[#FF7A45] hover:bg-[#ff8f61] rounded-xl"
                 >
                   Save & Next
                   <ArrowRight className="h-4 w-4 ml-2" />
@@ -366,7 +360,7 @@ export default function QuizPage() {
               )}
             </div>
 
-            {/* Progress indicator */}
+            {}
             <div className="pt-4 border-t">
               <div className="flex flex-wrap gap-2 justify-center">
                 {questions?.map((q: any, idx: number) => (
@@ -380,7 +374,7 @@ export default function QuizPage() {
                     }}
                     className={`w-8 h-8 rounded-full text-xs font-medium transition-all ${
                       idx === currentQuestionIndex
-                        ? 'bg-purple-600 text-white'
+                        ? 'bg-[#FF7A45] text-white'
                         : isAnswerSaved(q.id)
                         ? 'bg-green-100 text-green-700 border border-green-300'
                         : 'bg-gray-100 text-gray-500 hover:bg-gray-200'

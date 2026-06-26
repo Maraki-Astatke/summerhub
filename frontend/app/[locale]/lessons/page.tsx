@@ -65,7 +65,7 @@ export default function LessonsPage() {
           <p className="text-base text-[#6B7280]">Join real-time classrooms with professional HobbyHub certified educators.</p>
         </div>
 
-        {/* Filters */}
+        {}
         <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm mb-10">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
@@ -99,7 +99,7 @@ export default function LessonsPage() {
           </div>
         </div>
 
-        {/* Results */}
+        {}
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(3)].map((_, idx) => (
@@ -174,7 +174,7 @@ export default function LessonsPage() {
           </div>
         )}
 
-        {/* Pagination */}
+        {}
         {lessonsData?.pagination?.pages > 1 && (
           <div className="flex justify-center gap-3 mt-12">
             <Button variant="outline" className="rounded-xl" disabled>Previous</Button>

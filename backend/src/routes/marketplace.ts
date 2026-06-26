@@ -12,10 +12,6 @@ const checkoutLimiter = rateLimit({
   message: { error: 'Too many checkout attempts. Try again later.' }
 });
 
-// ============================================
-// PRODUCT CRUD OPERATIONS (Seller/Admin only)
-// ============================================
-
 router.post('/products',
   authenticateToken,
   requireRole(['seller', 'admin']),
@@ -62,7 +58,6 @@ router.post('/products',
   }
 );
 
-// GET all products (Public - Only shows IN STOCK products)
 router.get('/products',
   [
     query('categoryId').optional().isInt(),
@@ -131,7 +126,6 @@ router.get('/products',
   }
 );
 
-// GET single product by ID (Public - Only shows if IN STOCK)
 router.get('/products/:id',
   [param('id').isInt()],
   async (req, res) => {
@@ -175,7 +169,6 @@ router.get('/products/:id',
   }
 );
 
-// UPDATE product (Seller/Admin only)
 router.put('/products/:id',
   authenticateToken,
   requireRole(['seller', 'admin']),
@@ -228,7 +221,6 @@ router.put('/products/:id',
   }
 );
 
-// DELETE product (Seller/Admin only)
 router.delete('/products/:id',
   authenticateToken,
   requireRole(['seller', 'admin']),
@@ -267,11 +259,6 @@ router.delete('/products/:id',
   }
 );
 
-// ============================================
-// CART OPERATIONS - Buyers only (student, teacher, parent, scholar)
-// ============================================
-
-// GET cart
 router.get('/cart',
   authenticateToken,
   requireRole(['student', 'teacher', 'parent', 'scholar']),
@@ -303,7 +290,6 @@ router.get('/cart',
   }
 );
 
-// ADD item to cart - Buyers only (student, teacher, parent, scholar)
 router.post('/cart/add',
   authenticateToken,
   requireRole(['student', 'teacher', 'parent', 'scholar']),
@@ -356,7 +342,6 @@ router.post('/cart/add',
   }
 );
 
-// UPDATE cart item quantity - Buyers only (student, teacher, parent, scholar)
 router.put('/cart/update',
   authenticateToken,
   requireRole(['student', 'teacher', 'parent', 'scholar']),
@@ -400,7 +385,6 @@ router.put('/cart/update',
   }
 );
 
-// REMOVE item from cart - Buyers only (student, teacher, parent, scholar)
 router.delete('/cart/remove/:productId',
   authenticateToken,
   requireRole(['student', 'teacher', 'parent', 'scholar']),
@@ -427,11 +411,6 @@ router.delete('/cart/remove/:productId',
   }
 );
 
-// ============================================
-// ORDER OPERATIONS - Buyers only (student, teacher, parent, scholar)
-// ============================================
-
-// CREATE order from cart - Buyers only (student, teacher, parent, scholar)
 router.post('/orders/create',
   authenticateToken,
   requireRole(['student', 'teacher', 'parent', 'scholar']),
@@ -511,7 +490,6 @@ router.post('/orders/create',
   }
 );
 
-// GET all orders for logged-in user
 router.get('/orders',
   authenticateToken,
   async (req, res) => {
@@ -533,7 +511,6 @@ router.get('/orders',
   }
 );
 
-// GET single order by ID
 router.get('/orders/:id',
   authenticateToken,
   [param('id').isInt()],
@@ -588,10 +565,6 @@ router.get('/orders/:id',
     res.json(order);
   }
 );
-
-// ============================================
-// PRODUCT REVIEWS (Buyers only)
-// ============================================
 
 router.post('/products/:id/review',
   authenticateToken,

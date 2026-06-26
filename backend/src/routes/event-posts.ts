@@ -8,7 +8,6 @@ import fs from 'fs';
 
 const router = Router();
 
-// Multer setup for registration file uploads
 const regStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const dir = 'uploads/talent-registrations';
@@ -32,11 +31,6 @@ const regUpload = multer({
   }
 });
 
-// ============================================
-// PUBLIC/AUTHENTICATED ROUTES
-// ============================================
-
-// Get all event posts (public or authenticated)
 router.get('/event-posts', async (req, res) => {
   try {
     const posts = await prisma.eventPost.findMany({
@@ -67,7 +61,6 @@ router.get('/event-posts', async (req, res) => {
   }
 });
 
-// Get a single event post
 router.get('/event-posts/:id', [param('id').isInt()], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -107,7 +100,6 @@ router.get('/event-posts/:id', [param('id').isInt()], async (req, res) => {
   }
 });
 
-// Like/Unlike a post
 router.post('/event-posts/:id/like', authenticateToken, [param('id').isInt()], async (req: any, res: any) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -146,7 +138,6 @@ router.post('/event-posts/:id/like', authenticateToken, [param('id').isInt()], a
   }
 });
 
-// Add a comment
 router.post('/event-posts/:id/comments', authenticateToken, [
   param('id').isInt(),
   body('content').notEmpty().trim().escape()
@@ -184,7 +175,6 @@ router.post('/event-posts/:id/comments', authenticateToken, [
   }
 });
 
-// Delete a comment
 router.delete('/event-posts/:id/comments/:commentId', authenticateToken, [
   param('id').isInt(),
   param('commentId').isInt()
@@ -217,12 +207,6 @@ router.delete('/event-posts/:id/comments/:commentId', authenticateToken, [
   }
 });
 
-
-// ============================================
-// ADMIN ONLY ROUTES
-// ============================================
-
-// Get admin's post history
 router.get('/admin/event-posts', authenticateToken, requireRole(['admin']), async (req: any, res: any) => {
   const authorId = req.user.userId;
   
@@ -250,7 +234,6 @@ router.get('/admin/event-posts', authenticateToken, requireRole(['admin']), asyn
   }
 });
 
-// Create a new event post
 router.post('/admin/event-posts', authenticateToken, requireRole(['admin']), [
   body('title').notEmpty().trim(),
   body('date').notEmpty().trim(),
@@ -293,7 +276,6 @@ router.post('/admin/event-posts', authenticateToken, requireRole(['admin']), [
   }
 });
 
-// Update an event post
 router.put('/admin/event-posts/:id', authenticateToken, requireRole(['admin']), [
   param('id').isInt(),
   body('title').optional().trim(),
@@ -321,9 +303,6 @@ router.put('/admin/event-posts/:id', authenticateToken, requireRole(['admin']), 
       return res.status(404).json({ error: 'Event post not found' });
     }
     
-    // Check if the current admin is the author of the post or allow any admin? 
-    // Usually, admins can edit any post, or just theirs. Let's allow any admin.
-    
     const post = await prisma.eventPost.update({
       where: { id: postId },
       data: updateData
@@ -336,7 +315,6 @@ router.put('/admin/event-posts/:id', authenticateToken, requireRole(['admin']), 
   }
 });
 
-// Delete an event post
 router.delete('/admin/event-posts/:id', authenticateToken, requireRole(['admin']), [
   param('id').isInt()
 ], async (req: any, res: any) => {
@@ -361,11 +339,6 @@ router.delete('/admin/event-posts/:id', authenticateToken, requireRole(['admin']
   }
 });
 
-// ============================================
-// TALENT EVENT REGISTRATIONS
-// ============================================
-
-// Get a single post by ID (public) — for the registration page
 router.get('/event-posts/:id', [param('id').isInt()], async (req: any, res: any) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -383,7 +356,6 @@ router.get('/event-posts/:id', [param('id').isInt()], async (req: any, res: any)
   }
 });
 
-// Submit registration for a talent event (public — no auth required)
 router.post('/event-posts/:id/register', regUpload.single('file'), [
   param('id').isInt(),
   body('name').notEmpty().trim(),
@@ -410,7 +382,6 @@ router.post('/event-posts/:id/register', regUpload.single('file'), [
       fileName = req.file.originalname;
     }
 
-    // Save userId if user is authenticated (token in header)
     let userId: number | null = null;
     const authHeader = req.headers['authorization'];
     if (authHeader) {
@@ -418,10 +389,9 @@ router.post('/event-posts/:id/register', regUpload.single('file'), [
         const jwt = await import('jsonwebtoken');
         const decoded = jwt.default.verify(authHeader.split(' ')[1], process.env.JWT_SECRET!) as any;
         userId = decoded.userId;
-        // Prevent duplicate registration by same user
         const existing = await prisma.talentEventRegistration.findFirst({ where: { postId, userId } });
         if (existing) return res.status(409).json({ error: 'You have already registered for this event', registration: existing });
-      } catch { /* ignore invalid token */ }
+      } catch {  }
     }
 
     const { description } = req.body;
@@ -435,7 +405,6 @@ router.post('/event-posts/:id/register', regUpload.single('file'), [
   }
 });
 
-// Get all registrations for an event (admin only)
 router.get('/admin/event-posts/:id/registrations', authenticateToken, requireRole(['admin']), [param('id').isInt()], async (req: any, res: any) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -452,7 +421,6 @@ router.get('/admin/event-posts/:id/registrations', authenticateToken, requireRol
   }
 });
 
-// Delete a registration (admin only)
 router.delete('/admin/event-posts/registrations/:regId', authenticateToken, requireRole(['admin']), [param('regId').isInt()], async (req: any, res: any) => {
   const regId = parseInt(req.params.regId);
   try {
@@ -464,7 +432,6 @@ router.delete('/admin/event-posts/registrations/:regId', authenticateToken, requ
   }
 });
 
-// Toggle registration open/closed (admin only)
 router.patch('/admin/event-posts/:id/toggle-registration', authenticateToken, requireRole(['admin']), [param('id').isInt()], async (req: any, res: any) => {
   const postId = parseInt(req.params.id);
   try {
@@ -481,7 +448,6 @@ router.patch('/admin/event-posts/:id/toggle-registration', authenticateToken, re
   }
 });
 
-// Get current user's registration for a specific event
 router.get('/event-posts/:id/my-registration', authenticateToken, [param('id').isInt()], async (req: any, res: any) => {
   const postId = parseInt(req.params.id);
   const userId = req.user.userId;
@@ -496,7 +462,6 @@ router.get('/event-posts/:id/my-registration', authenticateToken, [param('id').i
   }
 });
 
-// Unregister current user from a talent event
 router.delete('/event-posts/:id/my-registration', authenticateToken, [param('id').isInt()], async (req: any, res: any) => {
   const postId = parseInt(req.params.id);
   const userId = req.user.userId;
@@ -514,3 +479,4 @@ router.delete('/event-posts/:id/my-registration', authenticateToken, [param('id'
 });
 
 export default router;
+

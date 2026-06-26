@@ -52,14 +52,12 @@ export default function TalentEventRegisterPage() {
         const postRes = await api.get(`/event-posts/${postId}`);
         setPost(postRes.data);
 
-        // Check if already registered
         try {
           const regRes = await api.get(`/event-posts/${postId}/my-registration`);
           if (regRes.data.registration) {
             setMyRegistration(regRes.data.registration);
           }
         } catch {
-          // Not logged in or no registration — that's fine
         }
       } catch {
         setError('Event not found.');
@@ -98,7 +96,6 @@ export default function TalentEventRegisterPage() {
       setSubmitted(true);
     } catch (err: any) {
       if (err.response?.status === 409) {
-        // Already registered
         setMyRegistration(err.response.data.registration);
       } else {
         setError(err.response?.data?.error || 'Failed to submit registration. Please try again.');
@@ -151,7 +148,7 @@ export default function TalentEventRegisterPage() {
       <main className="max-w-5xl mx-auto px-4 py-12 pt-32">
         <div className="grid md:grid-cols-2 gap-10 items-start">
           
-          {/* Left — Event Info */}
+          {}
           <div className="space-y-6">
             {post?.imageUrl && (
               <div className="w-full h-64 rounded-[24px] overflow-hidden shadow-lg">
@@ -190,10 +187,9 @@ export default function TalentEventRegisterPage() {
             </div>
           </div>
 
-          {/* Right — Registration Form or Status */}
+          {}
           <div>
             {unregistered ? (
-              /* Unregistered confirmation */
               <div className="bg-white rounded-[32px] p-10 shadow-sm border border-gray-100 text-center space-y-4">
                 <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
                   <Trash2 className="w-10 h-10 text-gray-400" />
@@ -210,7 +206,6 @@ export default function TalentEventRegisterPage() {
                 </Button>
               </div>
             ) : showRegisteredView ? (
-              /* Already registered — show their details */
               <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center">
@@ -275,7 +270,6 @@ export default function TalentEventRegisterPage() {
                 </div>
               </div>
             ) : submitted ? (
-              /* Just submitted */
               <div className="bg-white rounded-[32px] p-10 shadow-sm border border-gray-100 text-center space-y-4">
                 <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-10 h-10 text-green-500" />
@@ -287,7 +281,6 @@ export default function TalentEventRegisterPage() {
                 <div className="pt-2 text-sm text-gray-400">Contact: {post?.contact}</div>
               </div>
             ) : !post?.registrationOpen ? (
-              /* Registration closed */
               <div className="bg-white rounded-[32px] p-10 shadow-sm border border-gray-100 text-center space-y-4">
                 <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto">
                   <AlertCircle className="w-8 h-8 text-[#FF7A45]" />
@@ -296,7 +289,6 @@ export default function TalentEventRegisterPage() {
                 <p className="text-gray-500">Registration for this event is not currently open. Please check back later or contact {post?.contact}.</p>
               </div>
             ) : (
-              /* New registration form */
               <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100">
                 <div className="mb-6">
                   <h2 className="text-2xl font-extrabold text-gray-900">Register Now</h2>
@@ -406,3 +398,4 @@ export default function TalentEventRegisterPage() {
     </div>
   );
 }
+

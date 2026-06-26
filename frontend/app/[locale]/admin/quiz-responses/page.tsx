@@ -41,7 +41,7 @@ export default function AdminQuizResponsesPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF7A45]" />
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default function AdminQuizResponsesPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF7A45]" />
       </div>
     );
   }
@@ -64,7 +64,7 @@ export default function AdminQuizResponsesPage() {
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white border-b sticky top-0 z-10">
           <div className="container mx-auto px-4 py-4">
-            <Link href="/admin" className="text-xl font-bold text-purple-600">HobbyHub Admin</Link>
+            <Link href="/admin" className="text-xl font-bold text-[#FF7A45]">HobbyHub Admin</Link>
           </div>
         </header>
         <main className="container mx-auto px-4 py-8">
@@ -88,10 +88,10 @@ export default function AdminQuizResponsesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {}
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/admin" className="text-xl font-bold text-purple-600">
+          <Link href="/admin" className="text-xl font-bold text-[#FF7A45]">
             HobbyHub Admin
           </Link>
           <div className="flex gap-4">
@@ -111,7 +111,7 @@ export default function AdminQuizResponsesPage() {
           <p className="text-gray-500 mt-1">Review student answers and provide personalized recommendations</p>
         </div>
 
-        {/* Search Bar */}
+        {}
         <div className="mb-6">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -124,7 +124,7 @@ export default function AdminQuizResponsesPage() {
           </div>
         </div>
 
-        {/* Students List */}
+        {}
         {filteredStudents.length === 0 ? (
           <Card className="border-0 shadow-sm">
             <CardContent className="text-center py-12">
@@ -142,8 +142,8 @@ export default function AdminQuizResponsesPage() {
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                      <UserCheck className="h-5 w-5 text-purple-600" />
+                    <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 flex items-center justify-center">
+                      <UserCheck className="h-5 w-5 text-[#FF7A45]" />
                     </div>
                     <div>
                       <CardTitle className="text-lg">
@@ -191,7 +191,7 @@ export default function AdminQuizResponsesPage() {
 
                     <Button 
                       variant="outline" 
-                      className="w-full mt-2 border-purple-200 text-purple-600 hover:bg-purple-50 rounded-xl"
+                      className="w-full mt-2 border-[#FF7A45]/20 text-[#FF7A45] hover:bg-[#FFF2EB] rounded-xl"
                       onClick={(e) => {
                         e.stopPropagation();
                         router.push(`/admin/quiz-responses/${student.id}`);

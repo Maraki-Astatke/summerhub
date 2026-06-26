@@ -1,21 +1,17 @@
 
-
 import axios from 'axios';
 
 const CHAPA_API = 'https://api.chapa.co/v1';
 const CHAPA_SECRET = process.env.CHAPA_SECRET_KEY;
 
-// ✅ SET THIS TO TRUE FOR DEVELOPMENT
 const USE_MOCK_PAYMENT = true;
 
 export async function initializePayment(email: string, amount: number, orderId: number, firstName: string, lastName: string) {
   
-  // 🔧 MOCK MODE - Skip real Chapa during development
   if (USE_MOCK_PAYMENT) {
     console.log('🔧 MOCK PAYMENT MODE - Chapa bypassed');
     const tx_ref = `mock-${orderId}-${Date.now()}`;
     
-    // Auto-mark order as paid after 1 second
     setTimeout(async () => {
       try {
         const { default: prisma } = await import('../lib/prisma.js');
@@ -35,7 +31,6 @@ export async function initializePayment(email: string, amount: number, orderId: 
     };
   }
 
-  // REAL CHAPA INTEGRATION (for production)
   try {
     const tx_ref = `hobbyhub-${orderId}-${Date.now()}`;
     
@@ -55,7 +50,7 @@ export async function initializePayment(email: string, amount: number, orderId: 
         first_name: firstName,
         last_name: lastName,
         tx_ref: tx_ref,
-        callback_url: `https://yourdomain.com/api/payment/verify/${tx_ref}`, // Must be HTTPS in production
+        callback_url: `https://yourdomain.com/api/payment/verify/${tx_ref}`,
         return_url: `https://yourdomain.com/orders/${orderId}`,
         customization: {
           title: 'HobbyHub Payment',
@@ -89,7 +84,6 @@ export async function initializePayment(email: string, amount: number, orderId: 
       console.error('Status:', error.response.status);
       console.error('Data:', JSON.stringify(error.response.data, null, 2));
       
-      // Extract the actual error message
       const chapaError = error.response.data;
       if (chapaError.message) {
         if (typeof chapaError.message === 'object') {
@@ -108,7 +102,6 @@ export async function initializePayment(email: string, amount: number, orderId: 
 }
 
 export async function verifyPayment(tx_ref: string) {
-  // Mock mode
   if (USE_MOCK_PAYMENT && tx_ref.startsWith('mock-')) {
     console.log('🔧 Mock verification for:', tx_ref);
     return {
@@ -119,7 +112,6 @@ export async function verifyPayment(tx_ref: string) {
     };
   }
   
-  // Real verification
   try {
     const response = await axios.get(
       `${CHAPA_API}/transaction/verify/${tx_ref}`,

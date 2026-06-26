@@ -11,9 +11,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/providers/auth-provider";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
+import { toast } from "sonner";
 import {
   BookOpen,
   ShoppingBag,
@@ -46,6 +48,11 @@ import {
   Upload,
   Send,
   Package,
+  Briefcase,
+  MapPin,
+  DollarSign,
+  Building,
+  Clock,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -68,18 +75,29 @@ export default function DashboardPage() {
     
     if (!user) {
       router.push("/login");
+      return;
     }
+
+    if (user?.roles?.includes("scholarship_giver")) {
+      router.push("/scholarship-giver");
+      return;
+    }
+    
     if (user?.roles?.includes("admin")) {
       router.push("/admin");
+      return;
     }
     if (user?.roles?.includes("teacher")) {
       router.push("/teacher");
+      return;
     }
     if (user?.roles?.includes("seller")) {
       router.push("/seller");
+      return;
     }
     if (user?.roles?.includes("parent")) {
       router.push("/parent");
+      return;
     }
   }, [user, authLoading, router]);
 
@@ -130,7 +148,6 @@ export default function DashboardPage() {
     retry: false,
   });
 
-  // Fetch student resources
   const { data: studentResources, isLoading: resourcesLoading } = useQuery({
     queryKey: ["student-resources"],
     queryFn: async () => {
@@ -140,7 +157,6 @@ export default function DashboardPage() {
     enabled: !!user && user?.roles?.[0] === "student",
   });
 
-  // Fetch orders for student
   const { data: orders } = useQuery({
     queryKey: ["dashboard-orders"],
     queryFn: async () => {
@@ -150,7 +166,6 @@ export default function DashboardPage() {
     enabled: !!user && user?.roles?.[0] === "student",
   });
 
-  // Fetch teachers for submission dropdown
   const { data: teachers } = useQuery({
     queryKey: ["teachers-list"],
     queryFn: async () => {
@@ -160,7 +175,6 @@ export default function DashboardPage() {
     enabled: !!user && user?.roles?.[0] === "student",
   });
 
-  // Fetch teacher's lessons
   const { data: teacherLessons } = useQuery({
     queryKey: ["teacher-lessons-submit", submissionForm.teacherId],
     queryFn: async () => {
@@ -169,6 +183,29 @@ export default function DashboardPage() {
       return response.data;
     },
     enabled: !!submissionForm.teacherId && user?.roles?.[0] === "student",
+  });
+
+  const { data: jobOpportunities, isLoading: jobsLoading } = useQuery({
+    queryKey: ["student-job-opportunities"],
+    queryFn: async () => {
+      const response = await api.get("/scholarship-giver/jobs/available");
+      return response.data || [];
+    },
+    enabled: !!user && user?.roles?.[0] === "student",
+  });
+
+  const applyForJobMutation = useMutation({
+    mutationFn: async (jobId: number) => {
+      const response = await api.post(`/scholarship-giver/jobs/${jobId}/apply`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["student-job-opportunities"] });
+      toast.success("Application submitted successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Failed to apply for job");
+    },
   });
 
   const { data: popularHobbies } = useQuery({
@@ -202,10 +239,10 @@ export default function DashboardPage() {
       queryClient.invalidateQueries({ queryKey: ["student-resources"] });
       setShowSubmitModal(false);
       setSubmissionForm({ title: "", description: "", teacherId: "", lessonId: "", file: null });
-      alert("Assignment submitted successfully!");
+      toast.success("Assignment submitted successfully!");
     },
     onError: (error: any) => {
-      alert(error.response?.data?.error || "Failed to submit assignment");
+      toast.error(error.response?.data?.error || "Failed to submit assignment");
     },
   });
 
@@ -226,7 +263,7 @@ export default function DashboardPage() {
       case 'pending': return 'bg-yellow-100 text-yellow-700';
       case 'paid': return 'bg-green-100 text-green-700';
       case 'shipped': return 'bg-blue-100 text-blue-700';
-      case 'delivered': return 'bg-purple-100 text-purple-700';
+      case 'delivered': return 'bg-[#FF7A45]/10 text-[#FF7A45]';
       case 'cancelled': return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
@@ -256,11 +293,11 @@ export default function DashboardPage() {
   const handleSubmitAssignment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!submissionForm.title) {
-      alert("Please enter a title");
+      toast.error("Please enter a title");
       return;
     }
     if (!submissionForm.teacherId) {
-      alert("Please select a teacher");
+      toast.error("Please select a teacher");
       return;
     }
     
@@ -278,7 +315,8 @@ export default function DashboardPage() {
     user.roles?.includes("admin") ||
     user.roles?.includes("teacher") ||
     user.roles?.includes("seller") ||
-    user.roles?.includes("parent")
+    user.roles?.includes("parent") ||
+    user.roles?.includes("scholarship_giver")
   );
 
   if (authLoading || isRedirecting) {
@@ -300,6 +338,7 @@ export default function DashboardPage() {
     { id: "resources", label: "Resources", icon: <FileText className="w-5 h-5" /> },
     { id: "recommendations", label: "Recommendations", icon: <GraduationCap className="w-5 h-5" /> },
     { id: "orders", label: "Order History", icon: <Package className="w-5 h-5" /> },
+    { id: "jobs", label: "Job Opportunities", icon: <Briefcase className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
@@ -459,7 +498,7 @@ export default function DashboardPage() {
                         {cert.hobby} • {cert.teacher}
                       </p>
                       {cert.customMessage && (
-                        <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 italic">"{cert.customMessage}"</p>
+                        <p className="text-xs text-[#FF7A45] dark:text-[#FF7A45] mt-1 italic">"{cert.customMessage}"</p>
                       )}
                       <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                         Issued: {new Date(cert.issuedAt).toLocaleDateString()}
@@ -485,7 +524,7 @@ export default function DashboardPage() {
     if (activeTab === "resources") {
       return (
         <div className="space-y-6">
-          {/* Submit Assignment Button */}
+          {}
           <div className="flex justify-end">
             <Button onClick={() => setShowSubmitModal(true)} className="bg-[#FF7A45] hover:bg-[#ff8f61]">
               <Upload className="h-4 w-4 mr-2" />
@@ -493,7 +532,7 @@ export default function DashboardPage() {
             </Button>
           </div>
 
-          {/* Resources List */}
+          {}
           <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
             <CardHeader className="p-6">
               <CardTitle className="text-xl font-bold dark:text-white">My Resources</CardTitle>
@@ -564,17 +603,17 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {recommendations?.map((rec: any) => (
-                  <div key={rec.id} className="p-5 border dark:border-gray-700 rounded-xl bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-800 hover:shadow-md transition-all duration-300">
+                  <div key={rec.id} className="p-5 border dark:border-gray-700 rounded-xl bg-gradient-to-br from-[#FFF2EB] to-white dark:from-[#FF7A45]/10 dark:to-gray-800 hover:shadow-md transition-all duration-300">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                        <GraduationCap className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                      <div className="w-12 h-12 rounded-full bg-[#FF7A45]/10 dark:bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0">
+                        <GraduationCap className="h-6 w-6 text-[#FF7A45] dark:text-[#FF7A45]" />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{rec.hobby?.name}</h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{rec.hobby?.category?.name}</p>
                         {rec.reason && (
-                          <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
-                            <p className="text-sm text-purple-700 dark:text-purple-300 italic">"{rec.reason}"</p>
+                          <div className="mt-3 p-3 bg-[#FFF2EB] dark:bg-[#FF7A45]/10 rounded-lg border border-[#FFF2EB] dark:border-[#FF7A45]/30">
+                            <p className="text-sm text-[#FF7A45] dark:text-[#ff8f61] italic">"{rec.reason}"</p>
                           </div>
                         )}
                         <div className="flex items-center gap-4 mt-3">
@@ -673,12 +712,104 @@ export default function DashboardPage() {
       );
     }
 
+    if (activeTab === "jobs") {
+      return (
+        <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold dark:text-white">Job Opportunities</CardTitle>
+            <CardDescription className="dark:text-gray-400">
+              Explore job opportunities posted by Scholarship Givers
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 pt-0">
+            {jobsLoading ? (
+              <div className="text-center py-8 dark:text-gray-400">Loading job opportunities...</div>
+            ) : !jobOpportunities || jobOpportunities.length === 0 ? (
+              <div className="text-center py-12">
+                <Briefcase className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No job opportunities available right now</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Check back later for new opportunities</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {jobOpportunities.map((job: any) => {
+                  const hasApplied = job.applications?.some((app: any) => app.userId === user?.id);
+                  
+                  return (
+                    <Card key={job.id} className="border border-gray-200 dark:border-gray-700 dark:bg-gray-900/50">
+                      <CardContent className="pt-4">
+                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-semibold text-gray-800 dark:text-gray-100">{job.title}</h3>
+                              <Badge className="bg-blue-500">{job.jobType}</Badge>
+                              <Badge className="bg-green-500">{job.location}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{job.description}</p>
+                            <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                              <span className="flex items-center gap-1">
+                                <DollarSign className="h-4 w-4" />
+                                {job.payment} ETB ({job.paymentType})
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="h-4 w-4" />
+                                {job.positionsAvailable} position(s)
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Building className="h-4 w-4" />
+                                {job.experienceLevel}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                Deadline: {new Date(job.applicationDeadline).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <div className="mt-2">
+                              <Badge variant="outline">{job.hobbyCategory}</Badge>
+                            </div>
+                            {job.requirements && (
+                              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                <p className="font-medium">Requirements:</p>
+                                <p>{job.requirements}</p>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            {hasApplied ? (
+                              <Badge className="bg-green-500">Applied</Badge>
+                            ) : (
+                              <Button
+                                size="sm"
+                                className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white"
+                                onClick={() => applyForJobMutation.mutate(job.id)}
+                                disabled={applyForJobMutation.isPending}
+                              >
+                                <Send className="h-3 w-3 mr-1" />
+                                Apply Now
+                              </Button>
+                            )}
+                            <span className="text-xs text-gray-400 dark:text-gray-500">
+                              Posted by: {job.organizationName || "Scholarship Giver"}
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      );
+    }
+
     return null;
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Submit Assignment Modal */}
+      {}
       {showSubmitModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-auto">
@@ -816,9 +947,6 @@ export default function DashboardPage() {
             <Link href="/lessons" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Video className="w-5 h-5" /><span className="font-medium">Lessons</span>
             </Link>
-            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <ShoppingBag className="w-5 h-5" /><span className="font-medium">Shop</span>
-            </Link>
             <Link href="/chat" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <MessageCircle className="w-5 h-5" /><span className="font-medium">Messages</span>
             </Link>
@@ -847,7 +975,6 @@ export default function DashboardPage() {
   );
 }
 
-// Helper components
 const Label = ({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) => (
   <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
     {children}
@@ -863,7 +990,7 @@ const Input = ({ id, value, onChange, required, placeholder, type = "text", acce
     required={required}
     placeholder={placeholder}
     accept={accept}
-    className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF7A45]"
   />
 );
 
@@ -874,6 +1001,6 @@ const Textarea = ({ id, value, onChange, rows = 3, placeholder }: any) => (
     onChange={onChange}
     rows={rows}
     placeholder={placeholder}
-    className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF7A45]"
   />
 );

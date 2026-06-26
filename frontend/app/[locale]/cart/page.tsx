@@ -112,7 +112,7 @@ export default function CartPage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
+          {}
           <div className="lg:col-span-2 space-y-4">
             {cart.items.map((item: any) => (
               <Card key={item.productId} className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden">
@@ -178,7 +178,7 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* Order Summary */}
+          {}
           <div>
             <Card className="border border-gray-100 bg-white rounded-[24px] shadow-sm overflow-hidden sticky top-28">
               <CardHeader className="p-6 pb-4 border-b border-gray-50">

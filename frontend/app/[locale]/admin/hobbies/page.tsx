@@ -29,7 +29,6 @@ export default function AdminHobbiesPage() {
   const [ageGroup, setAgeGroup] = useState("");
   const [categoryId, setCategoryId] = useState("");
 
-
   useEffect(() => {
     console.log("useEffect triggered - checking admin access");
     if (!authLoading && (!user || !user?.roles?.includes("admin"))) {
@@ -271,7 +270,7 @@ export default function AdminHobbiesPage() {
                       {hobby.ageGroup || "All ages"}
                     </span>
                     {hobby.category && (
-                      <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                      <span className="bg-[#FF7A45]/10 text-[#FF7A45] px-2 py-1 rounded">
                         {hobby.category.name}
                       </span>
                     )}

@@ -4,12 +4,10 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = Router();
 
-// Test route to verify file is loaded
 router.get('/orders-test', (req, res) => {
   res.json({ message: 'Orders route is working!' });
 });
 
-// GET all orders for the logged-in user
 router.get('/orders', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -33,7 +31,6 @@ router.get('/orders', authenticateToken, async (req, res) => {
   }
 });
 
-// GET single order
 router.get('/orders/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,7 +61,6 @@ router.get('/orders/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// CREATE order from cart (with stock reduction)
 router.post('/orders', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -72,7 +68,6 @@ router.post('/orders', authenticateToken, async (req, res) => {
     
     console.log('📦 Creating order for user:', userId);
     
-    // Get cart items directly
     const cartItems = await prisma.cartItem.findMany({
       where: { userId },
       include: { product: true }
@@ -82,7 +77,6 @@ router.post('/orders', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Cart is empty' });
     }
     
-    // ✅ Check stock before creating order
     for (const item of cartItems) {
       if (item.product.stockCount < item.quantity) {
         return res.status(400).json({ 
@@ -95,9 +89,7 @@ router.post('/orders', authenticateToken, async (req, res) => {
       return sum + (item.product.price * item.quantity);
     }, 0);
     
-    // ✅ Use transaction to ensure both order creation AND stock reduction happen together
     const order = await prisma.$transaction(async (tx) => {
-      // Create order
       const newOrder = await tx.order.create({
         data: {
           userId,
@@ -116,7 +108,6 @@ router.post('/orders', authenticateToken, async (req, res) => {
         include: { items: true }
       });
       
-      // ✅ Reduce stock for each product
       for (const item of cartItems) {
         await tx.product.update({
           where: { id: item.productId },
@@ -129,7 +120,6 @@ router.post('/orders', authenticateToken, async (req, res) => {
         console.log(`📦 Stock reduced for product ${item.productId}: -${item.quantity}`);
       }
       
-      // ✅ Clear cart
       await tx.cartItem.deleteMany({
         where: { userId }
       });
@@ -146,7 +136,6 @@ router.post('/orders', authenticateToken, async (req, res) => {
   }
 });
 
-// Update order status
 router.put('/orders/:id/status', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;

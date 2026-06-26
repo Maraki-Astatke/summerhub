@@ -76,7 +76,7 @@ export default function ShopPage() {
           </p>
         </div>
 
-        {/* Filters */}
+        {}
         <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm mb-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
             <Input
@@ -128,7 +128,7 @@ export default function ShopPage() {
           </div>
         </div>
 
-        {/* Results */}
+        {}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, idx) => (
@@ -165,7 +165,7 @@ export default function ShopPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {productsData?.data?.map((product: any) => (
                 <Card key={product.id} className="border border-gray-100 bg-white rounded-[24px] hover:translate-y-[-6px] hover:shadow-xl hover:shadow-[#FF7A45]/5 transition-all duration-300 flex flex-col overflow-hidden shadow-sm">
-                  {/* PRODUCT IMAGE */}
+                  {}
                   <div className="relative w-full aspect-square bg-gray-100 overflow-hidden">
                     {product.imageUrl ? (
                       <img
@@ -173,7 +173,6 @@ export default function ShopPage() {
                         alt={product.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          // If image fails to load, show placeholder
                           (e.target as HTMLImageElement).style.display = 'none';
                           (e.target as HTMLImageElement).parentElement!.innerHTML = `
                             <div class="w-full h-full flex items-center justify-center bg-gray-100">
@@ -190,7 +189,7 @@ export default function ShopPage() {
                       </div>
                     )}
                     
-                    {/* Stock badges */}
+                    {}
                     {product.stockCount < 10 && product.stockCount > 0 && (
                       <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                         Low Stock
@@ -205,7 +204,7 @@ export default function ShopPage() {
                     )}
                   </div>
 
-                  {/* Product Info */}
+                  {}
                   <div className="p-4 flex flex-col flex-1">
                     <CardTitle className="text-lg font-bold text-[#1F2937] leading-snug tracking-tight mb-1 line-clamp-1">
                       {product.name}
@@ -229,7 +228,7 @@ export default function ShopPage() {
                       )}
                     </div>
                     
-                    {/* ✅ Display Phone Number - NEW */}
+                    {}
                     {product.phone && (
                       <div className="flex items-center gap-2 mt-2 text-sm">
                         <Phone className="h-4 w-4 text-[#FF7A45]" />
@@ -237,7 +236,7 @@ export default function ShopPage() {
                       </div>
                     )}
                     
-                    {/* Reviews */}
+                    {}
                     {product.reviews && product.reviews.length > 0 && (
                       <div className="flex items-center gap-1 mt-2">
                         {[...Array(5)].map((_, i) => {
@@ -265,7 +264,7 @@ export default function ShopPage() {
               ))}
             </div>
 
-            {/* Pagination */}
+            {}
             {productsData?.pagination?.pages > 1 && (
               <div className="flex justify-center gap-3 mt-12">
                 <Button variant="outline" className="rounded-xl" disabled>

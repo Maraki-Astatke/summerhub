@@ -96,7 +96,7 @@ const Button = ({
         ? "border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
         : variant === "destructive"
         ? "bg-red-500 text-white hover:bg-red-600"
-        : "bg-purple-600 text-white hover:bg-purple-700"
+        : "bg-[#FF7A45] text-white hover:bg-[#ff8f61]"
     } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
   >
     {children}
@@ -120,7 +120,7 @@ const Input = ({
     required={required}
     placeholder={placeholder}
     accept={accept}
-    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF7A45] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
   />
 );
 
@@ -146,7 +146,7 @@ const Textarea = ({ id, value, onChange, rows = 3, placeholder }: any) => (
     onChange={onChange}
     rows={rows}
     placeholder={placeholder}
-    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF7A45] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
   />
 );
 
@@ -162,7 +162,6 @@ export default function TeacherDashboardPage() {
   const [customMessage, setCustomMessage] = useState("");
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
   
-  // Resource state
   const [resourceForm, setResourceForm] = useState({
     title: "",
     description: "",
@@ -569,7 +568,7 @@ export default function TeacherDashboardPage() {
     if (activeTab === "stats") {
       return (
         <div className="space-y-6">
-          {/* Stats Cards */}
+          {}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="pb-2">
@@ -614,7 +613,7 @@ export default function TeacherDashboardPage() {
             </Card>
           </div>
 
-          {/* Recent Lessons Table */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="dark:text-white">Recent Lessons</CardTitle>
@@ -717,7 +716,7 @@ export default function TeacherDashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Top Students Table */}
+          {}
           <Card>
             <CardHeader>
               <CardTitle className="dark:text-white">Top Students</CardTitle>
@@ -748,7 +747,7 @@ export default function TeacherDashboardPage() {
                           </td>
                           <td className="p-3 text-gray-600 dark:text-gray-400">{student.email}</td>
                           <td className="p-3">
-                            <span className="font-medium text-purple-600">{student.registeredLessons}</span>
+                            <span className="font-medium text-[#FF7A45]">{student.registeredLessons}</span>
                           </td>
                           <td className="p-3">
                             <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
@@ -1136,7 +1135,7 @@ export default function TeacherDashboardPage() {
                           Issued to: {cert.student?.profile?.firstName} {cert.student?.profile?.lastName}
                         </p>
                         <p className="text-xs text-gray-400">Date: {new Date(cert.issuedAt).toLocaleDateString()}</p>
-                        {cert.customMessage && <p className="text-sm text-purple-600 mt-1">"{cert.customMessage}"</p>}
+                        {cert.customMessage && <p className="text-sm text-[#FF7A45] mt-1">"{cert.customMessage}"</p>}
                       </div>
                       <Button variant="outline" size="sm" onClick={() => {
                         const token = localStorage.getItem("token");
@@ -1254,7 +1253,7 @@ export default function TeacherDashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub Teacher</Link>
+        <Link href="/" className="text-xl font-bold text-[#FF7A45]">HobbyHub Teacher</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
           {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
         </button>
@@ -1263,14 +1262,14 @@ export default function TeacherDashboardPage() {
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b dark:border-gray-700">
-            <Link href="/" className="text-2xl font-bold text-purple-600 dark:text-purple-400">HobbyHub</Link>
+            <Link href="/" className="text-2xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub</Link>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Teacher Portal</p>
           </div>
 
           <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">
+              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 flex items-center justify-center">
+                <span className="text-[#FF7A45] dark:text-[#FF7A45] font-bold text-lg">
                   {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "T"}
                 </span>
               </div>
@@ -1291,7 +1290,7 @@ export default function TeacherDashboardPage() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   activeTab === item.id
-                    ? "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+                    ? "bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]"
                     : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 }`}
               >

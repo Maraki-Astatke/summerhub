@@ -13,7 +13,7 @@ import jwt from 'jsonwebtoken';
 import authRoutes from './routes/auth.js';
 import hobbyRoutes from './routes/hobby.js';
 import adminRoutes from './routes/admin.js';
-import quizRoutes from './routes/quiz.js'; 
+import quizRoutes from './routes/quiz.js';
 import lessonRoutes from './routes/lesson.js';
 import dashboardRoutes from './routes/dashboard.js';
 import resetRoutes from './routes/reset.js';
@@ -117,8 +117,8 @@ app.use('/api', uploadRoutes);
 
 
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'HobbyHub Backend is running!',
     timestamp: new Date().toISOString()
   });
@@ -148,7 +148,7 @@ io.use((socket, next) => {
   if (!token) {
     return next(new Error('Authentication required'));
   }
-  
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     socket.data.user = decoded;
@@ -161,19 +161,19 @@ io.use((socket, next) => {
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('User connected:', socket.data.user?.userId);
-  
+
   socket.on('join-room', (roomId) => {
     socket.join(roomId);
     console.log(`User ${socket.data.user?.userId} joined room ${roomId}`);
   });
-  
+
   socket.on('leave-room', (roomId) => {
     socket.leave(roomId);
   });
-  
+
   socket.on('send-message', async (data) => {
     const { roomId, message, receiverId } = data;
-    
+
     try {
       const savedMessage = await prisma.message.create({
         data: {
@@ -191,21 +191,21 @@ io.on('connection', (socket) => {
           }
         }
       });
-      
+
       io.to(`user-${receiverId}`).emit('new-message', savedMessage);
       socket.emit('message-sent', savedMessage);
     } catch (error) {
       console.error('Error saving message:', error);
     }
   });
-  
+
   socket.on('typing', ({ receiverId, isTyping }) => {
     socket.to(`user-${receiverId}`).emit('user-typing', {
       userId: socket.data.user.userId,
       isTyping
     });
   });
-  
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.data.user?.userId);
   });

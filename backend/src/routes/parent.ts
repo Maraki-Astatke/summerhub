@@ -5,12 +5,11 @@ import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
-// Link a child to parent
 router.post('/parent/children/link',
   authenticateToken,
   requireRole(['parent']),
   [
-    body('childEmail').optional().isEmail().normalizeEmail(), // ✅ FIX: Made optional
+    body('childEmail').optional().isEmail().normalizeEmail(),
     body('childPhone').optional().matches(/^(09|07)[0-9]{8}$/)
   ],
   async (req, res) => {
@@ -22,7 +21,6 @@ router.post('/parent/children/link',
     const { childEmail, childPhone } = req.body;
     const parentId = req.user.userId;
 
-    // ✅ FIX: Validate at least one is provided
     if (!childEmail && !childPhone) {
       return res.status(400).json({ error: 'Please provide either email or phone number' });
     }
@@ -47,17 +45,15 @@ router.post('/parent/children/link',
       return res.status(404).json({ error: 'Child not found' });
     }
 
-    // Check if user is a student
     const isStudent = child.roles.some(r => r.role.name === 'student');
     if (!isStudent) {
       return res.status(400).json({ error: 'User is not a student' });
     }
 
-    // ✅ FIX: Check if child is already linked to this parent
     const existingLink = await prisma.userRole.findFirst({
       where: {
         userId: child.id,
-        roleId: 5  // parent role ID - the parent role means "linked to a parent"
+        roleId: 5
       }
     });
 
@@ -65,11 +61,10 @@ router.post('/parent/children/link',
       return res.status(400).json({ error: 'Child already linked to a parent' });
     }
 
-    // ✅ FIX: Create the link by adding parent role to the child
     await prisma.userRole.create({
       data: {
         userId: child.id,
-        roleId: 5,  // parent role ID - indicates child is linked to a parent
+        roleId: 5,
         assignedAt: new Date()
       }
     });
@@ -82,19 +77,17 @@ router.post('/parent/children/link',
   }
 );
 
-// Get all children for this parent
 router.get('/parent/children',
   authenticateToken,
   requireRole(['parent']),
   async (req, res) => {
     const parentId = req.user.userId;
 
-    // Find all users who have the parent role (meaning they are linked to this parent)
     const children = await prisma.user.findMany({
       where: {
         roles: {
           some: {
-            roleId: 5  // parent role means they are linked as child
+            roleId: 5
           }
         }
       },
@@ -114,7 +107,6 @@ router.get('/parent/children',
       }
     });
 
-    // Filter out the parent themselves
     const filteredChildren = children.filter(child => child.id !== parentId);
     
     console.log(`Parent ${parentId} has ${filteredChildren.length} children`);
@@ -122,7 +114,6 @@ router.get('/parent/children',
   }
 );
 
-// Get child progress
 router.get('/parent/child/:id/progress',
   authenticateToken,
   requireRole(['parent']),
@@ -197,7 +188,6 @@ router.get('/parent/child/:id/progress',
   }
 );
 
-// Get child lessons
 router.get('/parent/child/:id/lessons',
   authenticateToken,
   requireRole(['parent']),
@@ -233,7 +223,6 @@ router.get('/parent/child/:id/lessons',
   }
 );
 
-// Get child quiz results
 router.get('/parent/child/:id/quiz-results',
   authenticateToken,
   requireRole(['parent']),
@@ -270,7 +259,6 @@ router.get('/parent/child/:id/quiz-results',
   }
 );
 
-// Approve purchase
 router.post('/parent/child/:id/approve-purchase',
   authenticateToken,
   requireRole(['parent']),

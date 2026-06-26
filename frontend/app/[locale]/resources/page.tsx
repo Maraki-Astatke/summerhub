@@ -75,7 +75,7 @@ export default function ResourcesPage() {
       <Toaster position="top-center" richColors />
       <Navbar alwaysWhite={true} />
 
-      {/* Mobile Header */}
+      {}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-[#FF7A45]">HobbyHub</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
@@ -83,7 +83,7 @@ export default function ResourcesPage() {
         </button>
       </div>
 
-      {/* Sidebar */}
+      {}
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white border-r transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b">
@@ -133,7 +133,7 @@ export default function ResourcesPage() {
 
       {sidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
-      {/* Main Content Area */}
+      {}
       <main className="lg:ml-72 min-h-screen">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-12 pt-32 lg:pt-12">
           <div className="mb-10 text-center max-w-2xl mx-auto">

@@ -116,25 +116,21 @@ export default function ParentDashboardPage() {
     },
   });
 
-  // ✅ FIX: Properly handle linking with email OR phone
   const handleLinkChild = () => {
     setLinkError('');
     
-    // Validate at least one field is filled
     if (!linkEmail && !linkPhone) {
       setLinkError('Please enter either email or phone number');
       alert('Please enter either email or phone number');
       return;
     }
     
-    // Validate phone format if provided
     if (linkPhone && !/^(09|07)[0-9]{8}$/.test(linkPhone)) {
       setLinkError('Phone must be in format: 09XXXXXXXX or 07XXXXXXXX');
       alert('Phone must be in format: 09XXXXXXXX or 07XXXXXXXX');
       return;
     }
     
-    // Validate email format if provided
     if (linkEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(linkEmail)) {
       setLinkError('Please enter a valid email address');
       alert('Please enter a valid email address');
@@ -149,7 +145,6 @@ export default function ParentDashboardPage() {
     linkChildMutation.mutate(linkData);
   };
 
-  // Reset dialog state when opening
   const openLinkDialog = () => {
     setLinkEmail('');
     setLinkPhone('');
@@ -199,7 +194,7 @@ export default function ParentDashboardPage() {
             {children.map((child: any) => (
               <Card 
                 key={child.id} 
-                className={`cursor-pointer hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700 ${selectedChild?.id === child.id ? 'border-purple-500 border-2 dark:border-purple-500' : ''}`}
+                className={`cursor-pointer hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700 ${selectedChild?.id === child.id ? 'border-[#FF7A45] border-2 dark:border-[#FF7A45]' : ''}`}
                 onClick={() => {
                   setSelectedChild(child);
                   setActiveTab('progress');
@@ -225,8 +220,8 @@ export default function ParentDashboardPage() {
               onClick={openLinkDialog}
             >
               <CardContent className="p-4 flex items-center justify-center gap-2">
-                <UserPlus className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                <span className="text-purple-600 dark:text-purple-400">Link Another Child</span>
+                <UserPlus className="h-5 w-5 text-[#FF7A45] dark:text-[#FF7A45]" />
+                <span className="text-[#FF7A45] dark:text-[#FF7A45]">Link Another Child</span>
               </CardContent>
             </Card>
           </div>
@@ -332,7 +327,7 @@ export default function ParentDashboardPage() {
                           <span className="dark:text-gray-200">{item.hobby.name}</span>
                           <div className="flex items-center gap-2">
                             <div className="w-24 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                              <div className="h-full bg-purple-600 dark:bg-purple-500 rounded-full" style={{ width: `${(item.interestLevel / 5) * 100}%` }} />
+                              <div className="h-full bg-[#FF7A45] dark:bg-[#FF7A45] rounded-full" style={{ width: `${(item.interestLevel / 5) * 100}%` }} />
                             </div>
                             <span className="text-sm dark:text-gray-400">{item.interestLevel}/5</span>
                           </div>
@@ -410,14 +405,14 @@ export default function ParentDashboardPage() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {childQuizResults.recommendations?.map((rec: any) => (
-                      <div key={rec.id} className="p-4 border dark:border-gray-700 rounded-xl bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-800 hover:shadow-md transition-all duration-300">
+                      <div key={rec.id} className="p-4 border dark:border-gray-700 rounded-xl bg-gradient-to-br from-[#FFF2EB] to-white dark:from-[#FF7A45]/10 dark:to-gray-800 hover:shadow-md transition-all duration-300">
                         <div className="flex items-start gap-4">
                           <div className="flex-1">
                             <h4 className="font-bold text-lg text-gray-800 dark:text-gray-100">{rec.hobby?.name}</h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{rec.hobby?.category?.name}</p>
                             {rec.reason && (
-                              <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
-                                <p className="text-sm text-purple-700 dark:text-purple-300 italic">"{rec.reason}"</p>
+                              <div className="mt-3 p-3 bg-[#FFF2EB] dark:bg-[#FF7A45]/10 rounded-lg border border-[#FFF2EB] dark:border-[#FF7A45]/30">
+                                <p className="text-sm text-[#FF7A45] dark:text-[#ff8f61] italic">"{rec.reason}"</p>
                               </div>
                             )}
                             <div className="mt-3">
@@ -441,9 +436,9 @@ export default function ParentDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Mobile Header */}
+      {}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-purple-600 dark:text-purple-400">HobbyHub Parent</Link>
+        <Link href="/" className="text-xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub Parent</Link>
         <div className="flex items-center gap-2">
           <Link href="/cart" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
             <ShoppingCart className="w-6 h-6" />
@@ -459,18 +454,18 @@ export default function ParentDashboardPage() {
         </div>
       </div>
 
-      {/* Sidebar */}
+      {}
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b dark:border-gray-700">
-            <Link href="/" className="text-2xl font-bold text-purple-600 dark:text-purple-400">HobbyHub</Link>
+            <Link href="/" className="text-2xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub</Link>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Parent Portal</p>
           </div>
 
           <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
-                <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">
+              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 dark:bg-[#FF7A45]/10 flex items-center justify-center">
+                <span className="text-[#FF7A45] dark:text-[#FF7A45] font-bold text-lg">
                   {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'P'}
                 </span>
               </div>
@@ -490,7 +485,7 @@ export default function ParentDashboardPage() {
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  activeTab === item.id ? 'bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 {item.icon}
@@ -533,12 +528,12 @@ export default function ParentDashboardPage() {
         </div>
       </div>
 
-      {/* Overlay */}
+      {}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content */}
+      {}
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
@@ -549,7 +544,7 @@ export default function ParentDashboardPage() {
         </div>
       </div>
 
-      {/* Link Child Dialog */}
+      {}
       <Dialog open={isLinkDialogOpen} onOpenChange={(open) => {
         setIsLinkDialogOpen(open);
         if (!open) {

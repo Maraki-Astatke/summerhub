@@ -25,7 +25,6 @@ export default function BlogPostPage() {
   const [editContent, setEditContent] = useState('');
   const [editImageUrl, setEditImageUrl] = useState('');
 
-  // Check user role
   const isStudent = user?.roles?.[0] === 'student';
   const isAdmin = user?.roles?.[0] === 'admin';
 
@@ -108,9 +107,7 @@ export default function BlogPostPage() {
   });
 
   const hasLiked = post?.likes?.some((like: any) => like.userId === user?.id);
-  // Only author or admin can edit/delete
   const canEditDelete = user?.id === post?.authorId || isAdmin;
-  // Only students can comment (optional - you can allow all roles to comment)
   const canComment = isStudent;
 
   const handleUpdate = (e: React.FormEvent) => {
@@ -154,7 +151,7 @@ export default function BlogPostPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-purple-600">HobbyHub</Link>
+          <Link href="/" className="text-xl font-bold text-[#FF7A45]">HobbyHub</Link>
           <div className="flex gap-4">
             <Link href="/blog">
               <Button variant="ghost">Blog</Button>
@@ -173,7 +170,7 @@ export default function BlogPostPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <Link href="/blog" className="inline-flex items-center text-gray-600 hover:text-purple-600 mb-6">
+        <Link href="/blog" className="inline-flex items-center text-gray-600 hover:text-[#FF7A45] mb-6">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Blog
         </Link>
@@ -193,7 +190,7 @@ export default function BlogPostPage() {
           <div className="p-6 md:p-8">
             <div className="flex justify-between items-start mb-4">
               <h1 className="text-3xl md:text-4xl font-bold flex-1">{post.title}</h1>
-              {/* Only show Edit/Delete buttons for author or admin */}
+              {}
               {canEditDelete && (
                 <div className="flex gap-2 ml-4">
                   <Button variant="outline" size="sm" onClick={openEditDialog}>
@@ -232,7 +229,7 @@ export default function BlogPostPage() {
               <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>
             </div>
 
-            {/* Like Button - All logged-in users can like */}
+            {}
             <div className="flex items-center gap-6 border-t border-b py-4 mb-8">
               {user ? (
                 hasLiked ? (
@@ -260,7 +257,7 @@ export default function BlogPostPage() {
               </span>
             </div>
 
-            {/* Comments Section - Only students can comment */}
+            {}
             <div>
               <h3 className="text-xl font-semibold mb-4">Comments</h3>
               
@@ -297,7 +294,7 @@ export default function BlogPostPage() {
                 <Card className="mb-6">
                   <CardContent className="text-center py-4">
                     <p className="text-gray-500">
-                      <Link href="/login" className="text-purple-600">Login</Link> to leave a comment
+                      <Link href="/login" className="text-[#FF7A45]">Login</Link> to leave a comment
                     </p>
                   </CardContent>
                 </Card>
@@ -322,7 +319,7 @@ export default function BlogPostPage() {
                             </div>
                             <p className="text-gray-700">{comment.content}</p>
                           </div>
-                          {/* Allow comment author, post author, or admin to delete comments */}
+                          {}
                           {(user?.id === comment.userId || user?.id === post.authorId || isAdmin) && (
                             <Button
                               variant="ghost"
@@ -344,7 +341,7 @@ export default function BlogPostPage() {
         </article>
       </main>
 
-      {/* Edit Dialog - Only shown for author/admin */}
+      {}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
           <DialogHeader>

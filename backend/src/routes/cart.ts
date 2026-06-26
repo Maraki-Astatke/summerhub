@@ -4,7 +4,6 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = Router();
 
-// GET cart for logged-in user
 router.get('/cart', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -51,7 +50,6 @@ router.get('/cart', authenticateToken, async (req, res) => {
   }
 });
 
-// ADD item to cart
 router.post('/cart/add', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -61,7 +59,6 @@ router.post('/cart/add', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Product ID required' });
     }
     
-    // Get or create cart
     let cart = await prisma.cart.findUnique({
       where: { userId }
     });
@@ -72,7 +69,6 @@ router.post('/cart/add', authenticateToken, async (req, res) => {
       });
     }
     
-    // Check if product exists
     const product = await prisma.product.findUnique({
       where: { id: productId }
     });
@@ -85,7 +81,6 @@ router.post('/cart/add', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Insufficient stock' });
     }
     
-    // Check if item already in cart
     const existingItem = await prisma.cartItem.findFirst({
       where: {
         cartId: cart.id,
@@ -120,7 +115,6 @@ router.post('/cart/add', authenticateToken, async (req, res) => {
   }
 });
 
-// UPDATE cart item quantity
 router.put('/cart/update', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -172,7 +166,6 @@ router.put('/cart/update', authenticateToken, async (req, res) => {
   }
 });
 
-// REMOVE item from cart
 router.delete('/cart/remove/:productId', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -200,7 +193,6 @@ router.delete('/cart/remove/:productId', authenticateToken, async (req, res) => 
   }
 });
 
-// CLEAR cart
 router.delete('/cart/clear', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;

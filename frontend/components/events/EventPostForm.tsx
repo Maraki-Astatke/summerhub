@@ -165,3 +165,4 @@ export default function EventPostForm({ initialData, onSubmit, onCancel, isLoadi
     </form>
   );
 }
+

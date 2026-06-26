@@ -11,9 +11,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
 import api from '@/lib/api';
-import { 
-  Package, ShoppingCart, DollarSign, AlertTriangle, Plus, Edit, Trash2, 
-  Menu, X, LogOut, LayoutDashboard, BookOpen, Newspaper, Trophy, 
+import {
+  Package, ShoppingCart, DollarSign, AlertTriangle, Plus, Edit, Trash2,
+  Menu, X, LogOut, LayoutDashboard, BookOpen, Newspaper, Trophy,
   MessageSquare, Settings, Home, BarChart3, Store, Upload, XCircle, Star,
   Phone // ← ADDED Phone icon
 } from 'lucide-react';
@@ -161,17 +161,17 @@ export default function SellerDashboardPage() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     if (!file.type.startsWith('image/')) {
       alert('Please upload an image file');
       return;
     }
-    
+
     if (file.size > 5 * 1024 * 1024) {
       alert('Image must be less than 5MB');
       return;
     }
-    
+
     setUploadingImage(true);
     try {
       const imageUrl = await uploadImageMutation.mutateAsync(file);
@@ -185,22 +185,22 @@ export default function SellerDashboardPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
       alert('Product name is required');
       return;
     }
-    
+
     if (!formData.price || parseFloat(formData.price) <= 0) {
       alert('Valid price is required');
       return;
     }
-    
+
     if (!formData.stockCount || parseInt(formData.stockCount) < 0) {
       alert('Valid stock count is required');
       return;
     }
-    
+
     if (!formData.imageUrl) {
       alert('Product image is required');
       return;
@@ -214,11 +214,11 @@ export default function SellerDashboardPage() {
       imageUrl: formData.imageUrl,
       phone: formData.phone || null, // ← ADDED phone field
     };
-    
+
     if (formData.categoryId && formData.categoryId !== '') {
       submitData.categoryId = parseInt(formData.categoryId);
     }
-    
+
     createProductMutation.mutate(submitData);
   };
 
@@ -232,15 +232,15 @@ export default function SellerDashboardPage() {
         stockCount: parseInt(formData.stockCount),
         phone: formData.phone || null, // ← ADDED phone field
       };
-      
+
       if (formData.imageUrl) {
         updateData.imageUrl = formData.imageUrl;
       }
-      
+
       if (formData.categoryId && formData.categoryId !== '') {
         updateData.categoryId = parseInt(formData.categoryId);
       }
-      
+
       updateProductMutation.mutate({
         id: editingProduct.id,
         data: updateData,
@@ -303,7 +303,7 @@ export default function SellerDashboardPage() {
                     </div>
                   )}
                 </div>
-                
+
                 <CardContent className="p-3">
                   <div className="flex justify-between items-start mb-1">
                     <h3 className="font-semibold text-sm text-gray-800 line-clamp-1">{product.name}</h3>
@@ -341,9 +341,9 @@ export default function SellerDashboardPage() {
                       </Button>
                     </div>
                   </div>
-                  
+
                   <p className="text-gray-500 text-xs line-clamp-2 mb-2">{product.description || 'No description'}</p>
-                  
+
                   {/* Display phone number if exists */}
                   {product.phone && (
                     <div className="flex items-center gap-1 mb-1 text-xs text-gray-600">
@@ -351,7 +351,7 @@ export default function SellerDashboardPage() {
                       <span>{product.phone}</span>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-base font-bold text-purple-600">{product.price} ETB</span>
                     <div className="flex items-center gap-1">
@@ -361,7 +361,7 @@ export default function SellerDashboardPage() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-between items-center text-xs pt-1 border-t border-gray-100">
                     <span className={`font-medium ${product.stockCount < 10 ? 'text-red-500' : 'text-gray-500'}`}>
                       Stock: {product.stockCount}
@@ -544,7 +544,7 @@ export default function SellerDashboardPage() {
                   ))}
                 </select>
               </div>
-              
+
               <div>
                 <Label>Product Image *</Label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
@@ -597,7 +597,7 @@ export default function SellerDashboardPage() {
                   </div>
                 </div>
               </div>
-              
+
               <Button type="submit" disabled={createProductMutation.isPending || uploadingImage} className="w-full">
                 {createProductMutation.isPending ? 'Adding...' : 'Add Product'}
               </Button>
@@ -648,11 +648,10 @@ export default function SellerDashboardPage() {
                   setActiveTab(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
                     ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
+                  }`}
               >
                 {item.icon}
                 <span className="font-medium">{item.label}</span>
@@ -673,7 +672,7 @@ export default function SellerDashboardPage() {
               <Trophy className="w-5 h-5" />
               <span className="font-medium">Events</span>
             </Link>
-           <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
             </Link>
             <button
@@ -778,7 +777,7 @@ export default function SellerDashboardPage() {
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <Label>Product Image</Label>
                   <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
@@ -831,7 +830,7 @@ export default function SellerDashboardPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-2 pt-4">
                   <Button type="submit" disabled={updateProductMutation.isPending || uploadingImage}>
                     Save Changes
