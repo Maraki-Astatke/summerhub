@@ -1,12 +1,10 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { getRoles } from "../controllers/rolesController.js";
 
 const router = Router();
 
-router.get('/roles', authenticateToken, requireRole(['admin']), async (req, res) => {
-  const roles = await prisma.role.findMany();
-  res.json(roles);
-});
+router.get('/roles', authenticateToken, requireRole(['admin']), getRoles);
 
 export default router;

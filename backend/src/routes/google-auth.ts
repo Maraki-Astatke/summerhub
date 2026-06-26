@@ -7,6 +7,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma.js';
 import bcrypt from 'bcrypt';
+import { getAuthGoogleCallback } from "../controllers/google-authController.js";
 
 const router = Router();
 
@@ -65,17 +66,7 @@ passport.deserializeUser(async (id: number, done) => {
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/auth/google/callback', 
-  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
-  async (req, res) => {
-    const user = req.user as any;
-    const userRoles = user.roles?.map((r: any) => r.role.name) || ['student'];
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, role: userRoles[0] },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
-    res.redirect(`http://localhost:3000/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
-  }
+  passport.authenticate('google', { session: false, failureRedirect: '/login' }), getAuthGoogleCallback
 );
 
 export default router;

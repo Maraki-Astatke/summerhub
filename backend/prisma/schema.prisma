@@ -7,10 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// USER & ACCOUNT TABLES (4 tables)
-// ============================================
-
 model User {
   id                Int                 @id @default(autoincrement())
   email             String              @unique
@@ -62,13 +58,13 @@ model Profile {
   user       User    @relation(fields: [userId], references: [id])
   firstName  String?
   lastName   String?
-  age        Int?      // ONLY for students
-  grade      String?   // ONLY for students
+  age        Int?
+  grade      String?
   city       String?
-  schoolName String?   // ONLY for students
+  schoolName String?
   bio        String?
-  profession String?   // ONLY for teachers and sellers
-  company    String?   // ONLY for teachers and sellers
+  profession String?
+  company    String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -93,10 +89,6 @@ model UserRole {
   
   @@unique([userId, roleId])
 }
-
-// ============================================
-// SECURITY & VERIFICATION TABLES (3 tables)
-// ============================================
 
 model EmailVerification {
   id                Int      @id @default(autoincrement())
@@ -127,10 +119,6 @@ model LoginAttempt {
   success           Boolean  @default(false)
   attemptedAt       DateTime @default(now())
 }
-
-// ============================================
-// HOBBIES & LEARNING TABLES (5 tables)
-// ============================================
 
 model Hobby {
   id                Int      @id @default(autoincrement())
@@ -185,7 +173,7 @@ model Lesson {
   teacher           User     @relation("TeacherLessons", fields: [teacherId], references: [id])
   hobby             Hobby    @relation(fields: [hobbyId], references: [id])
   registrations     LessonRegistration[]
-   resources         Resource[] 
+  resources         Resource[] 
 }
 
 model LessonRegistration {
@@ -201,10 +189,6 @@ model LessonRegistration {
   @@unique([lessonId, studentId])
 }
 
-// ============================================
-// MARKETPLACE TABLES (6 tables)
-// ============================================
-
 model Product {
   id                Int             @id @default(autoincrement())
   name              String
@@ -212,7 +196,7 @@ model Product {
   price             Float
   stockCount        Int             @default(0)
   imageUrl          String?
-  phone             String?         // ← ADD THIS - Seller's phone number
+  phone             String?
   categoryId        Int?
   sellerId          Int?
   createdAt         DateTime        @default(now())
@@ -224,6 +208,7 @@ model Product {
   orderItems        OrderItem[]
   reviews           ProductReview[]
 }
+
 model ProductCategory {
   id                Int      @id @default(autoincrement())
   name              String   @unique
@@ -285,10 +270,6 @@ model ProductReview {
   @@unique([productId, userId])
 }
 
-// ============================================
-// BLOG TABLES (3 tables)
-// ============================================
-
 model BlogPost {
   id                Int          @id @default(autoincrement())
   title             String
@@ -326,10 +307,6 @@ model BlogLike {
   
   @@unique([postId, userId])
 }
-
-// ============================================
-// EVENTS & SCHOLARSHIPS TABLES (4 tables)
-// ============================================
 
 model Event {
   id                Int      @id @default(autoincrement())
@@ -383,10 +360,6 @@ model ScholarshipApplication {
   @@unique([scholarshipId, userId])
 }
 
-// ============================================
-// CHAT & MESSAGING TABLES (1 table)
-// ============================================
-
 model Message {
   id                Int      @id @default(autoincrement())
   senderId          Int
@@ -398,10 +371,6 @@ model Message {
   sender            User     @relation("SentMessages", fields: [senderId], references: [id])
   receiver          User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
 }
-
-// ============================================
-// QUIZ & RECOMMENDATION TABLES (4 tables)
-// ============================================
 
 model QuizQuestion {
   id                Int           @id @default(autoincrement())
@@ -434,7 +403,7 @@ model QuizAnswer {
   studentId         Int
   questionId        Int
   selectedHobbyId   Int      @default(0)
-  answerText        String?   // ADD THIS LINE - for text answers
+  answerText        String?
   createdAt         DateTime @default(now())
   
   student           User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -485,14 +454,15 @@ model Certificate {
   teacher         User?         @relation("TeacherCertificates", fields: [teacherId], references: [id])
   template        CertificateTemplate? @relation(fields: [templateId], references: [id])
 }
+
 model Resource {
   id          Int       @id @default(autoincrement())
   title       String
   description String?
   fileName    String?
   fileUrl     String?
-  fileType    String?   // 'pdf', 'image', 'document', 'video'
-  fileSize    Int?      // in bytes
+  fileType    String?
+  fileSize    Int?
   senderId    Int
   receiverId  Int?
   lessonId    Int?
@@ -503,10 +473,6 @@ model Resource {
   receiver    User?     @relation("ReceivedResources", fields: [receiverId], references: [id])
   lesson      Lesson?   @relation(fields: [lessonId], references: [id])
 }
-
-// ============================================
-// TALENT EVENT POSTS (3 tables)
-// ============================================
 
 model EventPost {
   id                Int      @id @default(autoincrement())
@@ -552,10 +518,6 @@ model EventPostLike {
   
   @@unique([postId, userId])
 }
-
-// ============================================
-// TALENT EVENT REGISTRATIONS
-// ============================================
 
 model TalentEventRegistration {
   id          Int      @id @default(autoincrement())
