@@ -129,7 +129,7 @@ export default function MyLessonsPage() {
     const lessonEnd = new Date(
       lessonStart.getTime() + lesson.durationMinutes * 60000,
     );
-    const canJoin = isActive && lesson.zoomLink;
+    const canJoin = isActive; // show Join Now whenever lesson is live; the API handles room availability
 
     return (
       <Card className="border border-gray-100 bg-white rounded-[24px] hover:shadow-lg transition-all duration-300 overflow-hidden shadow-sm">
@@ -228,7 +228,7 @@ export default function MyLessonsPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
-      {}
+      { }
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center focus:outline-none">
@@ -276,8 +276,8 @@ export default function MyLessonsPage() {
         </div>
 
         {upcomingLessons.length === 0 &&
-        activeLessons.length === 0 &&
-        pastLessons.length === 0 ? (
+          activeLessons.length === 0 &&
+          pastLessons.length === 0 ? (
           <Card className="rounded-[24px] border-gray-150 bg-white p-2 shadow-sm text-center py-16 max-w-xl mx-auto">
             <CardContent className="space-y-6">
               <Calendar className="h-14 w-14 mx-auto text-[#FF7A45] mb-2 opacity-80" />

@@ -176,17 +176,7 @@ const createOrderMutation = useMutation({
                         </div>
                       </Label>
                     </div>
-                    
-                    <div className="flex items-center space-x-3 border border-gray-100 rounded-xl p-4 bg-[#FAFAFA] hover:bg-white transition-all cursor-pointer">
-                      <RadioGroupItem value="stripe" id="stripe" className="text-[#FF7A45] focus:ring-[#FF7A45]" />
-                      <Label htmlFor="stripe" className="flex items-center gap-3 cursor-pointer flex-1">
-                        <Building2 className="h-5 w-5 text-[#FF7A45]" />
-                        <div>
-                          <p className="font-bold text-sm text-[#1F2937]">Stripe Card</p>
-                          <p className="text-xs text-[#6B7280]">Pay securely with International Credit/Debit Card</p>
-                        </div>
-                      </Label>
-                    </div>
+                
 
                     <div className="flex items-center space-x-3 border border-gray-100 rounded-xl p-4 bg-[#FAFAFA] hover:bg-white transition-all cursor-pointer">
                       <RadioGroupItem value="telebirr" id="telebirr" className="text-[#FF7A45] focus:ring-[#FF7A45]" />

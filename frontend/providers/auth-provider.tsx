@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query'; // ← ADD THIS
+import { useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 
 interface User {
@@ -80,12 +80,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(user);
   };
 
-  // ← UPDATE this logout function
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     delete api.defaults.headers.common['Authorization'];
-    queryClient.clear(); // ← ADD THIS - clears all React Query cache
+    queryClient.clear();
     setToken(null);
     setUser(null);
   };
