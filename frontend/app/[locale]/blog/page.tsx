@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
 import Navbar from '@/components/Navbar';
 import api from '@/lib/api';
@@ -17,6 +17,25 @@ export default function BlogPage() {
   const [search, setSearch] = useState('');
 
   const isStudent = user?.roles?.[0] === 'student';
+  const queryClient = useQueryClient();
+
+  const likeMutation = useMutation({
+    mutationFn: async (postId: number) => {
+      await api.post(`/blog/posts/${postId}/like`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+    },
+  });
+
+  const unlikeMutation = useMutation({
+    mutationFn: async (postId: number) => {
+      await api.delete(`/blog/posts/${postId}/unlike`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+    },
+  });
 
   const { data: postsData, isLoading } = useQuery({
     queryKey: ['blog-posts', search],
@@ -130,8 +149,20 @@ export default function BlogPage() {
                 </div>
                 <CardContent className="p-6 pt-0 border-t border-gray-50 flex items-center justify-between mt-auto">
                   <div className="flex items-center gap-4 text-sm text-[#6B7280]">
-                    <span className="flex items-center gap-1">
-                      <Heart className="h-4 w-4 text-red-400" />
+                    <span 
+                      className={`flex items-center gap-1 ${user ? 'cursor-pointer hover:text-gray-900' : ''}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (!user) return;
+                        const hasLiked = post.likes?.some((like: any) => like.userId === user.id);
+                        if (hasLiked) {
+                          unlikeMutation.mutate(post.id);
+                        } else {
+                          likeMutation.mutate(post.id);
+                        }
+                      }}
+                    >
+                      <Heart className={`h-4 w-4 ${post.likes?.some((like: any) => like.userId === user?.id) ? 'fill-red-500 text-red-500' : 'text-red-400 hover:text-red-500'}`} />
                       {post.likeCount || 0}
                     </span>
                     <span className="flex items-center gap-1">

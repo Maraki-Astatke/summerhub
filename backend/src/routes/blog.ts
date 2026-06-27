@@ -12,7 +12,7 @@ router.post('/blog/posts',
   [
     body('title').notEmpty().isLength({ min: 5, max: 200 }).trim().escape(),
     body('content').notEmpty().isLength({ min: 20 }).trim().escape(),
-    body('imageUrl').optional().isURL(),
+    body('imageUrl').optional().isURL({ require_tld: false }),
     body('publishedAt').optional().isISO8601()
   ], postBlogPosts
 );

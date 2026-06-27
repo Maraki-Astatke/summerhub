@@ -18,7 +18,8 @@ export default function CreateBlogPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [titleError, setTitleError] = useState('');
   const [contentError, setContentError] = useState('');
 
@@ -67,7 +68,31 @@ export default function CreateBlogPage() {
     
     if (hasError) return;
     
-    createPostMutation.mutate({ title, content, imageUrl: imageUrl || undefined });
+    const submitData = async () => {
+      let uploadedImageUrl = undefined;
+      
+      if (imageFile) {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        
+        try {
+          const uploadRes = await api.post('/upload/product-image', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          uploadedImageUrl = uploadRes.data.imageUrl;
+        } catch (err) {
+          setIsUploading(false);
+          alert('Failed to upload image. Please check the file size and format.');
+          return;
+        }
+        setIsUploading(false);
+      }
+      
+      createPostMutation.mutate({ title, content, imageUrl: uploadedImageUrl });
+    };
+    
+    submitData();
   };
 
   if (authLoading) {
@@ -202,26 +227,35 @@ export default function CreateBlogPage() {
               </div>
 
               <div>
-                <Label htmlFor="imageUrl">Featured Image URL (optional)</Label>
+                <Label htmlFor="imageFile">Featured Image (optional)</Label>
                 <div className="flex gap-2">
                   <Input
-                    id="imageUrl"
-                    placeholder="https://example.com/image.jpg"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
+                    id="imageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setImageFile(e.target.files[0]);
+                      }
+                    }}
+                    className="cursor-pointer"
                   />
-                  {imageUrl && (
+                  {imageFile && (
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
-                      onClick={() => setImageUrl('')}
+                      onClick={() => {
+                        setImageFile(null);
+                        const fileInput = document.getElementById('imageFile') as HTMLInputElement;
+                        if (fileInput) fileInput.value = '';
+                      }}
                     >
                       <ImageIcon className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Add a cover image URL to make your post stand out</p>
+                <p className="text-xs text-gray-500 mt-1">Upload a cover image to make your post stand out</p>
               </div>
 
               <div>
@@ -244,8 +278,8 @@ export default function CreateBlogPage() {
               </div>
 
               <div className="flex gap-3">
-                <Button type="submit" disabled={createPostMutation.isPending} className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937]">
-                  {createPostMutation.isPending ? 'Publishing...' : 'Publish Post'}
+                <Button type="submit" disabled={createPostMutation.isPending || isUploading} className="bg-[#FF7A45] hover:bg-[#ff8f61] text-[#1F2937]">
+                  {createPostMutation.isPending || isUploading ? 'Publishing...' : 'Publish Post'}
                 </Button>
                 <Link href="/blog">
                   <Button type="button" variant="outline">Cancel</Button>
