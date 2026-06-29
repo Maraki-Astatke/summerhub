@@ -53,6 +53,7 @@ import {
   DollarSign,
   Building,
   Clock,
+  Users,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -68,6 +69,17 @@ export default function DashboardPage() {
     teacherId: "",
     lessonId: "",
     file: null as File | null,
+  });
+
+  // Job Application Modal
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [applyingJob, setApplyingJob] = useState<any>(null);
+  const [applyForm, setApplyForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    description: "",
+    cv: null as File | null,
   });
 
   useEffect(() => {
@@ -195,13 +207,18 @@ export default function DashboardPage() {
   });
 
   const applyForJobMutation = useMutation({
-    mutationFn: async (jobId: number) => {
-      const response = await api.post(`/scholarship-giver/jobs/${jobId}/apply`);
+    mutationFn: async ({ jobId, formData }: { jobId: number; formData: FormData }) => {
+      const response = await api.post(`/scholarship-giver/jobs/${jobId}/apply`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["student-job-opportunities"] });
       toast.success("Application submitted successfully!");
+      setShowApplyModal(false);
+      setApplyingJob(null);
+      setApplyForm({ fullName: "", email: "", phone: "", description: "", cv: null });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || "Failed to apply for job");
@@ -733,7 +750,7 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {jobOpportunities.map((job: any) => {
-                  const hasApplied = job.applications?.some((app: any) => app.userId === user?.id);
+                  const hasApplied = job.hasApplied || job.applications?.some((app: any) => app.studentId === user?.id || app.userId === user?.id);
                   
                   return (
                     <Card key={job.id} className="border border-gray-200 dark:border-gray-700 dark:bg-gray-900/50">
@@ -781,7 +798,11 @@ export default function DashboardPage() {
                               <Button
                                 size="sm"
                                 className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white"
-                                onClick={() => applyForJobMutation.mutate(job.id)}
+                                onClick={() => {
+                                  setApplyingJob(job);
+                                  setApplyForm({ fullName: "", email: user?.profile?.email || user?.email || "", phone: "", description: "", cv: null });
+                                  setShowApplyModal(true);
+                                }}
                                 disabled={applyForJobMutation.isPending}
                               >
                                 <Send className="h-3 w-3 mr-1" />
@@ -971,6 +992,151 @@ export default function DashboardPage() {
           {renderContent()}
         </div>
       </div>
+
+      {/* Job Application Modal */}
+      {showApplyModal && applyingJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto shadow-2xl">
+            <div className="p-6 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold dark:text-white">Apply for Job</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{applyingJob.title}</p>
+                </div>
+                <button
+                  onClick={() => { setShowApplyModal(false); setApplyingJob(null); }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!applyForm.fullName || !applyForm.email || !applyForm.phone) {
+                    toast.error('Please fill in all required fields.');
+                    return;
+                  }
+                  const fd = new FormData();
+                  fd.append('fullName', applyForm.fullName);
+                  fd.append('email', applyForm.email);
+                  fd.append('phone', applyForm.phone);
+                  if (applyForm.description) fd.append('description', applyForm.description);
+                  if (applyForm.cv) fd.append('cv', applyForm.cv);
+                  applyForJobMutation.mutate({ jobId: applyingJob.id, formData: fd });
+                }}
+                className="space-y-5"
+              >
+                <div>
+                  <Label htmlFor="apply-fullname">Full Name *</Label>
+                  <Input
+                    id="apply-fullname"
+                    value={applyForm.fullName}
+                    onChange={(e: any) => setApplyForm({ ...applyForm, fullName: e.target.value })}
+                    placeholder="Your full name"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="apply-email">Email Address *</Label>
+                  <Input
+                    id="apply-email"
+                    type="email"
+                    value={applyForm.email}
+                    onChange={(e: any) => setApplyForm({ ...applyForm, email: e.target.value })}
+                    placeholder="you@example.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="apply-phone">Phone Number *</Label>
+                  <Input
+                    id="apply-phone"
+                    type="tel"
+                    value={applyForm.phone}
+                    onChange={(e: any) => setApplyForm({ ...applyForm, phone: e.target.value })}
+                    placeholder="+251 9XX XXX XXX"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="apply-cv">CV / Resume (PDF, DOC, DOCX — max 10MB)</Label>
+                  <div className="mt-1">
+                    {applyForm.cv ? (
+                      <div className="flex items-center gap-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-3">
+                        <FileText className="h-5 w-5 text-[#FF7A45] flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300 truncate flex-1">{applyForm.cv.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => setApplyForm({ ...applyForm, cv: null })}
+                          className="text-red-400 hover:text-red-600 ml-2 flex-shrink-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label
+                        htmlFor="apply-cv-input"
+                        className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer bg-gray-50 dark:bg-gray-700/50 hover:bg-orange-50 dark:hover:bg-orange-900/10 hover:border-[#FF7A45] transition-colors"
+                      >
+                        <Upload className="h-7 w-7 text-gray-400 mb-2" />
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Click to upload or browse</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500 mt-1">PDF, DOC, DOCX up to 10MB</span>
+                        <input
+                          id="apply-cv-input"
+                          type="file"
+                          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                          className="hidden"
+                          onChange={(e: any) => {
+                            const file = e.target.files?.[0];
+                            if (file) setApplyForm({ ...applyForm, cv: file });
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="apply-desc">Short Description <span className="text-gray-400 dark:text-gray-500 font-normal">(Optional)</span></Label>
+                  <Textarea
+                    id="apply-desc"
+                    value={applyForm.description}
+                    onChange={(e: any) => setApplyForm({ ...applyForm, description: e.target.value })}
+                    placeholder="Tell the employer a bit about yourself and why you're a great fit..."
+                    rows={3}
+                  />
+                </div>
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
+                  <p className="text-xs text-blue-700 dark:text-blue-300">Your application will be reviewed by the scholarship giver. You will be notified about the status update.</p>
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => { setShowApplyModal(false); setApplyingJob(null); }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-[#FF7A45] hover:bg-[#ff8f61] text-white"
+                    disabled={applyForJobMutation.isPending}
+                  >
+                    {applyForJobMutation.isPending ? (
+                      <span className="flex items-center gap-2"><span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />Submitting...</span>
+                    ) : (
+                      <span className="flex items-center gap-2"><Send className="h-4 w-4" />Submit Application</span>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

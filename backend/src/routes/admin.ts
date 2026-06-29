@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { body, param, validationResult } from 'express-validator';
 import prisma from '../lib/prisma.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
-import { getAdminStats, getAdminUsers, getAdminUsersId, putAdminUsersIdRoles, putAdminUsersIdActivate, putAdminUsersIdDeactivate, deleteAdminUsersId, getAdminReportsSales, getAdminReportsLessons, getAdminReportsScholarships, postAdminCategories, getAdminCategories, putAdminCategoriesId, deleteAdminCategoriesId, postAdminHobbies, putAdminHobbiesId, deleteAdminHobbiesId, postAdminProductcategories, getAdminProductcategories, putAdminProductcategoriesId, deleteAdminProductcategoriesId } from "../controllers/adminController.js";
+import { getAdminStats, getAdminUsers, getAdminUsersId, putAdminUsersIdRoles, putAdminUsersIdActivate, putAdminUsersIdDeactivate, deleteAdminUsersId, getAdminReportsSales, getAdminReportsLessons, getAdminReportsScholarships, postAdminCategories, getAdminCategories, putAdminCategoriesId, deleteAdminCategoriesId, postAdminHobbies, putAdminHobbiesId, deleteAdminHobbiesId, postAdminProductcategories, getAdminProductcategories, putAdminProductcategoriesId, deleteAdminProductcategoriesId, getScholarshipGivers, getAdminSponsorships, approveSponsorship, rejectSponsorship, getAdminJobPosts, approveJobPost, rejectJobPost } from "../controllers/adminController.js";
 
 const router = Router();
 
@@ -60,5 +60,13 @@ router.get('/admin/product-categories', getAdminProductcategories);
 router.put('/admin/product-categories/:id', putAdminProductcategoriesId);
 
 router.delete('/admin/product-categories/:id', deleteAdminProductcategoriesId);
+
+router.get('/admin/scholarship-givers', getScholarshipGivers);
+router.get('/admin/sponsorships', getAdminSponsorships);
+router.put('/admin/sponsorships/:id/approve', approveSponsorship);
+router.put('/admin/sponsorships/:id/reject', rejectSponsorship);
+router.get('/admin/job-posts', getAdminJobPosts);
+router.put('/admin/job-posts/:id/approve', approveJobPost);
+router.put('/admin/job-posts/:id/reject', rejectJobPost);
 
 export default router;

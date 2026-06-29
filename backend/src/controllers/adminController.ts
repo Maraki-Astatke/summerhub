@@ -350,3 +350,124 @@ const { id } = req.params;
 await prisma.productCategory.delete({ where: { id: parseInt(id) } });
 res.status(204).send();
 };
+
+export const getScholarshipGivers = async (req: any, res: any) => {
+  try {
+    const givers = await prisma.user.findMany({
+      where: {
+        roles: {
+          some: {
+            role: { name: 'scholarship_giver' }
+          }
+        }
+      },
+      include: {
+        profile: true
+      }
+    });
+    res.json(givers);
+  } catch (error) {
+    console.error('Error fetching scholarship givers:', error);
+    res.status(500).json({ error: 'Failed to fetch scholarship givers' });
+  }
+};
+
+export const getAdminSponsorships = async (req: any, res: any) => {
+  try {
+    const sponsorships = await prisma.eventSponsorship.findMany({
+      include: {
+        giver: {
+          include: { profile: true }
+        },
+        event: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(sponsorships);
+  } catch (error) {
+    console.error('Error fetching sponsorships:', error);
+    res.status(500).json({ error: 'Failed to fetch sponsorships' });
+  }
+};
+
+export const approveSponsorship = async (req: any, res: any) => {
+  try {
+    const id = parseInt(req.params.id);
+    const sponsorship = await prisma.eventSponsorship.update({
+      where: { id },
+      data: { status: 'approved' }
+    });
+    res.json(sponsorship);
+  } catch (error) {
+    console.error('Error approving sponsorship:', error);
+    res.status(500).json({ error: 'Failed to approve sponsorship' });
+  }
+};
+
+export const rejectSponsorship = async (req: any, res: any) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { reason } = req.body;
+    const sponsorship = await prisma.eventSponsorship.update({
+      where: { id },
+      data: {
+        status: 'rejected',
+        rejectionReason: reason || 'Rejected by administrator'
+      }
+    });
+    res.json(sponsorship);
+  } catch (error) {
+    console.error('Error rejecting sponsorship:', error);
+    res.status(500).json({ error: 'Failed to reject sponsorship' });
+  }
+};
+
+export const getAdminJobPosts = async (req: any, res: any) => {
+  try {
+    const jobPosts = await prisma.job.findMany({
+      include: {
+        giver: {
+          include: { profile: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(jobPosts);
+  } catch (error) {
+    console.error('Error fetching job posts:', error);
+    res.status(500).json({ error: 'Failed to fetch job posts' });
+  }
+};
+
+export const approveJobPost = async (req: any, res: any) => {
+  try {
+    const id = parseInt(req.params.id);
+    const job = await prisma.job.update({
+      where: { id },
+      data: { status: 'approved' }
+    });
+    res.json(job);
+  } catch (error) {
+    console.error('Error approving job post:', error);
+    res.status(500).json({ error: 'Failed to approve job post' });
+  }
+};
+
+export const rejectJobPost = async (req: any, res: any) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { reason } = req.body;
+    const job = await prisma.job.update({
+      where: { id },
+      data: {
+        status: 'rejected',
+        rejectionReason: reason || 'Rejected by administrator'
+      }
+    });
+    res.json(job);
+  } catch (error) {
+    console.error('Error rejecting job post:', error);
+    res.status(500).json({ error: 'Failed to reject job post' });
+  }
+};
+

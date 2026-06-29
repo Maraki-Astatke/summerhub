@@ -50,6 +50,10 @@ model User {
   eventPostComments EventPostComment[]
   eventPostLikes    EventPostLike[]
   talentEventRegistrations TalentEventRegistration[]
+
+  postedJobs            Job[]                 @relation("PostedJobs")
+  jobApplications       JobApplication[]      @relation("JobApplications")
+  eventSponsorships     EventSponsorship[]    @relation("EventSponsorships")
 }
 
 model Profile {
@@ -494,6 +498,7 @@ model EventPost {
   comments          EventPostComment[]
   likes             EventPostLike[]
   registrations     TalentEventRegistration[]
+  sponsorships      EventSponsorship[]
 }
 
 model EventPostComment {
@@ -533,4 +538,62 @@ model TalentEventRegistration {
   
   post        EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model Job {
+  id                  Int              @id @default(autoincrement())
+  title               String
+  description         String
+  hobbyCategory       String
+  jobType             String
+  location            String
+  payment             Float
+  paymentType         String
+  requirements        String?
+  experienceLevel     String           @default("any")
+  positionsAvailable  Int              @default(1)
+  applicationDeadline DateTime
+  status              String           @default("pending") // pending, approved, rejected
+  rejectionReason     String?
+  giverId             Int
+  giver               User             @relation("PostedJobs", fields: [giverId], references: [id], onDelete: Cascade)
+  applications        JobApplication[]
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+}
+
+model JobApplication {
+  id          Int      @id @default(autoincrement())
+  jobId       Int
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  studentId   Int
+  student     User     @relation("JobApplications", fields: [studentId], references: [id], onDelete: Cascade)
+  fullName    String?
+  email       String?
+  phone       String?
+  description String?
+  cvUrl       String?
+  cvName      String?
+  status      String   @default("pending") // pending, shortlisted, hired, rejected
+  appliedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([jobId, studentId])
+}
+
+model EventSponsorship {
+  id              Int      @id @default(autoincrement())
+  eventId         Int
+  event           EventPost @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  giverId         Int
+  giver           User     @relation("EventSponsorships", fields: [giverId], references: [id], onDelete: Cascade)
+  amount          Float
+  sponsorType     String   @default("financial")
+  message         String?
+  status          String   @default("pending") // pending, approved, rejected
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([eventId, giverId])
 }

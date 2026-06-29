@@ -40,6 +40,7 @@ import resourceRoutes from './routes/resource.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/orders.js';
 import eventPostRoutes from './routes/event-posts.js';
+import scholarshipGiverRoutes from './routes/scholarshipGiver.js';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -83,6 +84,7 @@ app.use('/api', resetRoutes);
 app.use('/api', marketplaceRoutes);
 app.use('/api', blogRoutes);
 app.use('/api', scholarshipRoutes);
+app.use('/api/scholarship-giver', scholarshipGiverRoutes);
 app.use('/api', eventRoutes);
 app.use('/api', eventPostRoutes);
 

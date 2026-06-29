@@ -55,6 +55,14 @@ export default function LessonsPage() {
     return now >= start && now <= end;
   };
 
+  // Check if the lesson has already ended
+  const isLessonPassed = (lesson: any): boolean => {
+    const now = new Date();
+    const start = new Date(lesson.dateTime);
+    const end = new Date(start.getTime() + lesson.durationMinutes * 60000);
+    return now > end;
+  };
+
   const registerForLesson = async (lessonId: number) => {
     if (!user) {
       alert('Please login to register for lessons');
@@ -225,6 +233,13 @@ export default function LessonsPage() {
                             </Button>
                           )}
                         </>
+                      ) : isLessonPassed(lesson) ? (
+                        <Button
+                          disabled
+                          className="w-full h-11 bg-gray-200 text-gray-500 font-semibold rounded-xl cursor-not-allowed opacity-100"
+                        >
+                          Lesson Passed
+                        </Button>
                       ) : full ? (
                         <Button
                           disabled

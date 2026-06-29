@@ -68,6 +68,9 @@ import {
   Settings,
   HandCoins,
   Sparkles,
+  LayoutDashboard,
+  Home,
+  Download,
 } from "lucide-react";
 
 export default function ScholarshipGiverDashboard() {
@@ -89,12 +92,15 @@ export default function ScholarshipGiverDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterHobby, setFilterHobby] = useState("all");
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   const [sponsorFormData, setSponsorFormData] = useState({
     amount: "",
     sponsorType: "financial",
     message: "",
   });
+
+  const [editingJobId, setEditingJobId] = useState(null);
 
   const [jobFormData, setJobFormData] = useState({
     title: "",
@@ -128,16 +134,18 @@ export default function ScholarshipGiverDashboard() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [eventsRes, sponsorshipsRes, jobAppsRes, studentsRes] = await Promise.all([
-        api.get("/events?status=approved&limit=50"),
+      const [eventsRes, sponsorshipsRes, jobAppsRes, studentsRes, jobsRes] = await Promise.all([
+        api.get("/event-posts"),
         api.get("/scholarship-giver/sponsorships"),
         api.get("/scholarship-giver/job-applications"),
         api.get("/scholarship-giver/students"),
+        api.get("/scholarship-giver/jobs"),
       ]);
-      setEvents(eventsRes.data?.events || []);
+      setEvents(Array.isArray(eventsRes.data) ? eventsRes.data : eventsRes.data?.data || eventsRes.data?.events || []);
       setMySponsorships(sponsorshipsRes.data || []);
       setJobApplications(jobAppsRes.data || []);
       setStudents(studentsRes.data || []);
+      setJobs(jobsRes.data || []);
     } catch (error) {
       toast.error("Failed to load data");
     } finally {
@@ -170,9 +178,15 @@ export default function ScholarshipGiverDashboard() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await api.post("/scholarship-giver/jobs", jobFormData);
-      toast.success("Job posted successfully!");
+      if (editingJobId) {
+        await api.put(`/scholarship-giver/jobs/${editingJobId}`, jobFormData);
+        toast.success("Job updated successfully! Pending admin re-approval.");
+      } else {
+        await api.post("/scholarship-giver/jobs", jobFormData);
+        toast.success("Job posted successfully!");
+      }
       setIsJobDialogOpen(false);
+      setEditingJobId(null);
       setJobFormData({
         title: "",
         description: "",
@@ -188,10 +202,28 @@ export default function ScholarshipGiverDashboard() {
       });
       fetchData();
     } catch (error) {
-      toast.error(error.response?.data?.error || "Failed to post job");
+      toast.error(error.response?.data?.error || "Failed to save job");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleEditJobClick = (job) => {
+    setEditingJobId(job.id);
+    setJobFormData({
+      title: job.title || "",
+      description: job.description || "",
+      hobbyCategory: job.hobbyCategory || "",
+      jobType: job.jobType || "part-time",
+      location: job.location || "remote",
+      payment: job.payment ? String(job.payment) : "",
+      paymentType: job.paymentType || "one-time",
+      requirements: job.requirements || "",
+      experienceLevel: job.experienceLevel || "any",
+      positionsAvailable: job.positionsAvailable ? String(job.positionsAvailable) : "1",
+      applicationDeadline: job.applicationDeadline ? new Date(job.applicationDeadline).toISOString().split('T')[0] : "",
+    });
+    setIsJobDialogOpen(true);
   };
 
   const handleDeleteJob = async (id) => {
@@ -290,9 +322,10 @@ export default function ScholarshipGiverDashboard() {
   };
 
   const filteredStudents = students.filter((student) => {
-    const matchesSearch = student.profile?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.profile?.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = (student.profile?.firstName?.toLowerCase() || "").includes(searchLower) ||
+                         (student.profile?.lastName?.toLowerCase() || "").includes(searchLower) ||
+                         (student.email?.toLowerCase() || "").includes(searchLower);
     const matchesHobby = filterHobby === "all" || student.hobbies?.some(h => h.name === filterHobby);
     return matchesSearch && matchesHobby;
   });
@@ -313,7 +346,7 @@ export default function ScholarshipGiverDashboard() {
   }
 
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: <Award className="w-5 h-5" /> },
+    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: "students", label: "Talent Discovery", icon: <Users className="w-5 h-5" /> },
     { id: "jobs", label: "My Job Posts", icon: <Briefcase className="w-5 h-5" /> },
     { id: "job-applications", label: "Job Applications", icon: <ClipboardList className="w-5 h-5" /> },
@@ -381,7 +414,7 @@ export default function ScholarshipGiverDashboard() {
 
           <div className="p-4 border-t dark:border-gray-700 space-y-2">
             <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Award className="w-5 h-5" /><span className="font-medium">Home</span>
+              <Home className="w-5 h-5" /><span className="font-medium">Home</span>
             </Link>
             <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
@@ -613,7 +646,7 @@ export default function ScholarshipGiverDashboard() {
                                 <p className="text-xs text-gray-500 dark:text-gray-400">{student.email}</p>
                               </div>
                             </div>
-                            <Button size="sm" variant="outline" className="text-xs">
+                            <Button size="sm" variant="outline" className="text-xs" onClick={() => setSelectedStudent(student)}>
                               <Eye className="h-3 w-3 mr-1" />
                               View
                             </Button>
@@ -702,9 +735,9 @@ export default function ScholarshipGiverDashboard() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => router.push(`/scholarship-giver/jobs/${job.id}`)}
+                                onClick={() => handleEditJobClick(job)}
                               >
-                                <Eye className="h-4 w-4" />
+                                <Pencil className="h-4 w-4" />
                               </Button>
                               <Button
                                 size="sm"
@@ -745,8 +778,9 @@ export default function ScholarshipGiverDashboard() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="dark:text-gray-300">Student</TableHead>
+                          <TableHead className="dark:text-gray-300">Applicant</TableHead>
                           <TableHead className="dark:text-gray-300">Job</TableHead>
+                          <TableHead className="dark:text-gray-300">CV</TableHead>
                           <TableHead className="dark:text-gray-300">Applied Date</TableHead>
                           <TableHead className="dark:text-gray-300">Status</TableHead>
                           <TableHead className="dark:text-gray-300">Actions</TableHead>
@@ -758,12 +792,33 @@ export default function ScholarshipGiverDashboard() {
                             <TableCell>
                               <div>
                                 <p className="font-medium dark:text-gray-100">
-                                  {app.student?.profile?.firstName} {app.student?.profile?.lastName}
+                                  {app.fullName || `${app.student?.profile?.firstName || ''} ${app.student?.profile?.lastName || ''}`.trim() || 'N/A'}
                                 </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{app.student?.email}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{app.email || app.student?.email}</p>
+                                {app.phone && (
+                                  <p className="text-xs text-gray-400 dark:text-gray-500">{app.phone}</p>
+                                )}
+                                {app.description && (
+                                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 italic line-clamp-1">{app.description}</p>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell className="dark:text-gray-300">{app.job?.title}</TableCell>
+                            <TableCell className="dark:text-gray-300">
+                              {app.cvUrl ? (
+                                <a
+                                  href={`http://localhost:5001${app.cvUrl}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-sm text-[#FF7A45] hover:underline font-medium"
+                                >
+                                  <Download className="h-3.5 w-3.5" />
+                                  {app.cvName || 'Download CV'}
+                                </a>
+                              ) : (
+                                <span className="text-xs text-gray-400 dark:text-gray-500">No CV</span>
+                              )}
+                            </TableCell>
                             <TableCell className="dark:text-gray-300">
                               {new Date(app.appliedAt).toLocaleDateString()}
                             </TableCell>
@@ -839,7 +894,7 @@ export default function ScholarshipGiverDashboard() {
                               <div>
                                 <h3 className="font-semibold dark:text-gray-100">{sponsorship.event?.title}</h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                  {sponsorship.event?.description || "No description"}
+                                  {sponsorship.event?.about || sponsorship.event?.description || "No description"}
                                 </p>
                               </div>
                               {getStatusBadge(sponsorship.status || "sponsored")}
@@ -851,11 +906,11 @@ export default function ScholarshipGiverDashboard() {
                               </span>
                               <span className="flex items-center text-gray-600 dark:text-gray-400">
                                 <Calendar className="h-4 w-4 mr-1" />
-                                {new Date(sponsorship.event?.startDate).toLocaleDateString()}
+                                {sponsorship.event?.date || (sponsorship.event?.startDate ? new Date(sponsorship.event.startDate).toLocaleDateString() : "No date")}
                               </span>
                               <span className="flex items-center text-gray-600 dark:text-gray-400">
-                                <Users className="h-4 w-4 mr-1" />
-                                {sponsorship.event?.participantCount || 0} participants
+                                <MapPin className="h-4 w-4 mr-1" />
+                                {sponsorship.event?.location || "Virtual"}
                               </span>
                             </div>
                           </CardContent>
@@ -889,10 +944,10 @@ export default function ScholarshipGiverDashboard() {
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <h3 className="font-semibold dark:text-gray-100">{event.title}</h3>
-                                  <Badge className="bg-blue-500">{event.eventType}</Badge>
+                                  <Badge className="bg-blue-500">{event.eventType || "Talent Event"}</Badge>
                                 </div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                                  {event.description || "No description"}
+                                  {event.about || event.description || "No description"}
                                 </p>
                               </div>
                               <Button
@@ -907,23 +962,16 @@ export default function ScholarshipGiverDashboard() {
                             <div className="flex items-center gap-4 mt-3 text-sm">
                               <span className="flex items-center text-gray-600 dark:text-gray-400">
                                 <Calendar className="h-4 w-4 mr-1" />
-                                {new Date(event.startDate).toLocaleDateString()}
+                                {event.date || (event.startDate ? new Date(event.startDate).toLocaleDateString() : "No date")}
                               </span>
                               <span className="flex items-center text-gray-600 dark:text-gray-400">
                                 <Users className="h-4 w-4 mr-1" />
-                                {event.participantCount || 0} participants
+                                {event.registrations?.length || 0} registered
                               </span>
                               <span className="flex items-center text-gray-600 dark:text-gray-400">
                                 <MapPin className="h-4 w-4 mr-1" />
                                 {event.location || "Virtual"}
                               </span>
-                            </div>
-                            <div className="mt-2 flex flex-wrap gap-1">
-                              {event.tags?.map((tag, index) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
                             </div>
                           </CardContent>
                         </Card>
@@ -1006,12 +1054,30 @@ export default function ScholarshipGiverDashboard() {
       {}
       {}
       {}
-      <Dialog open={isJobDialogOpen} onOpenChange={setIsJobDialogOpen}>
+      <Dialog open={isJobDialogOpen} onOpenChange={(open) => {
+        setIsJobDialogOpen(open);
+        if (!open) {
+          setEditingJobId(null);
+          setJobFormData({
+            title: "",
+            description: "",
+            hobbyCategory: "",
+            jobType: "part-time",
+            location: "remote",
+            payment: "",
+            paymentType: "one-time",
+            requirements: "",
+            experienceLevel: "any",
+            positionsAvailable: "1",
+            applicationDeadline: "",
+          });
+        }
+      }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Post a Job Opportunity</DialogTitle>
+            <DialogTitle>{editingJobId ? "Edit Job Opportunity" : "Post a Job Opportunity"}</DialogTitle>
             <DialogDescription>
-              Offer work to talented students. All hiring goes through admin approval.
+              {editingJobId ? "Update your job post details." : "Offer work to talented students. All hiring goes through admin approval."}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreateJob} className="space-y-4 mt-4">
@@ -1177,9 +1243,83 @@ export default function ScholarshipGiverDashboard() {
               className="w-full bg-[#FF7A45] hover:bg-[#ff8f61]"
               disabled={isLoading}
             >
-              {isLoading ? "Posting..." : "Post Job Opportunity"}
+              {isLoading ? "Saving..." : (editingJobId ? "Save Changes" : "Post Job Opportunity")}
             </Button>
           </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={!!selectedStudent} onOpenChange={(open) => !open && setSelectedStudent(null)}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold dark:text-white">Student Details</DialogTitle>
+          </DialogHeader>
+          {selectedStudent && (
+            <div className="space-y-4 mt-4">
+              <div className="flex items-center gap-4 border-b pb-4 dark:border-gray-700">
+                <div className="w-16 h-16 rounded-full bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-[#FF7A45] font-bold text-2xl">
+                    {selectedStudent.profile?.firstName?.[0] || selectedStudent.email?.[0]?.toUpperCase() || "S"}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold dark:text-gray-100">
+                    {selectedStudent.profile?.firstName || "No name"} {selectedStudent.profile?.lastName || ""}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedStudent.email}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Progress: {selectedStudent.progress || "Beginner"}</p>
+                </div>
+              </div>
+
+              {selectedStudent.profile?.bio && (
+                <div>
+                  <h4 className="font-semibold text-sm dark:text-gray-200">About / Bio</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border dark:border-gray-800">
+                    {selectedStudent.profile.bio}
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border dark:border-gray-800">
+                <div>
+                  <span className="text-gray-400 dark:text-gray-500 block text-xs">City</span>
+                  <span className="font-medium dark:text-gray-200">{selectedStudent.profile?.city || "Not specified"}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 dark:text-gray-500 block text-xs">School / Org</span>
+                  <span className="font-medium dark:text-gray-200">{selectedStudent.profile?.schoolName || "Not specified"}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 dark:text-gray-500 block text-xs">Grade</span>
+                  <span className="font-medium dark:text-gray-200">{selectedStudent.profile?.grade || "Not specified"}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 dark:text-gray-500 block text-xs">Age</span>
+                  <span className="font-medium dark:text-gray-200">{selectedStudent.profile?.age || "Not specified"}</span>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-sm dark:text-gray-200 mb-2">Registered Hobbies</h4>
+                {selectedStudent.hobbies?.length === 0 ? (
+                  <p className="text-xs text-gray-400 dark:text-gray-500">No hobbies registered yet</p>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedStudent.hobbies?.map((hobby) => (
+                      <Badge key={hobby.id} variant="outline" className="text-xs">
+                        {hobby.name}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2">
+                <Button className="w-full bg-[#FF7A45] hover:bg-[#ff8f61]" onClick={() => setSelectedStudent(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
