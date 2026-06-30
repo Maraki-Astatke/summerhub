@@ -62,7 +62,7 @@ export async function trackFailedLogin(email, ipAddress) {
         attemptedAt: new Date()
       }
     });
-    
+
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
     const failedCount = await prisma.loginAttempt.count({
       where: {
@@ -71,7 +71,7 @@ export async function trackFailedLogin(email, ipAddress) {
         attemptedAt: { gt: fifteenMinutesAgo }
       }
     });
-    
+
     if (failedCount >= 5) {
       await prisma.user.update({
         where: { email },
@@ -79,7 +79,7 @@ export async function trackFailedLogin(email, ipAddress) {
       });
       console.log(`\ud83d\udd14 Account locked for ${email} due to too many failed attempts`);
     }
-    
+
     return failedCount;
   }
   return 0;
@@ -93,287 +93,287 @@ export function generateToken(userId, email, role) {
   );
 }
 export const postRegister = async (req: any, res: any) => {
-try {
-const errors = validationResult(req);
-if (!errors.isEmpty()) {
-  return res.status(400).json({ errors: errors.array() });
-}
-
-let { email, password, firstName, lastName, phone, role = 'student' } = req.body;
-
-email = sanitizeInput(email).toLowerCase();
-firstName = sanitizeInput(firstName);
-lastName = sanitizeInput(lastName);
-phone = sanitizeInput(phone);
-
-if (!email || !password || !firstName || !lastName || !phone) {
-  return res.status(400).json({ 
-    error: 'All fields are required: email, password, firstName, lastName, phone' 
-  });
-}
-
-if (!isValidEmail(email)) {
-  return res.status(400).json({ 
-    error: 'Invalid email domain. Only Gmail, Yahoo, and iCloud emails are allowed.' 
-  });
-}
-
-if (!isValidPhone(phone)) {
-  return res.status(400).json({ 
-    error: 'Invalid phone number. Please use Ethiopian format: 09XXXXXXXX or 07XXXXXXXX' 
-  });
-}
-
-const passwordCheck = isStrongPassword(password);
-if (!passwordCheck.isValid) {
-  return res.status(400).json({ error: passwordCheck.message });
-}
-
-const existingEmail = await prisma.user.findUnique({
-  where: { email }
-});
-
-if (existingEmail) {
-  return res.status(400).json({ error: 'Email already registered' });
-}
-
-const existingPhone = await prisma.user.findFirst({
-  where: { phone }
-});
-
-if (existingPhone) {
-  return res.status(400).json({ error: 'Phone number already registered' });
-}
-
-const hashedPassword = await bcrypt.hash(password, 12);
-const verificationToken = generateVerificationToken();
-const expiresAt = new Date();
-expiresAt.setHours(expiresAt.getHours() + 24);
-
-let roleRecord = await prisma.role.findUnique({
-  where: { name: role }
-});
-
-if (!roleRecord) {
-  roleRecord = await prisma.role.create({
-    data: { name: role }
-  });
-}
-
-const user = await prisma.user.create({
-  data: {
-    email,
-    password: hashedPassword,
-    phone,
-    isVerified: false,
-    isActive: false,
-    emailVerifications: {
-      create: {
-        code: verificationToken,
-        expiresAt: expiresAt,
-        used: false
-      }
-    },
-    profile: {
-      create: {
-        firstName,
-        lastName
-      }
-    },
-    roles: {
-      create: {
-        roleId: roleRecord.id
-      }
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-  },
-  include: {
-    profile: true,
-    roles: {
+
+    let { email, password, firstName, lastName, phone, role = 'student' } = req.body;
+
+    email = sanitizeInput(email).toLowerCase();
+    firstName = sanitizeInput(firstName);
+    lastName = sanitizeInput(lastName);
+    phone = sanitizeInput(phone);
+
+    if (!email || !password || !firstName || !lastName || !phone) {
+      return res.status(400).json({
+        error: 'All fields are required: email, password, firstName, lastName, phone'
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        error: 'Invalid email domain. Only Gmail, Yahoo, and iCloud emails are allowed.'
+      });
+    }
+
+    if (!isValidPhone(phone)) {
+      return res.status(400).json({
+        error: 'Invalid phone number. Please use Ethiopian format: 09XXXXXXXX or 07XXXXXXXX'
+      });
+    }
+
+    const passwordCheck = isStrongPassword(password);
+    if (!passwordCheck.isValid) {
+      return res.status(400).json({ error: passwordCheck.message });
+    }
+
+    const existingEmail = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (existingEmail) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
+    const existingPhone = await prisma.user.findFirst({
+      where: { phone }
+    });
+
+    if (existingPhone) {
+      return res.status(400).json({ error: 'Phone number already registered' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const verificationToken = generateVerificationToken();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
+    let roleRecord = await prisma.role.findUnique({
+      where: { name: role }
+    });
+
+    if (!roleRecord) {
+      roleRecord = await prisma.role.create({
+        data: { name: role }
+      });
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        phone,
+        isVerified: false,
+        isActive: false,
+        emailVerifications: {
+          create: {
+            code: verificationToken,
+            expiresAt: expiresAt,
+            used: false
+          }
+        },
+        profile: {
+          create: {
+            firstName,
+            lastName
+          }
+        },
+        roles: {
+          create: {
+            roleId: roleRecord.id
+          }
+        }
+      },
       include: {
-        role: true
+        profile: true,
+        roles: {
+          include: {
+            role: true
+          }
+        }
       }
+    });
+
+    try {
+      await sendVerificationEmail(email, verificationToken);
+      console.log(`\u2705 Verification email sent to ${email}`);
+    } catch (emailError) {
+      console.error('\u274C Failed to send email:', emailError);
     }
+
+    const { password: _, ...userWithoutPassword } = user;
+
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully! Please check your email to verify your account.',
+      user: userWithoutPassword
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-});
-
-try {
-  await sendVerificationEmail(email, verificationToken);
-  console.log(`\u2705 Verification email sent to ${email}`);
-} catch (emailError) {
-  console.error('\u274C Failed to send email:', emailError);
-}
-
-const { password: _, ...userWithoutPassword } = user;
-
-res.status(201).json({
-  success: true,
-  message: 'User registered successfully! Please check your email to verify your account.',
-  user: userWithoutPassword
-});
-
-} catch (error) {
-console.error('Registration error:', error);
-res.status(500).json({ error: 'Internal server error' });
-}
 };
 export const postLogin = async (req: any, res: any) => {
-try {
-const errors = validationResult(req);
-if (!errors.isEmpty()) {
-  return res.status(400).json({ errors: errors.array() });
-}
-
-let { email, password } = req.body;
-email = sanitizeInput(email).toLowerCase();
-const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
-
-const user = await prisma.user.findUnique({
-  where: { email },
-  include: {
-    profile: true,
-    roles: {
-      include: {
-        role: true
-      }
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
+
+    let { email, password } = req.body;
+    email = sanitizeInput(email).toLowerCase();
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        profile: true,
+        roles: {
+          include: {
+            role: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      await trackFailedLogin(email, ipAddress);
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    if (!user.isActive) {
+      return res.status(401).json({
+        error: 'Your account is pending admin approval or has been deactivated. Please contact support.'
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(401).json({
+        error: 'Please verify your email before logging in. Check your inbox for the verification link.'
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      await trackFailedLogin(email, ipAddress);
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const userRoles = user.roles.map(r => r.role.name);
+    let primaryRole = 'student';
+    if (userRoles.includes('admin')) {
+      primaryRole = 'admin';
+    } else if (userRoles.includes('teacher')) {
+      primaryRole = 'teacher';
+    } else if (userRoles.includes('seller')) {
+      primaryRole = 'seller';
+    } else if (userRoles.includes('scholarship_giver')) {
+      primaryRole = 'scholarship_giver';
+    } else if (userRoles.includes('parent')) {
+      primaryRole = 'parent';
+    }
+
+    const token = generateToken(user.id, user.email, primaryRole);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() }
+    });
+
+    await prisma.loginAttempt.create({
+      data: {
+        email,
+        ipAddress,
+        success: true,
+        attemptedAt: new Date()
+      }
+    });
+
+    const { password: _, ...userWithoutPassword } = user;
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful!',
+      token,
+      user: {
+        id: userWithoutPassword.id,
+        email: userWithoutPassword.email,
+        phone: userWithoutPassword.phone,
+        isVerified: userWithoutPassword.isVerified,
+        profile: userWithoutPassword.profile,
+        roles: userRoles
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-});
-
-if (!user) {
-  await trackFailedLogin(email, ipAddress);
-  return res.status(401).json({ error: 'Invalid email or password' });
-}
-
-if (!user.isActive) {
-  return res.status(401).json({ 
-    error: 'Your account is pending admin approval or has been deactivated. Please contact support.' 
-  });
-}
-
-if (!user.isVerified) {
-  return res.status(401).json({ 
-    error: 'Please verify your email before logging in. Check your inbox for the verification link.' 
-  });
-}
-
-const isPasswordValid = await bcrypt.compare(password, user.password);
-if (!isPasswordValid) {
-  await trackFailedLogin(email, ipAddress);
-  return res.status(401).json({ error: 'Invalid email or password' });
-}
-
-const userRoles = user.roles.map(r => r.role.name);
-let primaryRole = 'student';
-if (userRoles.includes('admin')) {
-  primaryRole = 'admin';
-} else if (userRoles.includes('teacher')) {
-  primaryRole = 'teacher';
-} else if (userRoles.includes('seller')) {
-  primaryRole = 'seller';
-} else if (userRoles.includes('scholarship_giver')) {
-  primaryRole = 'scholarship_giver';
-} else if (userRoles.includes('parent')) {
-  primaryRole = 'parent';
-}
-
-const token = generateToken(user.id, user.email, primaryRole);
-
-await prisma.user.update({
-  where: { id: user.id },
-  data: { lastLoginAt: new Date() }
-});
-
-await prisma.loginAttempt.create({
-  data: {
-    email,
-    ipAddress,
-    success: true,
-    attemptedAt: new Date()
-  }
-});
-
-const { password: _, ...userWithoutPassword } = user;
-
-res.status(200).json({
-  success: true,
-  message: 'Login successful!',
-  token,
-  user: {
-    id: userWithoutPassword.id,
-    email: userWithoutPassword.email,
-    phone: userWithoutPassword.phone,
-    isVerified: userWithoutPassword.isVerified,
-    profile: userWithoutPassword.profile,
-    roles: userRoles
-  }
-});
-
-} catch (error) {
-console.error('Login error:', error);
-res.status(500).json({ error: 'Internal server error' });
-}
 };
 export const getMe = async (req: any, res: any) => {
-try {
-const token = req.headers.authorization?.split(' ')[1];
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
 
-if (!token) {
-  return res.status(401).json({ error: 'No token provided' });
-}
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this';
-const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
-
-const user = await prisma.user.findUnique({
-  where: { id: decoded.userId },
-  include: {
-    profile: true,
-    roles: {
-      include: {
-        role: true
-      }
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
     }
+
+    const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this';
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      include: {
+        profile: true,
+        roles: {
+          include: {
+            role: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userRoles = user.roles.map(r => r.role.name);
+
+    res.json({
+      id: user.id,
+      email: user.email,
+      phone: user.phone,
+      isVerified: user.isVerified,
+      profile: user.profile,
+      roles: userRoles
+    });
+  } catch (error) {
+    console.error('Auth error:', error);
+    res.status(401).json({ error: 'Invalid token' });
   }
-});
-
-if (!user) {
-  return res.status(404).json({ error: 'User not found' });
-}
-
-const userRoles = user.roles.map(r => r.role.name);
-
-res.json({
-  id: user.id,
-  email: user.email,
-  phone: user.phone,
-  isVerified: user.isVerified,
-  profile: user.profile,
-  roles: userRoles
-});
-} catch (error) {
-console.error('Auth error:', error);
-res.status(401).json({ error: 'Invalid token' });
-}
 };
 export const getVerifyToken = async (req: any, res: any) => {
-try {
-const { token } = req.params;
+  try {
+    const { token } = req.params;
 
-const verification = await prisma.emailVerification.findFirst({
-  where: {
-    code: token,
-    used: false,
-    expiresAt: {
-      gt: new Date()
-    }
-  },
-  include: {
-    user: true
-  }
-});
+    const verification = await prisma.emailVerification.findFirst({
+      where: {
+        code: token,
+        used: false,
+        expiresAt: {
+          gt: new Date()
+        }
+      },
+      include: {
+        user: true
+      }
+    });
 
-if (!verification) {
-  return res.status(400).send(`
+    if (!verification) {
+      return res.status(400).send(`
         <!DOCTYPE html>
         <html>
         <head><title>Verification Failed | HobbyHub</title></head>
@@ -384,20 +384,20 @@ if (!verification) {
         </body>
         </html>
       `);
-}
+    }
 
-await prisma.$transaction([
-  prisma.emailVerification.update({
-    where: { id: verification.id },
-    data: { used: true }
-  }),
-  prisma.user.update({
-    where: { id: verification.userId },
-    data: { isVerified: true }
-  })
-]);
+    await prisma.$transaction([
+      prisma.emailVerification.update({
+        where: { id: verification.id },
+        data: { used: true }
+      }),
+      prisma.user.update({
+        where: { id: verification.userId },
+        data: { isVerified: true }
+      })
+    ]);
 
-res.send(`
+    res.send(`
       <!DOCTYPE html>
       <html>
       <head>
@@ -418,8 +418,8 @@ res.send(`
       </html>
     `);
 
-} catch (error) {
-console.error('Verification error:', error);
-res.status(500).send('Verification failed. Please try again later.');
-}
+  } catch (error) {
+    console.error('Verification error:', error);
+    res.status(500).send('Verification failed. Please try again later.');
+  }
 };

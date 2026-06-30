@@ -324,8 +324,8 @@ export default function ScholarshipGiverDashboard() {
   const filteredStudents = students.filter((student) => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = (student.profile?.firstName?.toLowerCase() || "").includes(searchLower) ||
-                         (student.profile?.lastName?.toLowerCase() || "").includes(searchLower) ||
-                         (student.email?.toLowerCase() || "").includes(searchLower);
+      (student.profile?.lastName?.toLowerCase() || "").includes(searchLower) ||
+      (student.email?.toLowerCase() || "").includes(searchLower);
     const matchesHobby = filterHobby === "all" || student.hobbies?.some(h => h.name === filterHobby);
     return matchesSearch && matchesHobby;
   });
@@ -347,8 +347,9 @@ export default function ScholarshipGiverDashboard() {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
-    { id: "students", label: "Talent Discovery", icon: <Users className="w-5 h-5" /> },
     { id: "jobs", label: "My Job Posts", icon: <Briefcase className="w-5 h-5" /> },
+    { id: "students", label: "Talent Discovery", icon: <Users className="w-5 h-5" /> },
+
     { id: "job-applications", label: "Job Applications", icon: <ClipboardList className="w-5 h-5" /> },
     { id: "event-sponsorships", label: "Event Sponsorships", icon: <Gift className="w-5 h-5" /> },
   ];
@@ -365,7 +366,7 @@ export default function ScholarshipGiverDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {}
+      { }
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -373,7 +374,7 @@ export default function ScholarshipGiverDashboard() {
         </button>
       </div>
 
-      {}
+      { }
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b dark:border-gray-700">
@@ -400,11 +401,10 @@ export default function ScholarshipGiverDashboard() {
               <button
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id
-                    ? 'bg-[#FF7A45]/10 text-[#FF7A45]'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
+                  ? 'bg-[#FF7A45]/10 text-[#FF7A45]'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  }`}
               >
                 {item.icon}
                 <span className="font-medium">{item.label}</span>
@@ -430,26 +430,26 @@ export default function ScholarshipGiverDashboard() {
         </div>
       </div>
 
-      {}
+      { }
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {}
+      { }
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
-          {}
+          { }
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Scholarship Giver Dashboard</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">Support students, sponsor events, and discover talent</p>
           </div>
 
-          {}
-          {}
-          {}
+          { }
+          { }
+          { }
           {activeTab === "dashboard" && (
             <>
-              {}
+              { }
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <Card className="dark:bg-gray-800 dark:border-gray-700">
                   <CardContent className="pt-4">
@@ -508,40 +508,7 @@ export default function ScholarshipGiverDashboard() {
                 </Card>
               </div>
 
-              {}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Card className="dark:bg-gray-800 dark:border-gray-700 hover:shadow-md transition-all cursor-pointer" onClick={() => setActiveTab("students")}>
-                  <CardContent className="pt-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-[#FF7A45]/10 flex items-center justify-center mx-auto mb-3">
-                      <Users className="h-6 w-6 text-[#FF7A45]" />
-                    </div>
-                    <h3 className="font-semibold dark:text-white">Discover Talent</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Browse student profiles and vlogs</p>
-                  </CardContent>
-                </Card>
 
-                <Card className="dark:bg-gray-800 dark:border-gray-700 hover:shadow-md transition-all cursor-pointer" onClick={() => setIsJobDialogOpen(true)}>
-                  <CardContent className="pt-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-3">
-                      <Plus className="h-6 w-6 text-blue-500" />
-                    </div>
-                    <h3 className="font-semibold dark:text-white">Post a Job</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Offer work to talented students</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="dark:bg-gray-800 dark:border-gray-700 hover:shadow-md transition-all cursor-pointer" onClick={() => setActiveTab("event-sponsorships")}>
-                  <CardContent className="pt-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-3">
-                      <HandCoins className="h-6 w-6 text-green-500" />
-                    </div>
-                    <h3 className="font-semibold dark:text-white">Sponsor Event</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Support monthly talent events</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="dark:bg-gray-800 dark:border-gray-700">
                   <CardHeader>
@@ -586,9 +553,9 @@ export default function ScholarshipGiverDashboard() {
             </>
           )}
 
-          {}
-          {}
-          {}
+          { }
+          { }
+          { }
           {activeTab === "students" && (
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
@@ -673,9 +640,9 @@ export default function ScholarshipGiverDashboard() {
             </Card>
           )}
 
-          {}
-          {}
-          {}
+          { }
+          { }
+          { }
           {activeTab === "jobs" && (
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between pb-4 space-y-4 md:space-y-0">
@@ -758,9 +725,9 @@ export default function ScholarshipGiverDashboard() {
             </Card>
           )}
 
-          {}
-          {}
-          {}
+          { }
+          { }
+          { }
           {activeTab === "job-applications" && (
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
@@ -868,12 +835,12 @@ export default function ScholarshipGiverDashboard() {
             </Card>
           )}
 
-          {}
-          {}
-          {}
+          { }
+          { }
+          { }
           {activeTab === "event-sponsorships" && (
             <div className="space-y-6">
-              {}
+              { }
               <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
                   <CardTitle className="dark:text-white">My Sponsorships</CardTitle>
@@ -921,7 +888,7 @@ export default function ScholarshipGiverDashboard() {
                 </CardContent>
               </Card>
 
-              {}
+              { }
               <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
                   <CardTitle className="dark:text-white">Available Events to Sponsor</CardTitle>
@@ -985,9 +952,9 @@ export default function ScholarshipGiverDashboard() {
         </div>
       </div>
 
-      {}
-      {}
-      {}
+      { }
+      { }
+      { }
       <Dialog open={isSponsorDialogOpen} onOpenChange={setIsSponsorDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -1051,9 +1018,9 @@ export default function ScholarshipGiverDashboard() {
         </DialogContent>
       </Dialog>
 
-      {}
-      {}
-      {}
+      { }
+      { }
+      { }
       <Dialog open={isJobDialogOpen} onOpenChange={(open) => {
         setIsJobDialogOpen(open);
         if (!open) {

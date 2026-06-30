@@ -91,13 +91,12 @@ const Button = ({
     type={type}
     onClick={onClick}
     disabled={disabled}
-    className={`px-4 py-2 rounded-lg font-medium transition ${
-      variant === "outline"
-        ? "border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
-        : variant === "destructive"
+    className={`px-4 py-2 rounded-lg font-medium transition ${variant === "outline"
+      ? "border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
+      : variant === "destructive"
         ? "bg-red-500 text-white hover:bg-red-600"
         : "bg-[#FF7A45] text-white hover:bg-[#ff8f61]"
-    } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
+      } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
   >
     {children}
   </button>
@@ -161,7 +160,7 @@ export default function TeacherDashboardPage() {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [customMessage, setCustomMessage] = useState("");
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
-  
+
   const [resourceForm, setResourceForm] = useState({
     title: "",
     description: "",
@@ -170,7 +169,7 @@ export default function TeacherDashboardPage() {
     shareToAll: false,
     file: null as File | null,
   });
-  
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -489,7 +488,7 @@ export default function TeacherDashboardPage() {
 
   const handleShareResource = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!resourceForm.title) {
       alert("Please enter a title");
       return;
@@ -502,7 +501,7 @@ export default function TeacherDashboardPage() {
       alert("Please select a student or share to all");
       return;
     }
-    
+
     const formData = new FormData();
     formData.append("title", resourceForm.title);
     if (resourceForm.description) formData.append("description", resourceForm.description);
@@ -514,7 +513,7 @@ export default function TeacherDashboardPage() {
     if (resourceForm.file) {
       formData.append("file", resourceForm.file);
     }
-    
+
     shareResourceMutation.mutate(formData);
   };
 
@@ -556,19 +555,20 @@ export default function TeacherDashboardPage() {
 
   const menuItems = [
     { id: "stats", label: "Overview", icon: <LayoutDashboard className="w-5 h-5" /> },
+    { id: "create", label: "Create Lesson", icon: <Video className="w-5 h-5" /> },
     { id: "lessons", label: "My Lessons", icon: <BookOpen className="w-5 h-5" /> },
     { id: "students", label: "My Students", icon: <Users className="w-5 h-5" /> },
     { id: "resources", label: "Resources", icon: <FileText className="w-5 h-5" /> },
     { id: "submissions", label: "Submissions", icon: <Upload className="w-5 h-5" /> },
     { id: "certificates", label: "Certificates", icon: <Award className="w-5 h-5" /> },
-    { id: "create", label: "Create Lesson", icon: <Video className="w-5 h-5" /> },
+
   ];
 
   const renderContent = () => {
     if (activeTab === "stats") {
       return (
         <div className="space-y-6">
-          {}
+          { }
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="pb-2">
@@ -613,7 +613,7 @@ export default function TeacherDashboardPage() {
             </Card>
           </div>
 
-          {}
+          { }
           <Card>
             <CardHeader>
               <CardTitle className="dark:text-white">Recent Lessons</CardTitle>
@@ -647,7 +647,7 @@ export default function TeacherDashboardPage() {
                         const isPast = new Date(lesson.dateTime) < new Date();
                         const studentCount = lesson.registrations?.length || 0;
                         const isFull = studentCount >= lesson.maxStudents;
-                        
+
                         return (
                           <tr key={lesson.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                             <td className="p-3 font-medium text-gray-800 dark:text-gray-200">{lesson.title}</td>
@@ -685,9 +685,9 @@ export default function TeacherDashboardPage() {
                                 <Button variant="outline" size="sm" onClick={() => openEditDialog(lesson)}>
                                   <Edit className="h-3 w-3" />
                                 </Button>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
+                                <Button
+                                  variant="outline"
+                                  size="sm"
                                   className="text-red-500"
                                   onClick={() => {
                                     if (confirm("Delete this lesson?")) {
@@ -716,7 +716,7 @@ export default function TeacherDashboardPage() {
             </CardContent>
           </Card>
 
-          {}
+          { }
           <Card>
             <CardHeader>
               <CardTitle className="dark:text-white">Top Students</CardTitle>
@@ -981,7 +981,7 @@ export default function TeacherDashboardPage() {
                         <p className="font-medium dark:text-gray-200">{resource.title}</p>
                         {resource.description && <p className="text-sm text-gray-500 dark:text-gray-400">{resource.description}</p>}
                         <p className="text-xs text-gray-400 mt-1">
-                          To: {resource.receiver?.profile?.firstName} {resource.receiver?.profile?.lastName} • 
+                          To: {resource.receiver?.profile?.firstName} {resource.receiver?.profile?.lastName} •
                           Lesson: {resource.lesson?.title} • {new Date(resource.createdAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -1023,15 +1023,15 @@ export default function TeacherDashboardPage() {
                       <p className="font-medium dark:text-gray-200">{sub.title}</p>
                       {sub.description && <p className="text-sm text-gray-500 dark:text-gray-400">{sub.description}</p>}
                       <p className="text-xs text-gray-400 mt-1">
-                        From: {sub.sender?.profile?.firstName} {sub.sender?.profile?.lastName} • 
-                        {sub.lesson?.title && ` Lesson: ${sub.lesson.title}`} • 
+                        From: {sub.sender?.profile?.firstName} {sub.sender?.profile?.lastName} •
+                        {sub.lesson?.title && ` Lesson: ${sub.lesson.title}`} •
                         {new Date(sub.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     {sub.fileUrl && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => {
                           const token = localStorage.getItem("token");
                           window.open(`http://localhost:5001/api/resources/${sub.id}/download?token=${token}`, "_blank");
@@ -1288,11 +1288,10 @@ export default function TeacherDashboardPage() {
                   setActiveTab(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id
-                    ? "bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
+                  ? "bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  }`}
               >
                 {item.icon}
                 <span className="font-medium">{item.label}</span>
@@ -1313,7 +1312,7 @@ export default function TeacherDashboardPage() {
               <MessageSquare className="w-5 h-5" />
               <span className="font-medium">Messages</span>
             </Link>
-           <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
             </Link>
             <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">

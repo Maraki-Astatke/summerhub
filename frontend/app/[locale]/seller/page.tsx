@@ -261,10 +261,10 @@ export default function SellerDashboardPage() {
   }
 
   const menuItems = [
-    { id: 'products', label: 'My Products', icon: <Package className="w-5 h-5" /> },
-    { id: 'orders', label: 'Orders', icon: <ShoppingCart className="w-5 h-5" /> },
     { id: 'stats', label: 'Analytics', icon: <BarChart3 className="w-5 h-5" /> },
     { id: 'create', label: 'Add Product', icon: <Plus className="w-5 h-5" /> },
+    { id: 'products', label: 'My Products', icon: <Package className="w-5 h-5" /> },
+    { id: 'orders', label: 'Orders', icon: <ShoppingCart className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
@@ -649,8 +649,8 @@ export default function SellerDashboardPage() {
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
-                    ? 'bg-[#FF7A45]/10 dark:bg-[#FF7A45]/20 text-[#FF7A45] dark:text-[#FF7A45]/90'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  ? 'bg-[#FF7A45]/10 dark:bg-[#FF7A45]/20 text-[#FF7A45] dark:text-[#FF7A45]/90'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                   }`}
               >
                 {item.icon}

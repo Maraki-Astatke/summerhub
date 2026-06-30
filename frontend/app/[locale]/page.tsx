@@ -88,7 +88,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937] font-sans">
       <Navbar />
 
-      {/* HERO SECTION */}
+
       <section className="pt-32 pb-20 md:py-40 bg-[#FFF2EB] overflow-hidden relative">
         <div className="absolute top-1/2 right-[-10%] w-[600px] h-[600px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-60 z-0 pointer-events-none" />
 
@@ -158,7 +158,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CATEGORY SECTION */}
+
       <section className="py-20 bg-white overflow-hidden">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14">
           <div className="flex items-center justify-between mb-12">

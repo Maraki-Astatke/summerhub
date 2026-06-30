@@ -315,16 +315,16 @@ export default function AdminDashboardPage() {
 
   const handleQuizSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!question.trim()) {
       toast.error('Question is required');
       return;
     }
-    
+
     const data = {
       question: question.trim()
     };
-    
+
     if (editingQuestion) {
       updateQuizMutation.mutate({ id: editingQuestion.id, data });
     } else {
@@ -353,7 +353,7 @@ export default function AdminDashboardPage() {
 
   const handleReject = () => {
     if (!selectedItemId) return;
-    
+
     if (rejectType === "sponsorship") {
       rejectSponsorshipMutation.mutate({ sponsorshipId: selectedItemId, reason: rejectReason });
     } else if (rejectType === "job") {
@@ -391,12 +391,17 @@ export default function AdminDashboardPage() {
   }
 
   const menuItems = [
-    { id: "users", label: "User Management", icon: <Users className="w-5 h-5" /> },
     { id: "stats", label: "Analytics", icon: <BarChart3 className="w-5 h-5" /> },
+    { id: "content", label: "Content", icon: <BookOpen className="w-5 h-5" /> },
+    { id: "users", label: "User Management", icon: <Users className="w-5 h-5" /> },
     { id: "quiz", label: "Quiz Management", icon: <GraduationCap className="w-5 h-5" /> },
     { id: "quiz-responses", label: "Quiz Responses", icon: <FileText className="w-5 h-5" /> },
-    { id: "content", label: "Content", icon: <BookOpen className="w-5 h-5" /> },
     { id: "talent-events", label: "Manage Talent Events", icon: <Trophy className="w-5 h-5" /> },
+
+
+
+
+
     { id: "scholarship-givers", label: "Scholarship Givers", icon: <Users className="w-5 h-5" /> },
     { id: "sponsorships", label: "Sponsorships", icon: <HandCoins className="w-5 h-5" /> },
     { id: "job-posts", label: "Job Posts", icon: <Briefcase className="w-5 h-5" /> },
@@ -424,31 +429,28 @@ export default function AdminDashboardPage() {
             <div className="flex gap-2 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg self-start md:self-auto">
               <button
                 onClick={() => setUserFilter("all")}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  userFilter === "all"
-                    ? "bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                }`}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${userFilter === "all"
+                  ? "bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                  }`}
               >
                 All ({users?.data?.length || 0})
               </button>
               <button
                 onClick={() => setUserFilter("pending")}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  userFilter === "pending"
-                    ? "bg-white dark:bg-gray-800 text-yellow-600 dark:text-yellow-400 shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                }`}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${userFilter === "pending"
+                  ? "bg-white dark:bg-gray-800 text-yellow-600 dark:text-yellow-400 shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                  }`}
               >
                 Pending ({users?.data?.filter((u: any) => !u.isActive).length || 0})
               </button>
               <button
                 onClick={() => setUserFilter("active")}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  userFilter === "active"
-                    ? "bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                }`}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${userFilter === "active"
+                  ? "bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                  }`}
               >
                 Active ({users?.data?.filter((u: any) => u.isActive).length || 0})
               </button>
@@ -656,7 +658,7 @@ export default function AdminDashboardPage() {
                       Students will answer this question with text responses
                     </p>
                   </div>
-                  
+
                   <Button type="submit" className="w-full bg-[#FF7A45] hover:bg-[#ff8f61]">
                     {editingQuestion ? 'Update Question' : 'Create Question'}
                   </Button>
@@ -982,7 +984,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {}
+      { }
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub Admin</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -990,7 +992,7 @@ export default function AdminDashboardPage() {
         </button>
       </div>
 
-      {}
+      { }
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b dark:border-gray-700">
@@ -1020,11 +1022,10 @@ export default function AdminDashboardPage() {
                   setActiveTab(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id
-                    ? 'bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
+                  ? 'bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  }`}
               >
                 {item.icon}
                 <span className="font-medium">{item.label}</span>
@@ -1047,12 +1048,12 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {}
+      { }
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {}
+      { }
       <div className="lg:ml-72 min-h-screen">
         <div className="p-6 md:p-8 pt-20 lg:pt-8">
           <div className="mb-6">
@@ -1063,7 +1064,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {}
+      { }
       {selectedUserId && roles && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full mx-4">
@@ -1104,7 +1105,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {}
+      { }
       <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>

@@ -350,10 +350,10 @@ export default function DashboardPage() {
 
   const menuItems = [
     { id: "dashboard", label: "Overview", icon: <LayoutDashboard className="w-5 h-5" /> },
-    { id: "progress", label: "My Progress", icon: <BarChart3 className="w-5 h-5" /> },
-    { id: "certificates", label: "Certificates", icon: <Award className="w-5 h-5" /> },
-    { id: "resources", label: "Resources", icon: <FileText className="w-5 h-5" /> },
     { id: "recommendations", label: "Recommendations", icon: <GraduationCap className="w-5 h-5" /> },
+    { id: "progress", label: "My Progress", icon: <BarChart3 className="w-5 h-5" /> },
+    { id: "resources", label: "Resources", icon: <FileText className="w-5 h-5" /> },
+    { id: "certificates", label: "Certificates", icon: <Award className="w-5 h-5" /> },
     { id: "orders", label: "Order History", icon: <Package className="w-5 h-5" /> },
     { id: "jobs", label: "Job Opportunities", icon: <Briefcase className="w-5 h-5" /> },
   ];
@@ -957,9 +957,7 @@ export default function DashboardPage() {
           </nav>
 
           <div className="p-4 border-t dark:border-gray-700 space-y-2">
-            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Home className="w-5 h-5" /><span className="font-medium">Home</span>
-            </Link>
+
             <Link href="/lessons" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <Video className="w-5 h-5" /><span className="font-medium">Lessons</span>
             </Link>
