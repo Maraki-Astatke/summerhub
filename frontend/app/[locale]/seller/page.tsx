@@ -13,10 +13,13 @@ import { useAuth } from '@/providers/auth-provider';
 import api from '@/lib/api';
 import {
   Package, ShoppingCart, DollarSign, AlertTriangle, Plus, Edit, Trash2,
-  Menu, X, LogOut, LayoutDashboard, BookOpen, Newspaper, Trophy,
-  MessageSquare, Settings, Home, BarChart3, Store, Upload, XCircle, Star,
-  Phone // ← ADDED Phone icon
+  Menu, X, LayoutDashboard, BarChart3, Store, Upload, XCircle, Star,
+  Phone, TrendingUp,
 } from 'lucide-react';
+import DashboardHeader from '@/components/DashboardHeader';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell,
+} from 'recharts';
 
 export default function SellerDashboardPage() {
   const router = useRouter();
@@ -270,100 +273,86 @@ export default function SellerDashboardPage() {
   const renderContent = () => {
     if (activeTab === 'products') {
       return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {products?.length === 0 ? (
             <div className="col-span-full">
-              <Card>
-                <CardContent className="text-center py-12">
-                  <Package className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-500">No products listed yet</p>
-                  <Button className="mt-4" onClick={() => setActiveTab('create')}>Add First Product</Button>
+              <Card className="border-0 shadow-sm">
+                <CardContent className="text-center py-16">
+                  <Package className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-lg text-gray-500 font-medium">No products listed yet</p>
+                  <Button className="mt-4 bg-[#FF7A45] hover:bg-[#ff8f61]" onClick={() => setActiveTab('create')}>Add First Product</Button>
                 </CardContent>
               </Card>
             </div>
           ) : (
             products?.map((product: any) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow duration-300">
-                <div className="relative w-full aspect-square bg-gray-100 overflow-hidden">
+              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 border-0 shadow-sm group">
+                <div className="relative w-full h-52 bg-gray-100 overflow-hidden">
                   {product.imageUrl ? (
                     <img
                       src={product.imageUrl}
                       alt={product.name}
-                      className="w-full h-full"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Package className="h-12 w-12 text-gray-300" />
+                    <div className="w-full h-full flex items-center justify-center bg-[#FF7A45]/5">
+                      <Package className="h-14 w-14 text-[#FF7A45]/30" />
                     </div>
                   )}
                   {product.stockCount < 10 && (
-                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
                       Low Stock
                     </div>
                   )}
+                  <div className="absolute top-3 right-3 flex gap-1">
+                    <button
+                      onClick={() => {
+                        setEditingProduct(product);
+                        setFormData({
+                          name: product.name,
+                          description: product.description || '',
+                          price: product.price.toString(),
+                          stockCount: product.stockCount.toString(),
+                          categoryId: product.categoryId?.toString() || '',
+                          imageUrl: product.imageUrl || '',
+                          phone: product.phone || '',
+                        });
+                      }}
+                      className="bg-white/90 hover:bg-white p-1.5 rounded-lg shadow"
+                    >
+                      <Edit className="h-4 w-4 text-gray-700" />
+                    </button>
+                    <button
+                      onClick={() => { if (confirm('Delete this product?')) { deleteProductMutation.mutate(product.id); } }}
+                      className="bg-white/90 hover:bg-white p-1.5 rounded-lg shadow"
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </button>
+                  </div>
                 </div>
 
-                <CardContent className="p-3">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-semibold text-sm text-gray-800 line-clamp-1">{product.name}</h3>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={() => {
-                          setEditingProduct(product);
-                          setFormData({
-                            name: product.name,
-                            description: product.description || '',
-                            price: product.price.toString(),
-                            stockCount: product.stockCount.toString(),
-                            categoryId: product.categoryId?.toString() || '',
-                            imageUrl: product.imageUrl || '',
-                            phone: product.phone || '', // ← ADDED phone field
-                          });
-                        }}
-                      >
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                        onClick={() => {
-                          if (confirm('Delete this product?')) {
-                            deleteProductMutation.mutate(product.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
+                <CardContent className="p-5">
+                  <h3 className="text-base font-bold text-gray-800 dark:text-white mb-1 truncate">{product.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{product.description || 'No description'}</p>
 
-                  <p className="text-gray-500 text-xs line-clamp-2 mb-2">{product.description || 'No description'}</p>
-
-                  {/* Display phone number if exists */}
                   {product.phone && (
-                    <div className="flex items-center gap-1 mb-1 text-xs text-gray-600">
-                      <Phone className="h-3 w-3 text-[#FF7A45]" />
+                    <div className="flex items-center gap-1.5 mb-3 text-sm text-gray-600 dark:text-gray-400">
+                      <Phone className="h-3.5 w-3.5 text-[#FF7A45]" />
                       <span>{product.phone}</span>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-base font-bold text-[#FF7A45]">{product.price} ETB</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-bold text-[#FF7A45]">{product.price} ETB</span>
                     <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs text-gray-600">
-                        {product.averageRating?.toFixed(1) || '0'}
-                      </span>
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-medium text-gray-600">{product.averageRating?.toFixed(1) || '0'}</span>
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center text-xs pt-1 border-t border-gray-100">
-                    <span className={`font-medium ${product.stockCount < 10 ? 'text-red-500' : 'text-gray-500'}`}>
+                  <div className="flex justify-between items-center text-sm mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <span className={`font-semibold ${product.stockCount < 10 ? 'text-red-500' : 'text-gray-600 dark:text-gray-400'}`}>
                       Stock: {product.stockCount}
                     </span>
                     <span className="text-gray-400">Sold: {product.totalSold || 0}</span>
@@ -422,46 +411,57 @@ export default function SellerDashboardPage() {
     }
 
     if (activeTab === 'stats') {
+      const chartData = [
+        { name: "Products", value: stats?.totalProducts || 0 },
+        { name: "Orders", value: stats?.totalOrders || 0 },
+        { name: "Revenue", value: stats?.totalRevenue || 0 },
+        { name: "Low Stock", value: stats?.lowStockProducts || 0 },
+      ];
+      const COLORS = ["#FF7A45", "#FFB899", "#FF9966", "#FFD4B8"];
+
       return (
-        <div className="bg-white rounded-lg border overflow-hidden dark:bg-gray-800 dark:border-gray-700">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700">
-              <tr>
-                <th className="text-left p-4 font-semibold text-gray-600 dark:text-gray-300">Metric</th>
-                <th className="text-right p-4 font-semibold text-gray-600 dark:text-gray-300">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b dark:border-gray-700">
-                <td className="p-4 flex items-center gap-2">
-                  <Package className="h-5 w-5 text-[#FF7A45]" />
-                  <span className="font-medium dark:text-gray-200">Total Products</span>
-                </td>
-                <td className="p-4 text-right font-bold text-xl dark:text-white">{stats?.totalProducts || 0}</td>
-              </tr>
-              <tr className="border-b dark:border-gray-700">
-                <td className="p-4 flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5 text-[#FF7A45]" />
-                  <span className="font-medium dark:text-gray-200">Total Orders</span>
-                </td>
-                <td className="p-4 text-right font-bold text-xl dark:text-white">{stats?.totalOrders || 0}</td>
-              </tr>
-              <tr className="border-b dark:border-gray-700">
-                <td className="p-4 flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                  <span className="font-medium dark:text-gray-200">Revenue</span>
-                </td>
-                <td className="p-4 text-right font-bold text-xl dark:text-white">{stats?.totalRevenue || 0} ETB</td>
-              </tr>
-              <tr>
-                <td className="p-4 flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                  <span className="font-medium dark:text-gray-200">Low Stock Products</span>
-                </td>
-                <td className="p-4 text-right font-bold text-xl text-yellow-600">{stats?.lowStockProducts || 0}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            {[
+              { label: "Total Products", value: stats?.totalProducts || 0, icon: <Package className="h-6 w-6 text-[#FF7A45]" /> },
+              { label: "Total Orders", value: stats?.totalOrders || 0, icon: <ShoppingCart className="h-6 w-6 text-[#FF7A45]" /> },
+              { label: "Revenue (ETB)", value: stats?.totalRevenue || 0, icon: <DollarSign className="h-6 w-6 text-[#FF7A45]" /> },
+              { label: "Low Stock", value: stats?.lowStockProducts || 0, icon: <AlertTriangle className="h-6 w-6 text-orange-500" /> },
+            ].map((stat, i) => (
+              <Card key={i} className="border-0 shadow-sm">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-[#FF7A45]/10 rounded-xl flex-shrink-0">{stat.icon}</div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</p>
+                      <p className="text-3xl font-bold text-gray-800 dark:text-white mt-0.5">{stat.value}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl font-bold dark:text-white">Sales Analytics</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">Products, Orders, Revenue, and Stock Overview</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 13 }} />
+                  <YAxis tick={{ fontSize: 13 }} />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]} activeBar={false} isAnimationActive={false}>
+                    {chartData.map((_, index) => (
+                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         </div>
       );
     }
@@ -611,36 +611,20 @@ export default function SellerDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-[#FF7A45] dark:text-[#FF7A45]/90">HobbyHub Seller</Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-          {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-[#1F2937]">
+      {/* Unified Top Header */}
+      <DashboardHeader
+        user={user}
+        logout={logout}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        roleName="Seller"
+      />
 
-      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* Sidebar */}
+      <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b dark:border-gray-700">
-            <Link href="/" className="text-2xl font-bold text-[#FF7A45] dark:text-[#FF7A45]/90">HobbyHub</Link>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Seller Portal</p>
-          </div>
-
-          <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 dark:bg-[#FF7A45]/20 flex items-center justify-center">
-                <span className="text-[#FF7A45] dark:text-[#FF7A45]/90 font-bold text-lg">
-                  {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'S'}
-                </span>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-800 dark:text-gray-100">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
-              </div>
-            </div>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-4 pt-5 space-y-1">
             {menuItems.map((item) => (
               <button
                 key={item.id}
@@ -648,41 +632,17 @@ export default function SellerDashboardPage() {
                   setActiveTab(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
-                  ? 'bg-[#FF7A45]/10 dark:bg-[#FF7A45]/20 text-[#FF7A45] dark:text-[#FF7A45]/90'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                  }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
+                  activeTab === item.id
+                    ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                }`}
               >
                 {item.icon}
-                <span className="font-medium">{item.label}</span>
+                <span>{item.label}</span>
               </button>
             ))}
           </nav>
-
-          <div className="p-4 border-t dark:border-gray-700 space-y-2">
-            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Home className="w-5 h-5" />
-              <span className="font-medium">Home</span>
-            </Link>
-            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Store className="w-5 h-5" />
-              <span className="font-medium">Marketplace</span>
-            </Link>
-            <Link href="/events" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Trophy className="w-5 h-5" />
-              <span className="font-medium">Events</span>
-            </Link>
-            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -690,11 +650,12 @@ export default function SellerDashboardPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <div className="lg:ml-72 min-h-screen">
-        <div className="p-6 md:p-8 pt-20 lg:pt-8">
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Seller Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your products and orders</p>
+      {/* Main Content */}
+      <div className="lg:ml-72 pt-16 min-h-screen">
+        <div className="p-6 md:p-8">
+          <div className="mb-7">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Seller Dashboard</h1>
+            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Manage your products and orders</p>
           </div>
           {renderContent()}
         </div>

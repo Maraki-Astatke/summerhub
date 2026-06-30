@@ -14,6 +14,7 @@ router.post('/register', registerLimiter, [
   body('firstName').trim().escape(),
   body('lastName').trim().escape(),
   body('phone').trim().escape(),
+  body('nationalId').trim().escape(),
 ], postRegister);
 router.post('/login', loginLimiter, [
   body('email').isEmail().normalizeEmail(),

@@ -135,10 +135,22 @@
   "auth": {
     "welcomeBack": "Welcome Back",
     "loginDesc": "Login to your HobbyHub account",
+    "createAccount": "Create Account",
+    "registerDesc": "Join HobbyHub and start your learning journey",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone Number",
+    "nationalId": "National ID (Fayda)",
+    "nationalIdHint": "Enter your 16-digit Fayda National ID number",
+    "confirmPassword": "Confirm Password",
     "password": "Password",
     "forgotPassword": "Forgot password?",
     "orContinue": "Or continue with",
-    "noAccount": "Don't have an account?"
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "backToHome": "Back to Home",
+    "agreeTo": "I agree to the",
+    "and": "and"
   },
   "footer": {
     "desc": "Discover, learn, create, and shine with HobbyHub Education.",
@@ -151,5 +163,122 @@
     "terms": "Terms of Service",
     "address": "Addis Ababa, Ethiopia",
     "rights": "All rights reserved"
+  },
+  "studentDashboard": {
+    "title": "Student Dashboard",
+    "welcome": "Welcome back, {name}! 👋",
+    "defaultStudent": "Student",
+    "roleStudent": "Student",
+    "loading": "Loading...",
+    "menu": {
+      "overview": "Overview",
+      "recommendations": "Recommendations",
+      "progress": "My Progress",
+      "resources": "Resources",
+      "certificates": "Certificates",
+      "orders": "Order History",
+      "jobs": "Job Opportunities",
+      "messages": "Messages"
+    },
+    "stats": {
+      "hobbiesDiscovered": "Hobbies Discovered",
+      "lessonsTaken": "Lessons Taken",
+      "blogPosts": "Blog Posts",
+      "orders": "Orders"
+    },
+    "popularHobbies": {
+      "title": "🔥 Popular Hobbies",
+      "desc": "Community engagement by hobby",
+      "loading": "Loading hobby data..."
+    },
+    "discoverHobbies": {
+      "title": "Discover Hobbies",
+      "desc": "Most loved activities",
+      "viewAll": "View All →",
+      "students": "{count} students"
+    },
+    "progress": {
+      "title": "Learning Progress",
+      "desc": "Track your active courses and completion status",
+      "active": "{count} Active",
+      "emptyTitle": "No active courses yet",
+      "emptyDesc": "Explore popular hobbies to begin your journey!",
+      "explore": "Explore Hobbies",
+      "level": "Level {level}/5",
+      "complete": "{percent}% complete"
+    },
+    "certificates": {
+      "title": "Your Certificates",
+      "desc": "Certificates you've earned from your teachers",
+      "empty": "No certificates earned yet. Complete courses to get certified!",
+      "download": "Download",
+      "issued": "Issued: {date}"
+    },
+    "resources": {
+      "submitAssignment": "Submit Assignment",
+      "title": "My Resources",
+      "desc": "Files shared by your teachers",
+      "loading": "Loading...",
+      "empty": "No resources shared yet",
+      "emptyHint": "Teachers will share learning materials here",
+      "from": "From: {name}",
+      "lesson": "Lesson: {title}",
+      "download": "Download"
+    },
+    "recommendations": {
+      "title": "Recommended for You",
+      "desc": "Personalized recommendations from our experts",
+      "empty": "No recommendations yet. Our experts will review your quiz answers and suggest hobbies for you soon!",
+      "explore": "Explore Hobby",
+      "recommendedBy": "Recommended by: {name}"
+    },
+    "orders": {
+      "title": "Order History",
+      "desc": "Track your purchases and delivery status",
+      "empty": "No orders yet",
+      "startShopping": "Start Shopping",
+      "order": "Order #{id}",
+      "items": "{count} item(s)",
+      "moreItems": "+{count} more items",
+      "status": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      }
+    },
+    "jobs": {
+      "title": "Job Opportunities",
+      "desc": "Explore job opportunities posted by Scholarship Givers",
+      "loading": "Loading job opportunities...",
+      "empty": "No job opportunities available right now",
+      "emptyHint": "Check back later for new opportunities",
+      "positions": "{count} position(s)",
+      "deadline": "Deadline: {date}",
+      "requirements": "Requirements:",
+      "applied": "Applied",
+      "applyNow": "Apply Now",
+      "postedBy": "Posted by: {name}",
+      "scholarshipGiver": "Scholarship Giver"
+    },
+    "messages": {
+      "title": "Messages",
+      "desc": "Chat with teachers and classmates"
+    },
+    "modal": {
+      "submitAssignment": "Submit Assignment",
+      "applyForJob": "Apply for Job",
+      "title": "Title",
+      "description": "Description",
+      "selectTeacher": "Select Teacher",
+      "relatedLesson": "Related Lesson (Optional)",
+      "file": "File (Optional)",
+      "submitting": "Submitting...",
+      "submit": "Submit Assignment",
+      "cancel": "Cancel",
+      "selectTeacherPlaceholder": "Select a teacher",
+      "selectLessonPlaceholder": "Select a lesson"
+    }
   }
 }

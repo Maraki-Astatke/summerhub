@@ -65,6 +65,7 @@ model Profile {
   user       User    @relation(fields: [userId], references: [id])
   firstName  String?
   lastName   String?
+  nationalId String? @unique
   age        Int?
   grade      String?
   city       String?

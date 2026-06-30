@@ -27,7 +27,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { useTranslations } from "next-intl";
 import api from "@/lib/api";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -107,7 +107,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FFF2EB] p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#FFF2EB] p-4 relative overflow-hidden font-sans">
       {}
       <div className="absolute top-[-10%] right-[-10%] w-[350px] h-[350px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-70 z-0 pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] rounded-full bg-[#FFE2D4] filter blur-3xl opacity-70 z-0 pointer-events-none" />
@@ -264,10 +264,20 @@ export default function LoginPage() {
 
           <p className="text-center text-sm text-[#6B7280] mt-6">
             {t('auth.noAccount')}{" "}
-            <Link href="/register" className="text-[#FF7A45] font-semibold hover:underline">
+            <Link href={`/${locale}/register`} className="text-[#FF7A45] font-semibold hover:underline">
               Register
             </Link>
           </p>
+
+          <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+            <Link
+              href={`/${locale}`}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6B7280] hover:text-[#FF7A45] transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {t('auth.backToHome')}
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -13,10 +13,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
 import api from '@/lib/api';
 import { 
-  Users, BookOpen, Calendar, ShoppingBag, Award, Star, 
-  Menu, X, LogOut, LayoutDashboard, Home, Settings, 
-  UserPlus, Eye, CheckCircle, XCircle, Clock, TrendingUp, RefreshCw, ShoppingCart
+  Users, BookOpen, Calendar, Award, Star, 
+  UserPlus, Eye, CheckCircle, Clock, TrendingUp, RefreshCw,
 } from 'lucide-react';
+import DashboardHeader from '@/components/DashboardHeader';
 
 export default function ParentDashboardPage() {
   const router = useRouter();
@@ -154,8 +154,11 @@ export default function ParentDashboardPage() {
 
   if (authLoading || childrenLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF7A45] mx-auto"></div>
+          <p className="mt-4 text-base text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -435,48 +438,20 @@ export default function ParentDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub Parent</Link>
-        <div className="flex items-center gap-2">
-          <Link href="/cart" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-            <ShoppingCart className="w-6 h-6" />
-            {cart?.itemCount > 0 && (
-              <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-white">
-                {cart.itemCount}
-              </span>
-            )}
-          </Link>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100">
-            {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-[#1F2937]">
+      {/* Unified Top Header */}
+      <DashboardHeader
+        user={user}
+        logout={logout}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        roleName="Parent"
+      />
 
-      {}
-      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* Sidebar */}
+      <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b dark:border-gray-700">
-            <Link href="/" className="text-2xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub</Link>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Parent Portal</p>
-          </div>
-
-          <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 dark:bg-[#FF7A45]/10 flex items-center justify-center">
-                <span className="text-[#FF7A45] dark:text-[#FF7A45] font-bold text-lg">
-                  {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'P'}
-                </span>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-800 dark:text-gray-100">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
-              </div>
-            </div>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-4 pt-5 space-y-1">
             {menuItems.map((item) => (
               <button
                 key={item.id}
@@ -484,61 +459,31 @@ export default function ParentDashboardPage() {
                   setActiveTab(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id ? 'bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
+                  activeTab === item.id
+                    ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 {item.icon}
-                <span className="font-medium">{item.label}</span>
+                <span>{item.label}</span>
               </button>
             ))}
           </nav>
-
-          <div className="p-4 border-t dark:border-gray-700 space-y-2">
-            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Home className="w-5 h-5" />
-              <span className="font-medium">Home</span>
-            </Link>
-            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <ShoppingBag className="w-5 h-5" />
-              <span className="font-medium">Shop</span>
-            </Link>
-            <Link href="/cart" className="w-full flex justify-between items-center px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <div className="flex items-center gap-3">
-                <ShoppingCart className="w-5 h-5" />
-                <span className="font-medium">Cart</span>
-              </div>
-              {cart?.itemCount > 0 && (
-                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                  {cart.itemCount}
-                </span>
-              )}
-            </Link>
-            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
-            </button>
-          </div>
         </div>
       </div>
 
-      {}
+      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {}
-      <div className="lg:ml-72 min-h-screen">
-        <div className="p-6 md:p-8 pt-20 lg:pt-8">
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Parent Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Monitor your children's progress and activities</p>
+      {/* Main Content */}
+      <div className="lg:ml-72 pt-16 min-h-screen">
+        <div className="p-6 md:p-8">
+          <div className="mb-7">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Parent Dashboard</h1>
+            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Monitor your children's progress and activities</p>
           </div>
           {activeTab === 'children' ? <ChildrenView /> : <ProgressView />}
         </div>

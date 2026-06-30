@@ -44,24 +44,16 @@ import {
   Plus,
   Menu,
   X,
-  LogOut,
   LayoutDashboard,
   BarChart3,
-  Settings,
   ShoppingBag,
-  Newspaper,
   Trophy,
-  MessageSquare,
-  Globe,
-  Home,
-  HelpCircle,
   GraduationCap,
   FileText,
   Briefcase,
   CheckCircle,
   XCircle,
   Clock,
-  Calendar,
   Gift,
   HandCoins,
   Eye,
@@ -69,6 +61,10 @@ import {
   UserX,
   Sparkles,
 } from "lucide-react";
+import DashboardHeader from "@/components/DashboardHeader";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell,
+} from "recharts";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -529,93 +525,69 @@ export default function AdminDashboardPage() {
     }
 
     if (activeTab === "stats") {
+      const chartData = [
+        { name: "Users", value: stats?.totalUsers || 0, color: "#FF7A45" },
+        { name: "Students", value: stats?.totalStudents || 0, color: "#FF9966" },
+        { name: "Teachers", value: stats?.totalTeachers || 0, color: "#FFB899" },
+        { name: "Sellers", value: stats?.totalSellers || 0, color: "#FFD4B8" },
+        { name: "Products", value: stats?.totalProducts || 0, color: "#FF8C5A" },
+        { name: "Lessons", value: stats?.totalLessons || 0, color: "#FF7A45" },
+        { name: "Orders", value: stats?.totalOrders || 0, color: "#FFB899" },
+      ];
+
       return (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold dark:text-white flex items-center gap-2">
-                  <Users className="h-5 w-5 text-gray-400" />
-                  {stats?.totalUsers || 0}
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Students</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold dark:text-white">{stats?.totalStudents || 0}</div>
-              </CardContent>
-            </Card>
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Teachers</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold dark:text-white">{stats?.totalTeachers || 0}</div>
-              </CardContent>
-            </Card>
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Sellers</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold dark:text-white">{stats?.totalSellers || 0}</div>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            {[
+              { label: "Total Users", value: stats?.totalUsers || 0, icon: <Users className="h-6 w-6 text-[#FF7A45]" /> },
+              { label: "Students", value: stats?.totalStudents || 0, icon: <GraduationCap className="h-6 w-6 text-[#FF7A45]" /> },
+              { label: "Teachers", value: stats?.totalTeachers || 0, icon: <BookOpen className="h-6 w-6 text-[#FF7A45]" /> },
+              { label: "Sellers", value: stats?.totalSellers || 0, icon: <ShoppingBag className="h-6 w-6 text-[#FF7A45]" /> },
+            ].map((stat, i) => (
+              <Card key={i} className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-[#FF7A45]/10 rounded-xl flex-shrink-0">{stat.icon}</div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</p>
+                      <p className="text-3xl font-bold text-gray-800 dark:text-white mt-0.5">{stat.value}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Business Metrics</CardTitle>
-              <CardDescription className="dark:text-gray-400">Overview of platform products, lessons, orders, and revenue stats</CardDescription>
+          <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl font-bold dark:text-white">Platform Overview</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">Users, lessons, products, orders, and revenue</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 dark:bg-gray-900/50">
-                    <tr>
-                      <th className="text-left p-3 dark:text-gray-300">Metric</th>
-                      <th className="text-left p-3 dark:text-gray-300">Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td className="p-3 dark:text-gray-300 font-medium flex items-center gap-2">
-                        <Package className="h-4 w-4 text-gray-400" />
-                        Products
-                      </td>
-                      <td className="p-3 dark:text-gray-300">{stats?.totalProducts || 0}</td>
-                    </tr>
-                    <tr className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td className="p-3 dark:text-gray-300 font-medium flex items-center gap-2">
-                        <BookOpen className="h-4 w-4 text-gray-400" />
-                        Lessons
-                      </td>
-                      <td className="p-3 dark:text-gray-300">{stats?.totalLessons || 0}</td>
-                    </tr>
-                    <tr className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td className="p-3 dark:text-gray-300 font-medium flex items-center gap-2">
-                        <ShoppingBag className="h-4 w-4 text-gray-400" />
-                        Orders
-                      </td>
-                      <td className="p-3 dark:text-gray-300">{stats?.totalOrders || 0}</td>
-                    </tr>
-                    <tr className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td className="p-3 dark:text-gray-300 font-medium flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-green-500" />
-                        Revenue
-                      </td>
-                      <td className="p-3 dark:text-gray-300 font-semibold text-green-600 dark:text-green-400">
-                        ${stats?.totalRevenue || 0}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 13 }} />
+                  <YAxis tick={{ fontSize: 13 }} />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]} activeBar={false} isAnimationActive={false}>
+                    {chartData.map((entry, index) => (
+                      <Cell key={index} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: "Products", value: stats?.totalProducts || 0 },
+                  { label: "Lessons", value: stats?.totalLessons || 0 },
+                  { label: "Orders", value: stats?.totalOrders || 0 },
+                  { label: "Revenue", value: `$${stats?.totalRevenue || 0}` },
+                ].map((item, i) => (
+                  <div key={i} className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{item.label}</p>
+                    <p className="text-2xl font-bold text-[#FF7A45] mt-1">{item.value}</p>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -724,48 +696,29 @@ export default function AdminDashboardPage() {
     if (activeTab === "content") {
       return (
         <div className="grid md:grid-cols-3 gap-6">
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Manage Hobbies</CardTitle>
-              <CardDescription className="dark:text-gray-400">Add, edit, or remove hobbies</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link href="/admin/hobbies">
-                <Button variant="outline" className="w-full dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Manage Hobbies
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Manage Categories</CardTitle>
-              <CardDescription className="dark:text-gray-400">Add, edit, or remove hobby categories</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link href="/admin/categories">
-                <Button variant="outline" className="w-full dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Manage Categories
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Manage Product Categories</CardTitle>
-              <CardDescription className="dark:text-gray-400">Add, edit, or remove marketplace categories for sellers</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link href="/admin/product-categories">
-                <Button variant="outline" className="w-full dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Manage Product Categories
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+          {[
+            { title: "Manage Hobbies", desc: "Add, edit, or remove hobbies and discover new categories", href: "/admin/hobbies", icon: <Sparkles className="h-8 w-8 text-[#FF7A45]" /> },
+            { title: "Manage Categories", desc: "Add, edit, or remove hobby categories for organization", href: "/admin/categories", icon: <BookOpen className="h-8 w-8 text-[#FF7A45]" /> },
+            { title: "Manage Product Categories", desc: "Add, edit, or remove marketplace categories for sellers", href: "/admin/product-categories", icon: <Package className="h-8 w-8 text-[#FF7A45]" /> },
+          ].map((item, i) => (
+            <Card key={i} className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-8 flex flex-col items-center text-center gap-4">
+                <div className="p-4 bg-[#FF7A45]/10 rounded-2xl">
+                  {item.icon}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold dark:text-white">{item.title}</h3>
+                  <p className="text-base text-gray-500 dark:text-gray-400 mt-1">{item.desc}</p>
+                </div>
+                <Link href={item.href} className="w-full">
+                  <Button className="w-full bg-[#FF7A45] hover:bg-[#ff8f61] text-white">
+                    <Plus className="h-4 w-4 mr-2" />
+                    {item.title}
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       );
     }
@@ -983,38 +936,20 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      { }
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub Admin</Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-          {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-[#1F2937]">
+      {/* Unified Top Header */}
+      <DashboardHeader
+        user={user}
+        logout={logout}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        roleName="Administrator"
+      />
 
-      { }
-      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* Sidebar */}
+      <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b dark:border-gray-700">
-            <Link href="/" className="text-2xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub</Link>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Admin Portal</p>
-          </div>
-
-          <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 dark:bg-[#FF7A45]/10 flex items-center justify-center">
-                <span className="text-[#FF7A45] dark:text-[#FF7A45] font-bold text-lg">
-                  {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'A'}
-                </span>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-800 dark:text-gray-100">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
-              </div>
-            </div>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 p-4 pt-5 space-y-1 overflow-y-auto">
             {menuItems.map((item) => (
               <button
                 key={item.id}
@@ -1022,43 +957,31 @@ export default function AdminDashboardPage() {
                   setActiveTab(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
-                  ? 'bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                  }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
+                  activeTab === item.id
+                    ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                }`}
               >
                 {item.icon}
-                <span className="font-medium">{item.label}</span>
+                <span>{item.label}</span>
               </button>
             ))}
           </nav>
-
-          <div className="p-4 border-t dark:border-gray-700 space-y-2">
-            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
-            </button>
-          </div>
         </div>
       </div>
 
-      { }
+      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      { }
-      <div className="lg:ml-72 min-h-screen">
-        <div className="p-6 md:p-8 pt-20 lg:pt-8">
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Admin Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage users, quiz, analytics, and control platform</p>
+      {/* Main Content */}
+      <div className="lg:ml-72 pt-16 min-h-screen">
+        <div className="p-6 md:p-8">
+          <div className="mb-7">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Admin Dashboard</h1>
+            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Manage users, quiz, analytics, and control platform</p>
           </div>
           {renderContent()}
         </div>

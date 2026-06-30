@@ -48,30 +48,25 @@ import {
   FileText,
   Menu,
   X,
-  LogOut,
   Award,
   ClipboardList,
   Briefcase,
   Building,
   MapPin,
-  Mail,
-  Phone,
-  Filter,
   Search,
   Star,
   TrendingUp,
   UserCheck,
   Gift,
-  Package,
-  Heart,
-  Share2,
-  Settings,
   HandCoins,
   Sparkles,
   LayoutDashboard,
-  Home,
   Download,
 } from "lucide-react";
+import DashboardHeader from "@/components/DashboardHeader";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell,
+} from "recharts";
 
 export default function ScholarshipGiverDashboard() {
   const router = useRouter();
@@ -260,30 +255,30 @@ export default function ScholarshipGiverDashboard() {
   const getStatusBadge = (status) => {
     switch (status) {
       case "approved":
-        return <Badge className="bg-green-500">Approved</Badge>;
+        return <Badge className="bg-[#FF7A45] text-white text-sm px-3 py-1">Approved</Badge>;
       case "rejected":
-        return <Badge className="bg-red-500">Rejected</Badge>;
+        return <Badge className="bg-red-500 text-white text-sm px-3 py-1">Rejected</Badge>;
       case "pending":
-        return <Badge className="bg-yellow-500">Pending</Badge>;
+        return <Badge className="bg-[#FFD4B8] text-[#FF7A45] font-semibold text-sm px-3 py-1">Pending</Badge>;
       case "hired":
-        return <Badge className="bg-[#FF7A45]">Hired</Badge>;
+        return <Badge className="bg-[#FF7A45] text-white text-sm px-3 py-1">Hired</Badge>;
       case "shortlisted":
-        return <Badge className="bg-blue-500">Shortlisted</Badge>;
+        return <Badge className="bg-[#FFB899] text-white text-sm px-3 py-1">Shortlisted</Badge>;
       case "sponsored":
-        return <Badge className="bg-green-500">Sponsored</Badge>;
+        return <Badge className="bg-[#FF7A45] text-white text-sm px-3 py-1">Sponsored</Badge>;
       default:
-        return <Badge className="bg-gray-500">{status}</Badge>;
+        return <Badge className="bg-gray-400 text-white text-sm px-3 py-1">{status}</Badge>;
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
       case "approved":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-[#FF7A45]" />;
       case "rejected":
         return <XCircle className="h-4 w-4 text-red-500" />;
       case "pending":
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Clock className="h-4 w-4 text-[#FFB899]" />;
       case "hired":
         return <UserCheck className="h-4 w-4 text-[#FF7A45]" />;
       default:
@@ -294,30 +289,30 @@ export default function ScholarshipGiverDashboard() {
   const getJobTypeBadge = (type) => {
     switch (type) {
       case "full-time":
-        return <Badge className="bg-blue-500">Full Time</Badge>;
+        return <Badge className="bg-[#FF7A45] text-white text-sm">Full Time</Badge>;
       case "part-time":
-        return <Badge className="bg-green-500">Part Time</Badge>;
+        return <Badge className="bg-[#FFB899] text-white text-sm">Part Time</Badge>;
       case "freelance":
-        return <Badge className="bg-[#FF7A45]">Freelance</Badge>;
+        return <Badge className="bg-[#FF9966] text-white text-sm">Freelance</Badge>;
       case "internship":
-        return <Badge className="bg-yellow-500">Internship</Badge>;
+        return <Badge className="bg-[#FFD4B8] text-[#FF7A45] font-semibold text-sm">Internship</Badge>;
       case "apprenticeship":
-        return <Badge className="bg-orange-500">Apprenticeship</Badge>;
+        return <Badge className="bg-[#FF8C5A] text-white text-sm">Apprenticeship</Badge>;
       default:
-        return <Badge className="bg-gray-500">{type}</Badge>;
+        return <Badge className="bg-gray-400 text-white text-sm">{type}</Badge>;
     }
   };
 
   const getLocationBadge = (location) => {
     switch (location) {
       case "remote":
-        return <Badge className="bg-green-500">Remote</Badge>;
+        return <Badge className="bg-[#FF7A45] text-white text-sm">Remote</Badge>;
       case "in-person":
-        return <Badge className="bg-blue-500">In-Person</Badge>;
+        return <Badge className="bg-[#FF9966] text-white text-sm">In-Person</Badge>;
       case "hybrid":
-        return <Badge className="bg-[#FF7A45]">Hybrid</Badge>;
+        return <Badge className="bg-[#FFB899] text-white text-sm">Hybrid</Badge>;
       default:
-        return <Badge className="bg-gray-500">{location}</Badge>;
+        return <Badge className="bg-gray-400 text-white text-sm">{location}</Badge>;
     }
   };
 
@@ -365,187 +360,154 @@ export default function ScholarshipGiverDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      { }
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub</Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-          {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-[#1F2937]">
+      {/* Unified Top Header */}
+      <DashboardHeader
+        user={user}
+        logout={logout}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        roleName="Scholarship Giver"
+      />
 
-      { }
-      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      {/* Sidebar */}
+      <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b dark:border-gray-700">
-            <Link href="/" className="text-2xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub</Link>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Scholarship Portal</p>
-          </div>
-
-          <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 flex items-center justify-center">
-                <span className="text-[#FF7A45] font-bold text-lg">
-                  {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'S'}
-                </span>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-800 dark:text-gray-100">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
-              </div>
-            </div>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-4 pt-5 space-y-1">
             {menuItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
-                  ? 'bg-[#FF7A45]/10 text-[#FF7A45]'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                  }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
+                  activeTab === item.id
+                    ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                }`}
               >
                 {item.icon}
-                <span className="font-medium">{item.label}</span>
+                <span>{item.label}</span>
               </button>
             ))}
           </nav>
-
-          <div className="p-4 border-t dark:border-gray-700 space-y-2">
-            <Link href="/" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Home className="w-5 h-5" /><span className="font-medium">Home</span>
-            </Link>
-            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
-            </button>
-          </div>
         </div>
       </div>
 
-      { }
+      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      { }
-      <div className="lg:ml-72 min-h-screen">
-        <div className="p-6 md:p-8 pt-20 lg:pt-8">
-          { }
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Scholarship Giver Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Support students, sponsor events, and discover talent</p>
+      {/* Main Content */}
+      <div className="lg:ml-72 pt-16 min-h-screen">
+        <div className="p-6 md:p-8">
+          <div className="mb-7">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Scholarship Giver Dashboard</h1>
+            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Support students, sponsor events, and discover talent</p>
           </div>
 
-          { }
-          { }
-          { }
           {activeTab === "dashboard" && (
             <>
-              { }
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <Card className="dark:bg-gray-800 dark:border-gray-700">
-                  <CardContent className="pt-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Events Sponsored</p>
-                        <p className="text-2xl font-bold dark:text-white">{stats.totalSponsored}</p>
+              {/* Stats Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-7">
+                {[
+                  { label: "Events Sponsored", value: stats.totalSponsored, icon: <Gift className="h-6 w-6 text-[#FF7A45]" /> },
+                  { label: "Jobs Posted", value: stats.totalJobs, icon: <Briefcase className="h-6 w-6 text-[#FF7A45]" /> },
+                  { label: "Students Hired", value: stats.hiredStudents, icon: <UserCheck className="h-6 w-6 text-[#FF7A45]" /> },
+                  { label: "Pending Job Apps", value: stats.pendingJobApplications, icon: <Clock className="h-6 w-6 text-[#FF7A45]" /> },
+                ].map((stat, i) => (
+                  <Card key={i} className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm hover:shadow-md transition-shadow">
+                    <CardContent className="p-5">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-[#FF7A45]/10 rounded-xl flex-shrink-0">
+                          {stat.icon}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</p>
+                          <p className="text-3xl font-bold text-gray-800 dark:text-white mt-0.5">{stat.value}</p>
+                        </div>
                       </div>
-                      <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
-                        <Gift className="h-5 w-5 text-[#FF7A45]" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="dark:bg-gray-800 dark:border-gray-700">
-                  <CardContent className="pt-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Jobs Posted</p>
-                        <p className="text-2xl font-bold dark:text-white">{stats.totalJobs}</p>
-                      </div>
-                      <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                        <Briefcase className="h-5 w-5 text-blue-500" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="dark:bg-gray-800 dark:border-gray-700">
-                  <CardContent className="pt-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Students Hired</p>
-                        <p className="text-2xl font-bold dark:text-white">{stats.hiredStudents}</p>
-                      </div>
-                      <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
-                        <UserCheck className="h-5 w-5 text-green-500" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="dark:bg-gray-800 dark:border-gray-700">
-                  <CardContent className="pt-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Job Apps</p>
-                        <p className="text-2xl font-bold dark:text-white">{stats.pendingJobApplications}</p>
-                      </div>
-                      <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-                        <Clock className="h-5 w-5 text-yellow-500" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
 
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="dark:bg-gray-800 dark:border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium dark:text-white">Recent Job Applications</CardTitle>
+              {/* Chart + Top Students */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg font-bold dark:text-white">Recent Job Applications</CardTitle>
+                    <CardDescription className="text-sm dark:text-gray-400">Application status overview</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {jobApplications.slice(0, 5).map((app) => (
-                      <div key={app.id} className="flex justify-between items-center py-2 border-b dark:border-gray-700 last:border-0">
-                        <div>
-                          <p className="text-sm font-medium dark:text-gray-100">{app.student?.profile?.firstName} {app.student?.profile?.lastName}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{app.job?.title}</p>
-                        </div>
-                        {getStatusBadge(app.status)}
+                    {jobApplications.length === 0 ? (
+                      <div className="flex items-center justify-center h-48 text-gray-400">
+                        <p className="text-base">No applications yet</p>
                       </div>
-                    ))}
-                    {jobApplications.length === 0 && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No applications yet</p>
+                    ) : (
+                      <>
+                        <ResponsiveContainer width="100%" height={200}>
+                          <BarChart
+                            data={[
+                              { name: "Pending", count: jobApplications.filter(a => a.status === "pending").length },
+                              { name: "Shortlisted", count: jobApplications.filter(a => a.status === "shortlisted").length },
+                              { name: "Hired", count: jobApplications.filter(a => a.status === "hired").length },
+                              { name: "Rejected", count: jobApplications.filter(a => a.status === "rejected").length },
+                            ]}
+                            margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                            <XAxis dataKey="name" tick={{ fontSize: 13 }} />
+                            <YAxis tick={{ fontSize: 13 }} />
+                            <Bar dataKey="count" radius={[6, 6, 0, 0]} activeBar={false} isAnimationActive={false}>
+                              {["#FFD4B8", "#FFB899", "#FF7A45", "#FF5555"].map((color, idx) => (
+                                <Cell key={idx} fill={color} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                        <div className="mt-3 space-y-2">
+                          {jobApplications.slice(0, 4).map((app) => (
+                            <div key={app.id} className="flex justify-between items-center py-2.5 px-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                              <div>
+                                <p className="text-base font-medium dark:text-gray-100">{app.student?.profile?.firstName} {app.student?.profile?.lastName}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{app.job?.title}</p>
+                              </div>
+                              {getStatusBadge(app.status)}
+                            </div>
+                          ))}
+                        </div>
+                      </>
                     )}
                   </CardContent>
                 </Card>
 
-                <Card className="dark:bg-gray-800 dark:border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium dark:text-white">Top Students</CardTitle>
+                <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg font-bold dark:text-white">Top Students</CardTitle>
+                    <CardDescription className="text-sm dark:text-gray-400">Talented students to discover</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {students.slice(0, 5).map((student) => (
-                      <div key={student.id} className="flex justify-between items-center py-2 border-b dark:border-gray-700 last:border-0">
-                        <div>
-                          <p className="text-sm font-medium dark:text-gray-100">{student.profile?.firstName} {student.profile?.lastName}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{student.hobbies?.map(h => h.name).join(", ") || "No hobbies"}</p>
-                        </div>
-                        <Button size="sm" variant="outline" className="text-xs">View</Button>
+                    {students.length === 0 ? (
+                      <div className="flex items-center justify-center h-48 text-gray-400">
+                        <p className="text-base">No students yet</p>
                       </div>
-                    ))}
-                    {students.length === 0 && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No students yet</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {students.slice(0, 5).map((student) => (
+                          <div key={student.id} className="flex justify-between items-center py-3 px-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0">
+                                <span className="text-[#FF7A45] font-bold">{student.profile?.firstName?.[0] || "S"}</span>
+                              </div>
+                              <div>
+                                <p className="text-base font-medium dark:text-gray-100">{student.profile?.firstName} {student.profile?.lastName}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{student.hobbies?.map(h => h.name).join(", ") || "No hobbies"}</p>
+                              </div>
+                            </div>
+                            <Button size="sm" variant="outline" className="text-sm" onClick={() => setSelectedStudent(student)}>View</Button>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </CardContent>
                 </Card>
@@ -911,7 +873,7 @@ export default function ScholarshipGiverDashboard() {
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <h3 className="font-semibold dark:text-gray-100">{event.title}</h3>
-                                  <Badge className="bg-blue-500">{event.eventType || "Talent Event"}</Badge>
+                                  <Badge className="bg-[#FF7A45] text-white text-sm">{event.eventType || "Talent Event"}</Badge>
                                 </div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                                   {event.about || event.description || "No description"}

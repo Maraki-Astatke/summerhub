@@ -27,6 +27,9 @@ export function isValidPhone(phone) {
   const phoneRegex = /^(09|07)[0-9]{8}$/;
   return phoneRegex.test(phone);
 }
+export function isValidNationalId(nationalId) {
+  return /^\d{16}$/.test(nationalId);
+}
 export function isStrongPassword(password) {
   if (password.length < 8) {
     return { isValid: false, message: 'Password must be at least 8 characters' };
@@ -99,16 +102,17 @@ export const postRegister = async (req: any, res: any) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    let { email, password, firstName, lastName, phone, role = 'student' } = req.body;
+    let { email, password, firstName, lastName, phone, nationalId, role = 'student' } = req.body;
 
     email = sanitizeInput(email).toLowerCase();
     firstName = sanitizeInput(firstName);
     lastName = sanitizeInput(lastName);
     phone = sanitizeInput(phone);
+    nationalId = sanitizeInput(nationalId);
 
-    if (!email || !password || !firstName || !lastName || !phone) {
+    if (!email || !password || !firstName || !lastName || !phone || !nationalId) {
       return res.status(400).json({
-        error: 'All fields are required: email, password, firstName, lastName, phone'
+        error: 'All fields are required: email, password, firstName, lastName, phone, nationalId'
       });
     }
 
@@ -121,6 +125,12 @@ export const postRegister = async (req: any, res: any) => {
     if (!isValidPhone(phone)) {
       return res.status(400).json({
         error: 'Invalid phone number. Please use Ethiopian format: 09XXXXXXXX or 07XXXXXXXX'
+      });
+    }
+
+    if (!isValidNationalId(nationalId)) {
+      return res.status(400).json({
+        error: 'National ID must be exactly 16 digits'
       });
     }
 
@@ -143,6 +153,14 @@ export const postRegister = async (req: any, res: any) => {
 
     if (existingPhone) {
       return res.status(400).json({ error: 'Phone number already registered' });
+    }
+
+    const existingNationalId = await prisma.profile.findFirst({
+      where: { nationalId }
+    });
+
+    if (existingNationalId) {
+      return res.status(400).json({ error: 'National ID already registered' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -177,7 +195,8 @@ export const postRegister = async (req: any, res: any) => {
         profile: {
           create: {
             firstName,
-            lastName
+            lastName,
+            nationalId,
           }
         },
         roles: {

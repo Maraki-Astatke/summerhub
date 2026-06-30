@@ -15,14 +15,11 @@ import {
   Trash2,
   Menu,
   X,
-  LogOut,
   LayoutDashboard,
   Video,
-  ShoppingBag,
   Newspaper,
   Trophy,
   MessageSquare,
-  Settings,
   Award,
   Upload,
   FileText,
@@ -34,6 +31,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
+import DashboardHeader from "@/components/DashboardHeader";
 
 const Card = ({
   children,
@@ -561,7 +559,7 @@ export default function TeacherDashboardPage() {
     { id: "resources", label: "Resources", icon: <FileText className="w-5 h-5" /> },
     { id: "submissions", label: "Submissions", icon: <Upload className="w-5 h-5" /> },
     { id: "certificates", label: "Certificates", icon: <Award className="w-5 h-5" /> },
-
+    { id: "messages", label: "Messages", icon: <MessageSquare className="w-5 h-5" />, href: "/chat" },
   ];
 
   const renderContent = () => {
@@ -779,9 +777,9 @@ export default function TeacherDashboardPage() {
         <div className="space-y-4">
           {lessons?.length === 0 ? (
             <Card>
-              <CardContent className="text-center py-12">
-                <BookOpen className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-500">No lessons created yet</p>
+              <CardContent className="text-center py-16">
+                <BookOpen className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-lg text-gray-500 font-medium">No lessons created yet</p>
                 <Button className="mt-4" onClick={() => setActiveTab("create")}>
                   Create First Lesson
                 </Button>
@@ -789,24 +787,29 @@ export default function TeacherDashboardPage() {
             </Card>
           ) : (
             lessons?.map((lesson: any) => (
-              <Card key={lesson.id}>
+              <Card key={lesson.id} className="border-0 shadow-md hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-2 dark:text-white">{lesson.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-3">{lesson.description}</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-500 dark:text-gray-400">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 rounded-xl bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0">
+                          <BookOpen className="h-5 w-5 text-[#FF7A45]" />
+                        </div>
+                        <h3 className="text-xl font-bold dark:text-white">{lesson.title}</h3>
+                      </div>
+                      <p className="text-base text-gray-600 dark:text-gray-400 mb-4 ml-13">{lesson.description}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-base text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900/50 px-3 py-2 rounded-lg">
+                          <Calendar className="h-4 w-4 text-[#FF7A45]" />
                           <span>{new Date(lesson.dateTime).toLocaleString()}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4" />
+                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900/50 px-3 py-2 rounded-lg">
+                          <Users className="h-4 w-4 text-[#FF7A45]" />
                           <span>{lesson.registrations?.length || 0} / {lesson.maxStudents} students</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-shrink-0">
                       <Button variant="outline" size="sm" onClick={() => openEditDialog(lesson)}>
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -829,23 +832,38 @@ export default function TeacherDashboardPage() {
 
     if (activeTab === "students") {
       return (
-        <Card>
-          <CardHeader>
-            <CardTitle className="dark:text-white">My Students</CardTitle>
-            <CardDescription>Students registered in your lessons</CardDescription>
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-bold dark:text-white">My Students</CardTitle>
+            <CardDescription className="text-base dark:text-gray-400">Students registered in your lessons</CardDescription>
           </CardHeader>
           <CardContent>
             {students?.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">No students yet</p>
+              <div className="text-center py-16">
+                <Users className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-lg text-gray-500">No students yet</p>
+              </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {students?.map((student: any) => (
-                  <div key={student.id} className="flex justify-between items-center p-3 border rounded-lg dark:border-gray-700">
-                    <div>
-                      <p className="font-medium dark:text-gray-200">{student.profile?.firstName} {student.profile?.lastName}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{student.email}</p>
+                  <div key={student.id} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border dark:border-gray-700 hover:shadow-md transition-shadow">
+                    <div className="w-12 h-12 rounded-full bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-[#FF7A45] font-bold text-lg">
+                        {student.profile?.firstName?.[0] || student.email?.[0]?.toUpperCase() || "S"}
+                      </span>
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{student.registeredLessons} lesson(s)</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-base font-semibold dark:text-gray-100 truncate">{student.profile?.firstName} {student.profile?.lastName}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{student.email}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <BookOpen className="h-3 w-3 text-[#FF7A45]" />
+                        <span className="text-sm text-[#FF7A45] font-medium">{student.registeredLessons} lesson(s)</span>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-xs bg-[#FF7A45]/10 text-[#FF7A45] px-2.5 py-1 rounded-full font-medium">
+                      <CheckCircle className="h-3 w-3" />
+                      Active
+                    </span>
                   </div>
                 ))}
               </div>
@@ -1007,40 +1025,62 @@ export default function TeacherDashboardPage() {
 
     if (activeTab === "submissions") {
       return (
-        <Card>
-          <CardHeader>
-            <CardTitle className="dark:text-white">Student Submissions</CardTitle>
-            <CardDescription>Assignments submitted by students</CardDescription>
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-bold dark:text-white">Student Submissions</CardTitle>
+            <CardDescription className="text-base dark:text-gray-400">Assignments submitted by students</CardDescription>
           </CardHeader>
           <CardContent>
             {!studentSubmissions || studentSubmissions.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">No submissions yet</p>
+              <div className="text-center py-16">
+                <Upload className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-lg text-gray-500">No submissions yet</p>
+              </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {studentSubmissions?.map((sub: any) => (
-                  <div key={sub.id} className="flex justify-between items-center p-3 border rounded-lg dark:border-gray-700">
-                    <div>
-                      <p className="font-medium dark:text-gray-200">{sub.title}</p>
-                      {sub.description && <p className="text-sm text-gray-500 dark:text-gray-400">{sub.description}</p>}
-                      <p className="text-xs text-gray-400 mt-1">
-                        From: {sub.sender?.profile?.firstName} {sub.sender?.profile?.lastName} •
-                        {sub.lesson?.title && ` Lesson: ${sub.lesson.title}`} •
-                        {new Date(sub.createdAt).toLocaleDateString()}
-                      </p>
+                  <div key={sub.id} className="p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border dark:border-gray-700 hover:shadow-md transition-shadow">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <FileText className="h-5 w-5 text-[#FF7A45]" />
+                        </div>
+                        <div>
+                          <p className="text-base font-bold dark:text-gray-100">{sub.title}</p>
+                          {sub.description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{sub.description}</p>}
+                          <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3.5 w-3.5" />
+                              {sub.sender?.profile?.firstName} {sub.sender?.profile?.lastName}
+                            </span>
+                            {sub.lesson?.title && (
+                              <span className="flex items-center gap-1">
+                                <BookOpen className="h-3.5 w-3.5" />
+                                {sub.lesson.title}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3.5 w-3.5" />
+                              {new Date(sub.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      {sub.fileUrl && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="shrink-0 text-[#FF7A45] border-[#FF7A45]/30 hover:bg-[#FF7A45]/5"
+                          onClick={() => {
+                            const token = localStorage.getItem("token");
+                            window.open(`http://localhost:5001/api/resources/${sub.id}/download?token=${token}`, "_blank");
+                          }}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </Button>
+                      )}
                     </div>
-                    {sub.fileUrl && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const token = localStorage.getItem("token");
-                          window.open(`http://localhost:5001/api/resources/${sub.id}/download?token=${token}`, "_blank");
-                        }}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download
-                      </Button>
-                    )}
                   </div>
                 ))}
               </div>
@@ -1251,85 +1291,60 @@ export default function TeacherDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-[#FF7A45]">HobbyHub Teacher</Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-          {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-[#1F2937]">
+      {/* Unified Top Header */}
+      <DashboardHeader
+        user={user}
+        logout={logout}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        roleName="Teacher"
+      />
 
-      <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      {/* Sidebar */}
+      <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b dark:border-gray-700">
-            <Link href="/" className="text-2xl font-bold text-[#FF7A45] dark:text-[#FF7A45]">HobbyHub</Link>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Teacher Portal</p>
-          </div>
-
-          <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 flex items-center justify-center">
-                <span className="text-[#FF7A45] dark:text-[#FF7A45] font-bold text-lg">
-                  {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "T"}
-                </span>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-800 dark:text-gray-100">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
-              </div>
-            </div>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-1">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setActiveTab(item.id);
-                  setSidebarOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
-                  ? "bg-[#FFF2EB] dark:bg-[#FF7A45]/10 text-[#FF7A45] dark:text-[#FF7A45]"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+          <nav className="flex-1 p-4 pt-5 space-y-1">
+            {menuItems.map((item: any) => (
+              item.href ? (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </Link>
+              ) : (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
+                    activeTab === item.id
+                      ? "bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   }`}
-              >
-                {item.icon}
-                <span className="font-medium">{item.label}</span>
-              </button>
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </button>
+              )
             ))}
           </nav>
-
-          <div className="p-4 border-t dark:border-gray-700 space-y-2">
-            <Link href="/shops" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <ShoppingBag className="w-5 h-5" />
-              <span className="font-medium">Shop</span>
-            </Link>
-            <Link href="/events" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Trophy className="w-5 h-5" />
-              <span className="font-medium">Events</span>
-            </Link>
-            <Link href="/chat" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <MessageSquare className="w-5 h-5" />
-              <span className="font-medium">Messages</span>
-            </Link>
-            <Link href="/settings" className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <Settings className="w-5 h-5" /><span className="font-medium">Settings</span>
-            </Link>
-            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
-            </button>
-          </div>
         </div>
       </div>
 
       {sidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
-      <div className="lg:ml-72 min-h-screen">
-        <div className="p-6 md:p-8 pt-20 lg:pt-8">
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Teacher Dashboard</h1>
-            <p className="text-gray-500 mt-1">Manage your lessons, students, and resources</p>
+      {/* Main Content */}
+      <div className="lg:ml-72 pt-16 min-h-screen">
+        <div className="p-6 md:p-8">
+          <div className="mb-7">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Teacher Dashboard</h1>
+            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Manage your lessons, students, and resources</p>
           </div>
           {renderContent()}
         </div>

@@ -135,10 +135,22 @@
   "auth": {
     "welcomeBack": "እንኳን ደህና መጡ",
     "loginDesc": "ወደ HobbyHub አካውንትዎ ይግቡ",
+    "createAccount": "መለያ ፍጠር",
+    "registerDesc": "HobbyHub ይቀላቀሉ እና የመማር ጉዞዎን ይጀምሩ",
+    "firstName": "ስም",
+    "lastName": "የአባት ስም",
+    "phone": "ስልክ ቁጥር",
+    "nationalId": "ብሔራዊ መታወቂያ (ፋይዳ)",
+    "nationalIdHint": "16 አሃዝ የፋይዳ ብሔራዊ መታወቂያ ቁጥርዎን ያስገቡ",
+    "confirmPassword": "የይለፍ ቃል ያረጋግጡ",
     "password": "የይለፍ ቃል",
     "forgotPassword": "የይለፍ ቃል ረሳሁ?",
     "orContinue": "ወይም በ",
-    "noAccount": "መለያ የለዎትም?"
+    "noAccount": "መለያ የለዎትም?",
+    "haveAccount": "መለያ አለዎት?",
+    "backToHome": "ወደ መነሻ ተመለስ",
+    "agreeTo": "እስማማለሁ ከ",
+    "and": "እና"
   },
   "footer": {
     "desc": "የትርፍ ጊዜ ማሳለፊያዎችን ለይ፣ ተማር፣ ፍጠር እና ብልጭ በል ከHobbyHub ጋር።",
@@ -151,5 +163,122 @@
     "terms": "የአገልግሎት ውሎች",
     "address": "አዲስ አበባ፣ ኢትዮጵያ",
     "rights": "መብቱ በህግ የተጠበቀ ነው"
+  },
+  "studentDashboard": {
+    "title": "የተማሪ ዳሽቦርድ",
+    "welcome": "እንኳን ደህና መጡ፣ {name}! 👋",
+    "defaultStudent": "ተማሪ",
+    "roleStudent": "ተማሪ",
+    "loading": "በመጫን ላይ...",
+    "menu": {
+      "overview": "አጠቃላይ እይታ",
+      "recommendations": "ምክረ ሀሳቦች",
+      "progress": "የእድገቴ",
+      "resources": "መርጃዎች",
+      "certificates": "ሰርተፊኬቶች",
+      "orders": "የትዕዛዝ ታሪክ",
+      "jobs": "የስራ እድሎች",
+      "messages": "መልዕክቶች"
+    },
+    "stats": {
+      "hobbiesDiscovered": "የተገኙ ትርፍ ጊዜ ማሳለፊያዎች",
+      "lessonsTaken": "የተወሰዱ ትምህርቶች",
+      "blogPosts": "የብሎግ ልጥፎች",
+      "orders": "ትዕዛዞች"
+    },
+    "popularHobbies": {
+      "title": "🔥 ታዋቂ ትርፍ ጊዜ ማሳለፊያዎች",
+      "desc": "በትርፍ ጊዜ ማሳለፊያ የማህበረሰብ ተሳትፎ",
+      "loading": "የትርፍ ጊዜ ማሳለፊያ መረጃ በመጫን ላይ..."
+    },
+    "discoverHobbies": {
+      "title": "ትርፍ ጊዜ ማሳለፊያዎችን ያግኙ",
+      "desc": "በጣም የሚወዱ እንቅስቃሴዎች",
+      "viewAll": "ሁሉንም ተመልከት →",
+      "students": "{count} ተማሪዎች"
+    },
+    "progress": {
+      "title": "የመማር እድገት",
+      "desc": "ንቁ ኮርሶችዎን እና የማጠናቀቂያ ሁኔታዎን ይከታተሉ",
+      "active": "{count} ንቁ",
+      "emptyTitle": "ገና ንቁ ኮርስ የለም",
+      "emptyDesc": "ጉዞዎን ለመጀመር ታዋቂ ትርፍ ጊዜ ማሳለፊያዎችን ያስሱ!",
+      "explore": "ትርፍ ጊዜ ማሳለፊያዎችን ያስሱ",
+      "level": "ደረጃ {level}/5",
+      "complete": "{percent}% ተጠናቋል"
+    },
+    "certificates": {
+      "title": "ሰርተፊኬቶችዎ",
+      "desc": "ከአስተማሪዎችዎ የተቀበሉት ሰርተፊኬቶች",
+      "empty": "ገና ምንም ሰርተፊኬት አልተቀበሉም። ለማረጋገጥ ኮርሶችን ያጠናቅቁ!",
+      "download": "አውርድ",
+      "issued": "የተሰጠበት፡ {date}"
+    },
+    "resources": {
+      "submitAssignment": "ስራ አስረክብ",
+      "title": "መርጃዎቼ",
+      "desc": "ከአስተማሪዎችዎ የተጋሩ ፋይሎች",
+      "loading": "በመጫን ላይ...",
+      "empty": "ገና ምንም መርጃ አልተጋራም",
+      "emptyHint": "አስተማሪዎች የመማሪያ ቁሳቁሶችን እዚህ ያጋራሉ",
+      "from": "ከ፡ {name}",
+      "lesson": "ትምህርት፡ {title}",
+      "download": "አውርድ"
+    },
+    "recommendations": {
+      "title": "ለእርስዎ የተመከሩ",
+      "desc": "ከባለሙያዎቻችን የግል ምክረ ሀሳቦች",
+      "empty": "ገና ምክረ ሀሳብ የለም። ባለሙያዎቻችን የፈተና መልሶችዎን ይገምግማሉ እና ትርፍ ጊዜ ማሳለፊያዎችን በቅርቡ ይመክራሉ!",
+      "explore": "ትርፍ ጊዜ ማሳለፊያን ያስሱ",
+      "recommendedBy": "የተመከረው በ፡ {name}"
+    },
+    "orders": {
+      "title": "የትዕዛዝ ታሪክ",
+      "desc": "ግዢዎችዎን እና የማድረሻ ሁኔታን ይከታተሉ",
+      "empty": "ገና ምንም ትዕዛዝ የለም",
+      "startShopping": "ግዢ ይጀምሩ",
+      "order": "ትዕዛዝ #{id}",
+      "items": "{count} ዕቃ(ዎች)",
+      "moreItems": "+{count} ተጨማሪ ዕቃዎች",
+      "status": {
+        "pending": "በመጠባበቅ ላይ",
+        "paid": "ተከፍሏል",
+        "shipped": "ተላከ",
+        "delivered": "ደርሷል",
+        "cancelled": "ተሰርዟል"
+      }
+    },
+    "jobs": {
+      "title": "የስራ እድሎች",
+      "desc": "በስኮላርሺፕ ሰጪዎች የተለጠፉ የስራ እድሎችን ያስሱ",
+      "loading": "የስራ እድሎች በመጫን ላይ...",
+      "empty": "አሁን ምንም የስራ እድል የለም",
+      "emptyHint": "ለአዲስ እድሎች በኋላ ይመለሱ",
+      "positions": "{count} ቦታ(ዎች)",
+      "deadline": "የመጨረሻ ቀን፡ {date}",
+      "requirements": "መስፈርቶች፡",
+      "applied": "ተመዝግቧል",
+      "applyNow": "አሁን ያመልክቱ",
+      "postedBy": "የተለጠፈው በ፡ {name}",
+      "scholarshipGiver": "ስኮላርሺፕ ሰጪ"
+    },
+    "messages": {
+      "title": "መልዕክቶች",
+      "desc": "ከአስተማሪዎች እና ከክፍል ጓደኞች ጋር ይወያዩ"
+    },
+    "modal": {
+      "submitAssignment": "ስራ አስረክብ",
+      "applyForJob": "ለስራ ያመልክቱ",
+      "title": "ርዕስ",
+      "description": "መግለጫ",
+      "selectTeacher": "አስተማሪ ይምረጡ",
+      "relatedLesson": "ተዛማጅ ትምህርት (አማራጭ)",
+      "file": "ፋይል (አማራጭ)",
+      "submitting": "በመላክ ላይ...",
+      "submit": "ስራ አስረክብ",
+      "cancel": "ሰርዝ",
+      "selectTeacherPlaceholder": "አስተማሪ ይምረጡ",
+      "selectLessonPlaceholder": "ትምህርት ይምረጡ"
+    }
   }
 }
