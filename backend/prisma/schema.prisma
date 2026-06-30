@@ -54,6 +54,9 @@ model User {
   postedJobs            Job[]                 @relation("PostedJobs")
   jobApplications       JobApplication[]      @relation("JobApplications")
   eventSponsorships     EventSponsorship[]    @relation("EventSponsorships")
+
+  parentRelations       ParentChild[]         @relation("ParentRelation")
+  childRelations        ParentChild[]         @relation("ChildRelation")
 }
 
 model Profile {
@@ -596,4 +599,16 @@ model EventSponsorship {
   updatedAt       DateTime @updatedAt
 
   @@unique([eventId, giverId])
+}
+
+model ParentChild {
+  id        Int      @id @default(autoincrement())
+  parentId  Int
+  childId   Int
+  createdAt DateTime @default(now())
+
+  parent    User     @relation("ParentRelation", fields: [parentId], references: [id], onDelete: Cascade)
+  child     User     @relation("ChildRelation", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
 }

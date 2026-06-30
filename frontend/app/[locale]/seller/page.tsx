@@ -347,13 +347,13 @@ export default function SellerDashboardPage() {
                   {/* Display phone number if exists */}
                   {product.phone && (
                     <div className="flex items-center gap-1 mb-1 text-xs text-gray-600">
-                      <Phone className="h-3 w-3 text-purple-600" />
+                      <Phone className="h-3 w-3 text-[#FF7A45]" />
                       <span>{product.phone}</span>
                     </div>
                   )}
 
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-base font-bold text-purple-600">{product.price} ETB</span>
+                    <span className="text-base font-bold text-[#FF7A45]">{product.price} ETB</span>
                     <div className="flex items-center gap-1">
                       <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                       <span className="text-xs text-gray-600">
@@ -434,14 +434,14 @@ export default function SellerDashboardPage() {
             <tbody>
               <tr className="border-b dark:border-gray-700">
                 <td className="p-4 flex items-center gap-2">
-                  <Package className="h-5 w-5 text-purple-600" />
+                  <Package className="h-5 w-5 text-[#FF7A45]" />
                   <span className="font-medium dark:text-gray-200">Total Products</span>
                 </td>
                 <td className="p-4 text-right font-bold text-xl dark:text-white">{stats?.totalProducts || 0}</td>
               </tr>
               <tr className="border-b dark:border-gray-700">
                 <td className="p-4 flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5 text-purple-600" />
+                  <ShoppingCart className="h-5 w-5 text-[#FF7A45]" />
                   <span className="font-medium dark:text-gray-200">Total Orders</span>
                 </td>
                 <td className="p-4 text-right font-bold text-xl dark:text-white">{stats?.totalOrders || 0}</td>
@@ -573,7 +573,7 @@ export default function SellerDashboardPage() {
                         <div className="flex text-sm text-gray-600">
                           <label
                             htmlFor="image-upload"
-                            className="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none"
+                            className="relative cursor-pointer bg-white rounded-md font-medium text-[#FF7A45] hover:text-[#ff8f61] focus-within:outline-none"
                           >
                             <span>Upload a file</span>
                             <input
@@ -592,7 +592,7 @@ export default function SellerDashboardPage() {
                       </>
                     )}
                     {uploadingImage && (
-                      <p className="text-sm text-purple-600">Uploading...</p>
+                      <p className="text-sm text-[#FF7A45]">Uploading...</p>
                     )}
                   </div>
                 </div>
@@ -613,7 +613,7 @@ export default function SellerDashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-20 px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-purple-600 dark:text-purple-400">HobbyHub Seller</Link>
+        <Link href="/" className="text-xl font-bold text-[#FF7A45] dark:text-[#FF7A45]/90">HobbyHub Seller</Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
           {sidebarOpen ? <X className="h-6 w-6 dark:text-gray-200" /> : <Menu className="h-6 w-6 dark:text-gray-200" />}
         </button>
@@ -622,14 +622,14 @@ export default function SellerDashboardPage() {
       <div className={`fixed inset-y-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b dark:border-gray-700">
-            <Link href="/" className="text-2xl font-bold text-purple-600 dark:text-purple-400">HobbyHub</Link>
+            <Link href="/" className="text-2xl font-bold text-[#FF7A45] dark:text-[#FF7A45]/90">HobbyHub</Link>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Seller Portal</p>
           </div>
 
           <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
-                <span className="text-purple-600 dark:text-purple-400 font-bold text-lg">
+              <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 dark:bg-[#FF7A45]/20 flex items-center justify-center">
+                <span className="text-[#FF7A45] dark:text-[#FF7A45]/90 font-bold text-lg">
                   {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'S'}
                 </span>
               </div>
@@ -649,7 +649,7 @@ export default function SellerDashboardPage() {
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
-                    ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                    ? 'bg-[#FF7A45]/10 dark:bg-[#FF7A45]/20 text-[#FF7A45] dark:text-[#FF7A45]/90'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                   }`}
               >
@@ -806,7 +806,7 @@ export default function SellerDashboardPage() {
                           <div className="flex text-sm text-gray-600">
                             <label
                               htmlFor="edit-image-upload"
-                              className="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500"
+                              className="relative cursor-pointer bg-white rounded-md font-medium text-[#FF7A45] hover:text-[#ff8f61]"
                             >
                               <span>Upload a file</span>
                               <input
@@ -825,7 +825,7 @@ export default function SellerDashboardPage() {
                         </>
                       )}
                       {uploadingImage && (
-                        <p className="text-sm text-purple-600">Uploading...</p>
+                        <p className="text-sm text-[#FF7A45]">Uploading...</p>
                       )}
                     </div>
                   </div>

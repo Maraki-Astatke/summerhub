@@ -40,22 +40,21 @@ if (!isStudent) {
   return res.status(400).json({ error: 'User is not a student' });
 }
 
-const existingLink = await prisma.userRole.findFirst({
+const existingLink = await prisma.parentChild.findFirst({
   where: {
-    userId: child.id,
-    roleId: 5
+    parentId,
+    childId: child.id
   }
 });
 
 if (existingLink) {
-  return res.status(400).json({ error: 'Child already linked to a parent' });
+  return res.status(400).json({ error: 'Child already linked to this parent' });
 }
 
-await prisma.userRole.create({
+await prisma.parentChild.create({
   data: {
-    userId: child.id,
-    roleId: 5,
-    assignedAt: new Date()
+    parentId,
+    childId: child.id
   }
 });
 
@@ -68,31 +67,29 @@ res.status(201).json({
 export const getParentChildren = async (req: any, res: any) => {
 const parentId = req.user.userId;
 
-const children = await prisma.user.findMany({
-  where: {
-    roles: {
-      some: {
-        roleId: 5
-      }
-    }
-  },
+const links = await prisma.parentChild.findMany({
+  where: { parentId },
   include: {
-    profile: true,
-    quizResults: true,
-    userHobbies: {
+    child: {
       include: {
-        hobby: true
-      }
-    },
-    lessonRegistrations: {
-      include: {
-        lesson: true
+        profile: true,
+        quizResults: true,
+        userHobbies: {
+          include: {
+            hobby: true
+          }
+        },
+        lessonRegistrations: {
+          include: {
+            lesson: true
+          }
+        }
       }
     }
   }
 });
 
-const filteredChildren = children.filter(child => child.id !== parentId);
+const filteredChildren = links.map(link => link.child);
 
 console.log(`Parent ${parentId} has ${filteredChildren.length} children`);
 res.json(filteredChildren);
