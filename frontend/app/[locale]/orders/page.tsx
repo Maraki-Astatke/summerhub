@@ -117,16 +117,16 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1F2937]">
-      {}
+      { }
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center focus:outline-none">
-            <Image 
-              src="/logo.png" 
-              alt="HobbyHub Education" 
-              width={150} 
-              height={38} 
-              priority 
+            <Image
+              src="/logo.png"
+              alt="HobbyHub Education"
+              width={150}
+              height={38}
+              priority
               className="h-9 w-auto object-contain"
             />
           </Link>

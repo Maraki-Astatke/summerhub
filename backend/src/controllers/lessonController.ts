@@ -274,7 +274,8 @@ export const postLessonsIdRegister = async (req: any, res: any) => {
     return res.status(404).json({ error: 'Lesson not found' });
   }
 
-  if (lesson.dateTime < new Date()) {
+  const latestRegistrationTime = new Date(lesson.dateTime.getTime() + 20 * 60 * 1000);
+  if (latestRegistrationTime < new Date()) {
     return res.status(400).json({ error: 'Cannot register for past lessons' });
   }
 

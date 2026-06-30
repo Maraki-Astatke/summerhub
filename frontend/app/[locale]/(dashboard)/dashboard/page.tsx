@@ -84,7 +84,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    
+
     if (!user) {
       router.push("/login");
       return;
@@ -94,7 +94,7 @@ export default function DashboardPage() {
       router.push("/scholarship-giver");
       return;
     }
-    
+
     if (user?.roles?.includes("admin")) {
       router.push("/admin");
       return;
@@ -264,7 +264,7 @@ export default function DashboardPage() {
   });
 
   const getIcon = (iconName: string) => {
-    switch(iconName) {
+    switch (iconName) {
       case "music": return <Music className="w-5 h-5" />;
       case "palette": return <Palette className="w-5 h-5" />;
       case "code2": return <Code2 className="w-5 h-5" />;
@@ -274,7 +274,7 @@ export default function DashboardPage() {
       default: return <Sparkles className="w-5 h-5" />;
     }
   };
-  
+
   const getOrderStatusBadge = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-700';
@@ -296,7 +296,7 @@ export default function DashboardPage() {
       default: return status;
     }
   };
-  
+
   const handleDownloadCertificate = (certId: number) => {
     const token = localStorage.getItem('token');
     window.open(`http://localhost:5001/api/certificates/${certId}/download?token=${token}`, '_blank');
@@ -317,14 +317,14 @@ export default function DashboardPage() {
       toast.error("Please select a teacher");
       return;
     }
-    
+
     const formData = new FormData();
     formData.append("title", submissionForm.title);
     if (submissionForm.description) formData.append("description", submissionForm.description);
     formData.append("teacherId", submissionForm.teacherId);
     if (submissionForm.lessonId) formData.append("lessonId", submissionForm.lessonId);
     if (submissionForm.file) formData.append("file", submissionForm.file);
-    
+
     submitAssignmentMutation.mutate(formData);
   };
 
@@ -521,9 +521,9 @@ export default function DashboardPage() {
                         Issued: {new Date(cert.issuedAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="rounded-lg"
                       onClick={() => handleDownloadCertificate(cert.id)}
                     >
@@ -541,7 +541,7 @@ export default function DashboardPage() {
     if (activeTab === "resources") {
       return (
         <div className="space-y-6">
-          {}
+          { }
           <div className="flex justify-end">
             <Button onClick={() => setShowSubmitModal(true)} className="bg-[#FF7A45] hover:bg-[#ff8f61]">
               <Upload className="h-4 w-4 mr-2" />
@@ -549,7 +549,7 @@ export default function DashboardPage() {
             </Button>
           </div>
 
-          {}
+          { }
           <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
             <CardHeader className="p-6">
               <CardTitle className="text-xl font-bold dark:text-white">My Resources</CardTitle>
@@ -580,9 +580,9 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       {resource.fileUrl && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="rounded-lg"
                           onClick={() => handleDownloadResource(resource.id)}
                         >
@@ -634,8 +634,8 @@ export default function DashboardPage() {
                           </div>
                         )}
                         <div className="flex items-center gap-4 mt-3">
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white rounded-lg text-xs h-8"
                             onClick={() => router.push(`/hobbies/${rec.hobby?.id}`)}
                           >
@@ -693,7 +693,7 @@ export default function DashboardPage() {
                         <p className="text-xs text-gray-400 dark:text-gray-500">{order.items?.length || 0} item(s)</p>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2 mb-4">
                       {order.items?.slice(0, 3).map((item: any) => (
                         <div key={item.id} className="flex justify-between text-sm">
@@ -707,18 +707,14 @@ export default function DashboardPage() {
                         <p className="text-sm text-gray-400 dark:text-gray-500">+{order.items.length - 3} more items</p>
                       )}
                     </div>
-                    
+
                     <div className="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
                       {order.shippingAddress && (
                         <p className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[200px]">
                           📦 {order.shippingAddress}
                         </p>
                       )}
-                      <Link href={`/orders/${order.id}`}>
-                        <Button variant="outline" size="sm" className="rounded-lg">
-                          View Details
-                        </Button>
-                      </Link>
+
                     </div>
                   </div>
                 ))}
@@ -751,7 +747,7 @@ export default function DashboardPage() {
               <div className="space-y-4">
                 {jobOpportunities.map((job: any) => {
                   const hasApplied = job.hasApplied || job.applications?.some((app: any) => app.studentId === user?.id || app.userId === user?.id);
-                  
+
                   return (
                     <Card key={job.id} className="border border-gray-200 dark:border-gray-700 dark:bg-gray-900/50">
                       <CardContent className="pt-4">
@@ -830,7 +826,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {}
+      { }
       {showSubmitModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-auto">
@@ -951,9 +947,8 @@ export default function DashboardPage() {
               <button
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id ? "bg-[#FF7A45]/10 text-[#FF7A45]" : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id ? "bg-[#FF7A45]/10 text-[#FF7A45]" : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  }`}
               >
                 {item.icon}
                 <span className="font-medium">{item.label}</span>

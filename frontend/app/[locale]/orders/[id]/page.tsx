@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
 import api from '@/lib/api';
 import { ArrowLeft, Package, Calendar, Clock, CreditCard, MapPin, CheckCircle } from 'lucide-react';
@@ -15,6 +15,8 @@ export default function OrderDetailPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
 
+  const queryClient = useQueryClient();
+
   const { data: order, isLoading } = useQuery({
     queryKey: ['order', id],
     queryFn: async () => {
@@ -22,6 +24,16 @@ export default function OrderDetailPage() {
       return response.data;
     },
     enabled: !!user,
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async (status: string) => {
+      const response = await api.put(`/orders/${id}/status`, { status });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['order', id] });
+    },
   });
 
   if (authLoading || isLoading) {
@@ -133,6 +145,15 @@ export default function OrderDetailPage() {
               {getStatusText(order.status)}
             </span>
           </div>
+          {(order.status === 'paid' || order.status === 'shipped') && (
+            <Button 
+              onClick={() => updateStatusMutation.mutate('delivered')}
+              disabled={updateStatusMutation.isPending}
+              className="bg-green-500 hover:bg-green-600 text-white font-bold h-11 px-6 rounded-xl"
+            >
+              {updateStatusMutation.isPending ? 'Updating...' : 'Mark as Received'}
+            </Button>
+          )}
         </div>
 
         {}
