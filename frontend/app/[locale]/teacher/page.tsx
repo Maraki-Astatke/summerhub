@@ -30,8 +30,11 @@ import {
   Clock,
   CheckCircle,
   XCircle,
+  Heart,
+  Package,
 } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
+import MessagesPanel from "@/components/MessagesPanel";
 
 const Card = ({
   children,
@@ -84,17 +87,21 @@ const Button = ({
   className = "",
   disabled = false,
   type = "button",
+  size = "default",
 }: any) => (
   <button
     type={type}
     onClick={onClick}
     disabled={disabled}
-    className={`px-4 py-2 rounded-lg font-medium transition ${variant === "outline"
-      ? "border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
-      : variant === "destructive"
+    className={`px-4 py-2 rounded-lg font-medium transition ${
+      variant === "outline"
+        ? "border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
+        : variant === "destructive"
         ? "bg-red-500 text-white hover:bg-red-600"
         : "bg-[#FF7A45] text-white hover:bg-[#ff8f61]"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
+    } ${
+      size === "sm" ? "px-3 py-1.5 text-sm" : ""
+    } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
   >
     {children}
   </button>
@@ -559,69 +566,83 @@ export default function TeacherDashboardPage() {
     { id: "resources", label: "Resources", icon: <FileText className="w-5 h-5" /> },
     { id: "submissions", label: "Submissions", icon: <Upload className="w-5 h-5" /> },
     { id: "certificates", label: "Certificates", icon: <Award className="w-5 h-5" /> },
-    { id: "messages", label: "Messages", icon: <MessageSquare className="w-5 h-5" />, href: "/chat" },
+    { id: "messages", label: "Messages", icon: <MessageSquare className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
     if (activeTab === "stats") {
       return (
         <div className="space-y-6">
-          { }
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-300">Total Lessons</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold flex items-center gap-2 dark:text-white">
-                  <BookOpen className="h-5 w-5 text-gray-400" />
-                  {stats?.totalLessons || 0}
+          {/* Stats Cards - Matching Student Dashboard Style */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-[#FF7A45]/10 rounded-xl flex-shrink-0">
+                    <BookOpen className="h-6 w-6 text-[#FF7A45]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Lessons</p>
+                    <p className="text-3xl font-bold text-gray-800 dark:text-white mt-0.5">{stats?.totalLessons || 0}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-300">Total Students</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold flex items-center gap-2 dark:text-white">
-                  <Users className="h-5 w-5 text-gray-400" />
-                  {stats?.totalStudents || 0}
+
+            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-[#FF7A45]/10 rounded-xl flex-shrink-0">
+                    <Users className="h-6 w-6 text-[#FF7A45]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Students</p>
+                    <p className="text-3xl font-bold text-gray-800 dark:text-white mt-0.5">{stats?.totalStudents || 0}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-300">Upcoming Lessons</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold dark:text-white">{stats?.upcomingLessons || 0}</div>
+
+            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-[#FF7A45]/10 rounded-xl flex-shrink-0">
+                    <Calendar className="h-6 w-6 text-[#FF7A45]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Upcoming Lessons</p>
+                    <p className="text-3xl font-bold text-gray-800 dark:text-white mt-0.5">{stats?.upcomingLessons || 0}</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-300">Revenue</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold flex items-center gap-2 dark:text-white">
-                  <DollarSign className="h-5 w-5 text-green-500" />
-                  {stats?.totalRevenue || 0}
+
+            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-[#FF7A45]/10 rounded-xl flex-shrink-0">
+                    <DollarSign className="h-6 w-6 text-[#FF7A45]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Revenue</p>
+                    <p className="text-3xl font-bold text-gray-800 dark:text-white mt-0.5">{stats?.totalRevenue || 0}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          { }
-          <Card>
-            <CardHeader>
-              <CardTitle className="dark:text-white">Recent Lessons</CardTitle>
-              <CardDescription>Your most recent lessons and their status</CardDescription>
+          {/* Recent Lessons */}
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold dark:text-white">Recent Lessons</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">Your most recent lessons and their status</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               {!lessons || lessons.length === 0 ? (
-                <div className="text-center py-8">
-                  <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No lessons created yet</p>
+                <div className="text-center py-12">
+                  <BookOpen className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">No lessons created yet</p>
                   <Button className="mt-4" onClick={() => setActiveTab("create")}>
                     Create First Lesson
                   </Button>
@@ -629,14 +650,14 @@ export default function TeacherDashboardPage() {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700/50">
                       <tr>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Lesson Title</th>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Hobby</th>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Date & Time</th>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Students</th>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Status</th>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Actions</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Lesson Title</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Hobby</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Date & Time</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Students</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Status</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -647,7 +668,7 @@ export default function TeacherDashboardPage() {
                         const isFull = studentCount >= lesson.maxStudents;
 
                         return (
-                          <tr key={lesson.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                          <tr key={lesson.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                             <td className="p-3 font-medium text-gray-800 dark:text-gray-200">{lesson.title}</td>
                             <td className="p-3 text-gray-600 dark:text-gray-400">{lesson.hobby?.name}</td>
                             <td className="p-3 text-gray-600 dark:text-gray-400">
@@ -714,32 +735,32 @@ export default function TeacherDashboardPage() {
             </CardContent>
           </Card>
 
-          { }
-          <Card>
-            <CardHeader>
-              <CardTitle className="dark:text-white">Top Students</CardTitle>
-              <CardDescription>Students with most lesson registrations</CardDescription>
+          {/* Top Students */}
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold dark:text-white">Top Students</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">Students with most lesson registrations</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               {!students || students.length === 0 ? (
-                <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No students yet</p>
+                <div className="text-center py-12">
+                  <Users className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">No students yet</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700/50">
                       <tr>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Student Name</th>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Email</th>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Lessons Taken</th>
-                        <th className="text-left p-3 text-gray-500 dark:text-gray-300">Status</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Student Name</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Email</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Lessons Taken</th>
+                        <th className="text-left p-3 text-gray-500 dark:text-gray-300 font-medium">Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {students?.slice(0, 5).map((student: any) => (
-                        <tr key={student.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <tr key={student.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                           <td className="p-3 font-medium text-gray-800 dark:text-gray-200">
                             {student.profile?.firstName} {student.profile?.lastName}
                           </td>
@@ -776,10 +797,10 @@ export default function TeacherDashboardPage() {
       return (
         <div className="space-y-4">
           {lessons?.length === 0 ? (
-            <Card>
+            <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="text-center py-16">
-                <BookOpen className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-lg text-gray-500 font-medium">No lessons created yet</p>
+                <BookOpen className="h-16 w-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+                <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">No lessons created yet</p>
                 <Button className="mt-4" onClick={() => setActiveTab("create")}>
                   Create First Lesson
                 </Button>
@@ -787,8 +808,8 @@ export default function TeacherDashboardPage() {
             </Card>
           ) : (
             lessons?.map((lesson: any) => (
-              <Card key={lesson.id} className="border-0 shadow-md hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
+              <Card key={lesson.id} className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700 hover:shadow-md transition-shadow p-4">
+                <CardContent className="p-4">
                   <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -832,16 +853,16 @@ export default function TeacherDashboardPage() {
 
     if (activeTab === "students") {
       return (
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-bold dark:text-white">My Students</CardTitle>
             <CardDescription className="text-base dark:text-gray-400">Students registered in your lessons</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-6 pb-6">
             {students?.length === 0 ? (
               <div className="text-center py-16">
-                <Users className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-lg text-gray-500">No students yet</p>
+                <Users className="h-16 w-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+                <p className="text-lg text-gray-500 dark:text-gray-400">No students yet</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -876,12 +897,12 @@ export default function TeacherDashboardPage() {
     if (activeTab === "resources") {
       return (
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="dark:text-white">Share Resource</CardTitle>
-              <CardDescription>Share files with your students</CardDescription>
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold dark:text-white">Share Resource</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">Share files with your students</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               <form onSubmit={handleShareResource} className="space-y-4">
                 <div>
                   <Label htmlFor="resource-title">Title *</Label>
@@ -983,14 +1004,14 @@ export default function TeacherDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="dark:text-white">Sent Resources</CardTitle>
-              <CardDescription>Resources you've shared with students</CardDescription>
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold dark:text-white">Sent Resources</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">Resources you've shared with students</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               {!sentResources || sentResources.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">No resources shared yet</p>
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">No resources shared yet</p>
               ) : (
                 <div className="space-y-3">
                   {sentResources?.map((resource: any) => (
@@ -1025,16 +1046,16 @@ export default function TeacherDashboardPage() {
 
     if (activeTab === "submissions") {
       return (
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-bold dark:text-white">Student Submissions</CardTitle>
             <CardDescription className="text-base dark:text-gray-400">Assignments submitted by students</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-6 pb-6">
             {!studentSubmissions || studentSubmissions.length === 0 ? (
               <div className="text-center py-16">
-                <Upload className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-lg text-gray-500">No submissions yet</p>
+                <Upload className="h-16 w-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+                <p className="text-lg text-gray-500 dark:text-gray-400">No submissions yet</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -1093,12 +1114,12 @@ export default function TeacherDashboardPage() {
     if (activeTab === "certificates") {
       return (
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="dark:text-white">Upload Certificate</CardTitle>
-              <CardDescription>Upload a certificate image (JPG, PNG) or PDF</CardDescription>
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold dark:text-white">Upload Certificate</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">Upload a certificate image (JPG, PNG) or PDF</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="certificate-file">Certificate File</Label>
@@ -1116,12 +1137,12 @@ export default function TeacherDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="dark:text-white">Issue Certificate</CardTitle>
-              <CardDescription>Select a student to issue a certificate</CardDescription>
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold dark:text-white">Issue Certificate</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">Select a student to issue a certificate</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               <div className="space-y-4">
                 <div>
                   <Label>Select Student</Label>
@@ -1157,14 +1178,14 @@ export default function TeacherDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="dark:text-white">Issued Certificates</CardTitle>
-              <CardDescription>View all certificates you've issued</CardDescription>
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold dark:text-white">Issued Certificates</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">View all certificates you've issued</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               {issuedCertificates?.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">No certificates issued yet</p>
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">No certificates issued yet</p>
               ) : (
                 <div className="space-y-3">
                   {issuedCertificates?.map((cert: any) => (
@@ -1195,12 +1216,12 @@ export default function TeacherDashboardPage() {
 
     if (activeTab === "create") {
       return (
-        <Card>
-          <CardHeader>
-            <CardTitle className="dark:text-white">Create New Lesson</CardTitle>
-            <CardDescription>Add a new lesson for students to join</CardDescription>
+        <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-bold dark:text-white">Create New Lesson</CardTitle>
+            <CardDescription className="text-base dark:text-gray-400">Add a new lesson for students to join</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-6 pb-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="title">Lesson Title</Label>
@@ -1287,12 +1308,19 @@ export default function TeacherDashboardPage() {
       );
     }
 
+    if (activeTab === "messages") {
+      return (
+        <div className="space-y-5">
+          <MessagesPanel />
+        </div>
+      );
+    }
+
     return null;
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-[#1F2937]">
-      {/* Unified Top Header */}
       <DashboardHeader
         user={user}
         logout={logout}
@@ -1301,37 +1329,25 @@ export default function TeacherDashboardPage() {
         roleName="Teacher"
       />
 
-      {/* Sidebar */}
       <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
           <nav className="flex-1 p-4 pt-5 space-y-1">
             {menuItems.map((item: any) => (
-              item.href ? (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </Link>
-              ) : (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setSidebarOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
-                    activeTab === item.id
-                      ? "bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                  }`}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </button>
-              )
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setSidebarOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
+                  activeTab === item.id
+                    ? "bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                }`}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </button>
             ))}
           </nav>
         </div>
@@ -1339,22 +1355,23 @@ export default function TeacherDashboardPage() {
 
       {sidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
-      {/* Main Content */}
       <div className="lg:ml-72 pt-16 min-h-screen">
         <div className="p-6 md:p-8">
-          <div className="mb-7">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Teacher Dashboard</h1>
-            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Manage your lessons, students, and resources</p>
-          </div>
+          {activeTab === "stats" && (
+            <div className="mb-7">
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Teacher Dashboard</h1>
+              <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Manage your lessons, students, and resources</p>
+            </div>
+          )}
           {renderContent()}
         </div>
       </div>
 
       {editingLesson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6 border-b sticky top-0 bg-white">
-              <h2 className="text-xl font-bold">Edit Lesson</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-6 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
+              <h2 className="text-xl font-bold dark:text-white">Edit Lesson</h2>
             </div>
             <div className="p-6">
               <form onSubmit={handleUpdate} className="space-y-4">
@@ -1380,7 +1397,7 @@ export default function TeacherDashboardPage() {
                   <Label htmlFor="edit-hobbyId">Hobby</Label>
                   <select
                     id="edit-hobbyId"
-                    className="w-full border rounded-md px-3 py-2"
+                    className="w-full border rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     value={formData.hobbyId}
                     onChange={(e) => setFormData({ ...formData, hobbyId: e.target.value })}
                     required
@@ -1429,7 +1446,7 @@ export default function TeacherDashboardPage() {
                     onChange={(e) => setFormData({ ...formData, zoomLink: e.target.value })}
                   />
                 </div>
-                <div className="flex gap-2 pt-4 sticky bottom-0 bg-white">
+                <div className="flex gap-2 pt-4">
                   <Button type="submit" disabled={updateLessonMutation.isPending}>Save Changes</Button>
                   <Button variant="outline" onClick={() => setEditingLesson(null)}>Cancel</Button>
                 </div>

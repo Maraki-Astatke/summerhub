@@ -60,6 +60,8 @@ import {
   UserCheck,
   UserX,
   Sparkles,
+  Heart,
+  TrendingUp,
 } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import {
@@ -71,7 +73,7 @@ export default function AdminDashboardPage() {
   const { user, logout, isLoading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("users");
+  const [activeTab, setActiveTab] = useState("stats");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
   const [userFilter, setUserFilter] = useState<"all" | "pending" | "active">("all");
@@ -393,11 +395,6 @@ export default function AdminDashboardPage() {
     { id: "quiz", label: "Quiz Management", icon: <GraduationCap className="w-5 h-5" /> },
     { id: "quiz-responses", label: "Quiz Responses", icon: <FileText className="w-5 h-5" /> },
     { id: "talent-events", label: "Manage Talent Events", icon: <Trophy className="w-5 h-5" /> },
-
-
-
-
-
     { id: "scholarship-givers", label: "Scholarship Givers", icon: <Users className="w-5 h-5" /> },
     { id: "sponsorships", label: "Sponsorships", icon: <HandCoins className="w-5 h-5" /> },
     { id: "job-posts", label: "Job Posts", icon: <Briefcase className="w-5 h-5" /> },
@@ -416,7 +413,7 @@ export default function AdminDashboardPage() {
       }) || [];
 
       return (
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
+        <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
           <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between pb-4 space-y-4 md:space-y-0">
             <div>
               <CardTitle className="dark:text-white">User Management</CardTitle>
@@ -524,19 +521,20 @@ export default function AdminDashboardPage() {
       );
     }
 
+    // ============================================
+    // ANALYTICS / STATS - MATCHING STUDENT DASHBOARD
+    // ============================================
     if (activeTab === "stats") {
       const chartData = [
         { name: "Users", value: stats?.totalUsers || 0, color: "#FF7A45" },
         { name: "Students", value: stats?.totalStudents || 0, color: "#FF9966" },
         { name: "Teachers", value: stats?.totalTeachers || 0, color: "#FFB899" },
         { name: "Sellers", value: stats?.totalSellers || 0, color: "#FFD4B8" },
-        { name: "Products", value: stats?.totalProducts || 0, color: "#FF8C5A" },
-        { name: "Lessons", value: stats?.totalLessons || 0, color: "#FF7A45" },
-        { name: "Orders", value: stats?.totalOrders || 0, color: "#FFB899" },
       ];
 
       return (
         <div className="space-y-6">
+          {/* Stats Cards - Matching Student Dashboard Style */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {[
               { label: "Total Users", value: stats?.totalUsers || 0, icon: <Users className="h-6 w-6 text-[#FF7A45]" /> },
@@ -544,10 +542,12 @@ export default function AdminDashboardPage() {
               { label: "Teachers", value: stats?.totalTeachers || 0, icon: <BookOpen className="h-6 w-6 text-[#FF7A45]" /> },
               { label: "Sellers", value: stats?.totalSellers || 0, icon: <ShoppingBag className="h-6 w-6 text-[#FF7A45]" /> },
             ].map((stat, i) => (
-              <Card key={i} className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
+              <Card key={i} className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
                 <CardContent className="p-5">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-[#FF7A45]/10 rounded-xl flex-shrink-0">{stat.icon}</div>
+                    <div className="p-3 bg-[#FF7A45]/10 rounded-xl flex-shrink-0">
+                      {stat.icon}
+                    </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</p>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white mt-0.5">{stat.value}</p>
@@ -558,46 +558,95 @@ export default function AdminDashboardPage() {
             ))}
           </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl font-bold dark:text-white">Platform Overview</CardTitle>
-              <CardDescription className="text-base dark:text-gray-400">Users, lessons, products, orders, and revenue</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 13 }} />
-                  <YAxis tick={{ fontSize: 13 }} />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]} activeBar={false} isAnimationActive={false}>
-                    {chartData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-                {[
-                  { label: "Products", value: stats?.totalProducts || 0 },
-                  { label: "Lessons", value: stats?.totalLessons || 0 },
-                  { label: "Orders", value: stats?.totalOrders || 0 },
-                  { label: "Revenue", value: `$${stats?.totalRevenue || 0}` },
-                ].map((item, i) => (
-                  <div key={i} className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{item.label}</p>
-                    <p className="text-2xl font-bold text-[#FF7A45] mt-1">{item.value}</p>
+          {/* Chart + Quick Stats Side by Side - Like Student Dashboard */}
+          <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
+            {/* Chart - 4 columns */}
+            <Card className="lg:col-span-4 border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl font-bold dark:text-white">📊 Platform Overview</CardTitle>
+                <CardDescription className="text-base dark:text-gray-400">Users, Students, Teachers, Sellers</CardDescription>
+              </CardHeader>
+              <CardContent className="px-0">
+                <ResponsiveContainer width="100%" height={320}>
+                  <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }} barCategoryGap="20%">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 14 }} />
+                    <YAxis tick={{ fontSize: 14 }} />
+                    <Bar dataKey="value" barSize={40} radius={[6, 6, 0, 0]} activeBar={false} isAnimationActive={false}>
+                      {chartData.map((entry, index) => (
+                        <Cell key={index} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Quick Stats - 3 columns (like student dashboard) */}
+            <Card className="lg:col-span-3 border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl font-bold dark:text-white">📊 Quick Stats</CardTitle>
+                <CardDescription className="text-base dark:text-gray-400">Platform metrics</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#FF7A45]/20 flex items-center justify-center">
+                      <Package className="h-5 w-5 text-[#FF7A45]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Products</p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats?.totalProducts || 0}</p>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <TrendingUp className="h-5 w-5 text-green-500" />
+                </div>
+                <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#FF7A45]/20 flex items-center justify-center">
+                      <BookOpen className="h-5 w-5 text-[#FF7A45]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Lessons</p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats?.totalLessons || 0}</p>
+                    </div>
+                  </div>
+                  <TrendingUp className="h-5 w-5 text-green-500" />
+                </div>
+                <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#FF7A45]/20 flex items-center justify-center">
+                      <ShoppingBag className="h-5 w-5 text-[#FF7A45]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Orders</p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats?.totalOrders || 0}</p>
+                    </div>
+                  </div>
+                  <TrendingUp className="h-5 w-5 text-green-500" />
+                </div>
+                <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#FF7A45]/20 flex items-center justify-center">
+                      <DollarSign className="h-5 w-5 text-[#FF7A45]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Revenue</p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-white">${stats?.totalRevenue || 0}</p>
+                    </div>
+                  </div>
+                  <TrendingUp className="h-5 w-5 text-green-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       );
     }
 
     if (activeTab === "quiz") {
       return (
-        <Card>
+        <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Quiz Management</CardTitle>
@@ -651,7 +700,7 @@ export default function AdminDashboardPage() {
             ) : (
               <div className="space-y-4">
                 {questions?.map((q: any, idx: number) => (
-                  <Card key={q.id} className="border">
+                  <Card key={q.id} className="border dark:border-gray-700">
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
                         <div className="flex items-start gap-3">
@@ -659,7 +708,7 @@ export default function AdminDashboardPage() {
                             <span className="text-[#FF7A45] font-bold text-sm">{idx + 1}</span>
                           </div>
                           <div>
-                            <CardTitle className="text-lg text-gray-800">{q.question}</CardTitle>
+                            <CardTitle className="text-lg text-gray-800 dark:text-white">{q.question}</CardTitle>
                             <span className="text-xs text-gray-400 mt-1 inline-block">
                               Students answer with written responses
                             </span>
@@ -713,7 +762,7 @@ export default function AdminDashboardPage() {
                 <Link href={item.href} className="w-full">
                   <Button className="w-full bg-[#FF7A45] hover:bg-[#ff8f61] text-white">
                     <Plus className="h-4 w-4 mr-2" />
-                    {item.title}
+                    Manage
                   </Button>
                 </Link>
               </CardContent>
@@ -725,7 +774,7 @@ export default function AdminDashboardPage() {
 
     if (activeTab === "scholarship-givers") {
       return (
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
+        <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="dark:text-white">Scholarship Givers</CardTitle>
             <CardDescription className="dark:text-gray-400">View all registered scholarship givers</CardDescription>
@@ -774,7 +823,7 @@ export default function AdminDashboardPage() {
 
     if (activeTab === "sponsorships") {
       return (
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
+        <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="dark:text-white">Sponsorships</CardTitle>
             <CardDescription className="dark:text-gray-400">
@@ -854,7 +903,7 @@ export default function AdminDashboardPage() {
 
     if (activeTab === "job-posts") {
       return (
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
+        <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="dark:text-white">Job Posts</CardTitle>
             <CardDescription className="dark:text-gray-400">
@@ -937,7 +986,6 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-[#1F2937]">
-      {/* Unified Top Header */}
       <DashboardHeader
         user={user}
         logout={logout}
@@ -946,7 +994,6 @@ export default function AdminDashboardPage() {
         roleName="Administrator"
       />
 
-      {/* Sidebar */}
       <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <nav className="flex-1 p-4 pt-5 space-y-1 overflow-y-auto">
@@ -971,23 +1018,22 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content */}
       <div className="lg:ml-72 pt-16 min-h-screen">
         <div className="p-6 md:p-8">
-          <div className="mb-7">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Admin Dashboard</h1>
-            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Manage users, quiz, analytics, and control platform</p>
-          </div>
+          {activeTab === "stats" && (
+            <div className="mb-7">
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Admin Dashboard</h1>
+              <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Manage users, quiz, analytics, and control platform</p>
+            </div>
+          )}
           {renderContent()}
         </div>
       </div>
 
-      { }
       {selectedUserId && roles && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full mx-4">
@@ -1028,7 +1074,6 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      { }
       <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>

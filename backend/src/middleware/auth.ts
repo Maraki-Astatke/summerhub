@@ -38,8 +38,7 @@ export function requireRole(allowedRoles: string[]) {
     }
 
     try {
-      // Import prisma dynamically or at the top of the file
-      // Since it's not imported at the top, we'll import it here or at the top
+
       const userRoles = await prisma.userRole.findMany({
         where: { userId: req.user.userId },
         include: { role: true }

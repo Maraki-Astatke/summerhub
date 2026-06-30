@@ -24,12 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/providers/auth-provider";
 import api from "@/lib/api";
@@ -62,6 +56,7 @@ import {
   Sparkles,
   LayoutDashboard,
   Download,
+  Heart,
 } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import {
@@ -344,7 +339,6 @@ export default function ScholarshipGiverDashboard() {
     { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: "jobs", label: "My Job Posts", icon: <Briefcase className="w-5 h-5" /> },
     { id: "students", label: "Talent Discovery", icon: <Users className="w-5 h-5" /> },
-
     { id: "job-applications", label: "Job Applications", icon: <ClipboardList className="w-5 h-5" /> },
     { id: "event-sponsorships", label: "Event Sponsorships", icon: <Gift className="w-5 h-5" /> },
   ];
@@ -361,7 +355,6 @@ export default function ScholarshipGiverDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-[#1F2937]">
-      {/* Unified Top Header */}
       <DashboardHeader
         user={user}
         logout={logout}
@@ -370,7 +363,6 @@ export default function ScholarshipGiverDashboard() {
         roleName="Scholarship Giver"
       />
 
-      {/* Sidebar */}
       <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
           <nav className="flex-1 p-4 pt-5 space-y-1">
@@ -378,11 +370,10 @@ export default function ScholarshipGiverDashboard() {
               <button
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
-                  activeTab === item.id
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${activeTab === item.id
                     ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
+                  }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
@@ -392,22 +383,23 @@ export default function ScholarshipGiverDashboard() {
         </div>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content */}
       <div className="lg:ml-72 pt-16 min-h-screen">
         <div className="p-6 md:p-8">
-          <div className="mb-7">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Scholarship Giver Dashboard</h1>
-            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Support students, sponsor events, and discover talent</p>
-          </div>
+          {/* HEADER - ONLY SHOWS ON DASHBOARD TAB */}
+          {activeTab === "dashboard" && (
+            <div className="mb-7">
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Scholarship Giver Dashboard</h1>
+              <p className="text-base text-gray-500 dark:text-gray-400 mt-1">Support students, sponsor events, and discover talent</p>
+            </div>
+          )}
 
+          {/* DASHBOARD TAB */}
           {activeTab === "dashboard" && (
             <>
-              {/* Stats Cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-7">
                 {[
                   { label: "Events Sponsored", value: stats.totalSponsored, icon: <Gift className="h-6 w-6 text-[#FF7A45]" /> },
@@ -431,80 +423,70 @@ export default function ScholarshipGiverDashboard() {
                 ))}
               </div>
 
-              {/* Chart + Top Students */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
+              <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
+                <Card className="lg:col-span-4 border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-bold dark:text-white">Recent Job Applications</CardTitle>
-                    <CardDescription className="text-sm dark:text-gray-400">Application status overview</CardDescription>
+                    <CardTitle className="text-xl font-bold dark:text-white">📊 Application Status</CardTitle>
+                    <CardDescription className="text-base dark:text-gray-400">Overview of student applications</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="px-0">
                     {jobApplications.length === 0 ? (
-                      <div className="flex items-center justify-center h-48 text-gray-400">
+                      <div className="h-48 flex items-center justify-center text-gray-400">
                         <p className="text-base">No applications yet</p>
                       </div>
                     ) : (
-                      <>
-                        <ResponsiveContainer width="100%" height={200}>
-                          <BarChart
-                            data={[
-                              { name: "Pending", count: jobApplications.filter(a => a.status === "pending").length },
-                              { name: "Shortlisted", count: jobApplications.filter(a => a.status === "shortlisted").length },
-                              { name: "Hired", count: jobApplications.filter(a => a.status === "hired").length },
-                              { name: "Rejected", count: jobApplications.filter(a => a.status === "rejected").length },
-                            ]}
-                            margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-                            <XAxis dataKey="name" tick={{ fontSize: 13 }} />
-                            <YAxis tick={{ fontSize: 13 }} />
-                            <Bar dataKey="count" radius={[6, 6, 0, 0]} activeBar={false} isAnimationActive={false}>
-                              {["#FFD4B8", "#FFB899", "#FF7A45", "#FF5555"].map((color, idx) => (
-                                <Cell key={idx} fill={color} />
-                              ))}
-                            </Bar>
-                          </BarChart>
-                        </ResponsiveContainer>
-                        <div className="mt-3 space-y-2">
-                          {jobApplications.slice(0, 4).map((app) => (
-                            <div key={app.id} className="flex justify-between items-center py-2.5 px-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                              <div>
-                                <p className="text-base font-medium dark:text-gray-100">{app.student?.profile?.firstName} {app.student?.profile?.lastName}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{app.job?.title}</p>
-                              </div>
-                              {getStatusBadge(app.status)}
-                            </div>
-                          ))}
-                        </div>
-                      </>
+                      <ResponsiveContainer width="100%" height={280}>
+                        <BarChart
+                          data={[
+                            { name: "Pending", count: jobApplications.filter(a => a.status === "pending").length },
+                            { name: "Shortlisted", count: jobApplications.filter(a => a.status === "shortlisted").length },
+                            { name: "Hired", count: jobApplications.filter(a => a.status === "hired").length },
+                            { name: "Rejected", count: jobApplications.filter(a => a.status === "rejected").length },
+                          ]}
+                          margin={{ top: 10, right: 30, left: 0, bottom: 5 }}
+                          barCategoryGap="20%"
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 14 }} />
+                          <YAxis tick={{ fontSize: 14 }} />
+                          <Bar dataKey="count" barSize={40} radius={[6, 6, 0, 0]} activeBar={false} isAnimationActive={false}>
+                            {["#FFD4B8", "#FFB899", "#FF7A45", "#FF5555"].map((color, idx) => (
+                              <Cell key={idx} fill={color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
                     )}
                   </CardContent>
                 </Card>
 
-                <Card className="dark:bg-gray-800 dark:border-gray-700 border-0 shadow-sm">
+                <Card className="lg:col-span-3 border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-bold dark:text-white">Top Students</CardTitle>
-                    <CardDescription className="text-sm dark:text-gray-400">Talented students to discover</CardDescription>
+                    <CardTitle className="text-xl font-bold dark:text-white">🌟 Top Students</CardTitle>
+                    <CardDescription className="text-base dark:text-gray-400">Talented students to discover</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {students.length === 0 ? (
-                      <div className="flex items-center justify-center h-48 text-gray-400">
+                      <div className="h-48 flex items-center justify-center text-gray-400">
                         <p className="text-base">No students yet</p>
                       </div>
                     ) : (
                       <div className="space-y-3">
                         {students.slice(0, 5).map((student) => (
-                          <div key={student.id} className="flex justify-between items-center py-3 px-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                          <div key={student.id} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0">
                                 <span className="text-[#FF7A45] font-bold">{student.profile?.firstName?.[0] || "S"}</span>
                               </div>
                               <div>
-                                <p className="text-base font-medium dark:text-gray-100">{student.profile?.firstName} {student.profile?.lastName}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{student.hobbies?.map(h => h.name).join(", ") || "No hobbies"}</p>
+                                <p className="text-sm font-semibold dark:text-gray-100">{student.profile?.firstName} {student.profile?.lastName}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{student.hobbies?.map(h => h.name).join(", ") || "No hobbies"}</p>
                               </div>
                             </div>
-                            <Button size="sm" variant="outline" className="text-sm" onClick={() => setSelectedStudent(student)}>View</Button>
+                            <Button size="sm" variant="outline" className="text-xs" onClick={() => setSelectedStudent(student)}>
+                              <Eye className="h-3 w-3 mr-1" />
+                              View
+                            </Button>
                           </div>
                         ))}
                       </div>
@@ -515,9 +497,7 @@ export default function ScholarshipGiverDashboard() {
             </>
           )}
 
-          { }
-          { }
-          { }
+          {/* TALENT DISCOVERY TAB - NO HEADER */}
           {activeTab === "students" && (
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
@@ -602,9 +582,7 @@ export default function ScholarshipGiverDashboard() {
             </Card>
           )}
 
-          { }
-          { }
-          { }
+          {/* MY JOB POSTS TAB - NO HEADER */}
           {activeTab === "jobs" && (
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between pb-4 space-y-4 md:space-y-0">
@@ -687,9 +665,7 @@ export default function ScholarshipGiverDashboard() {
             </Card>
           )}
 
-          { }
-          { }
-          { }
+          {/* JOB APPLICATIONS TAB - NO HEADER */}
           {activeTab === "job-applications" && (
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
@@ -797,12 +773,9 @@ export default function ScholarshipGiverDashboard() {
             </Card>
           )}
 
-          { }
-          { }
-          { }
+          {/* EVENT SPONSORSHIPS TAB - NO HEADER */}
           {activeTab === "event-sponsorships" && (
             <div className="space-y-6">
-              { }
               <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
                   <CardTitle className="dark:text-white">My Sponsorships</CardTitle>
@@ -850,7 +823,6 @@ export default function ScholarshipGiverDashboard() {
                 </CardContent>
               </Card>
 
-              { }
               <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
                   <CardTitle className="dark:text-white">Available Events to Sponsor</CardTitle>
@@ -914,9 +886,6 @@ export default function ScholarshipGiverDashboard() {
         </div>
       </div>
 
-      { }
-      { }
-      { }
       <Dialog open={isSponsorDialogOpen} onOpenChange={setIsSponsorDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -980,9 +949,6 @@ export default function ScholarshipGiverDashboard() {
         </DialogContent>
       </Dialog>
 
-      { }
-      { }
-      { }
       <Dialog open={isJobDialogOpen} onOpenChange={(open) => {
         setIsJobDialogOpen(open);
         if (!open) {
@@ -1177,6 +1143,7 @@ export default function ScholarshipGiverDashboard() {
           </form>
         </DialogContent>
       </Dialog>
+
       <Dialog open={!!selectedStudent} onOpenChange={(open) => !open && setSelectedStudent(null)}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>

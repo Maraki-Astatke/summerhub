@@ -8,6 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/auth-provider';
 import api from '@/lib/api';
@@ -17,16 +25,13 @@ import {
   Phone, TrendingUp,
 } from 'lucide-react';
 import DashboardHeader from '@/components/DashboardHeader';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell,
-} from 'recharts';
 
 export default function SellerDashboardPage() {
   const router = useRouter();
   const { user, logout, isLoading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('products');
+  const [activeTab, setActiveTab] = useState('stats');
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,7 +41,7 @@ export default function SellerDashboardPage() {
     stockCount: '',
     categoryId: '',
     imageUrl: '',
-    phone: '', // ← ADDED phone field
+    phone: '',
   });
 
   useEffect(() => {
@@ -215,7 +220,7 @@ export default function SellerDashboardPage() {
       price: parseFloat(formData.price),
       stockCount: parseInt(formData.stockCount),
       imageUrl: formData.imageUrl,
-      phone: formData.phone || null, // ← ADDED phone field
+      phone: formData.phone || null,
     };
 
     if (formData.categoryId && formData.categoryId !== '') {
@@ -233,7 +238,7 @@ export default function SellerDashboardPage() {
         description: formData.description,
         price: parseFloat(formData.price),
         stockCount: parseInt(formData.stockCount),
-        phone: formData.phone || null, // ← ADDED phone field
+        phone: formData.phone || null,
       };
 
       if (formData.imageUrl) {
@@ -367,7 +372,7 @@ export default function SellerDashboardPage() {
 
     if (activeTab === 'orders') {
       return (
-        <Card>
+        <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle>Customer Orders</CardTitle>
             <CardDescription>Orders placed for your products</CardDescription>
@@ -410,15 +415,10 @@ export default function SellerDashboardPage() {
       );
     }
 
+    // ============================================
+    // ANALYTICS - WITH TABLE INSTEAD OF GRAPH
+    // ============================================
     if (activeTab === 'stats') {
-      const chartData = [
-        { name: "Products", value: stats?.totalProducts || 0 },
-        { name: "Orders", value: stats?.totalOrders || 0 },
-        { name: "Revenue", value: stats?.totalRevenue || 0 },
-        { name: "Low Stock", value: stats?.lowStockProducts || 0 },
-      ];
-      const COLORS = ["#FF7A45", "#FFB899", "#FF9966", "#FFD4B8"];
-
       return (
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
@@ -442,24 +442,74 @@ export default function SellerDashboardPage() {
             ))}
           </div>
 
+          {/* TABLE INSTEAD OF GRAPH */}
           <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold dark:text-white">Sales Analytics</CardTitle>
               <CardDescription className="text-base dark:text-gray-400">Products, Orders, Revenue, and Stock Overview</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 13 }} />
-                  <YAxis tick={{ fontSize: 13 }} />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]} activeBar={false} isAnimationActive={false}>
-                    {chartData.map((_, index) => (
-                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="dark:text-gray-300">Metric</TableHead>
+                      <TableHead className="dark:text-gray-300 text-right">Value</TableHead>
+                      <TableHead className="dark:text-gray-300 text-right">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <TableCell className="font-medium dark:text-gray-200 flex items-center gap-2">
+                        <Package className="h-4 w-4 text-[#FF7A45]" />
+                        Total Products
+                      </TableCell>
+                      <TableCell className="text-right dark:text-gray-300">{stats?.totalProducts || 0}</TableCell>
+                      <TableCell className="text-right">
+                        <span className="text-sm text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-full font-medium">
+                          Active
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <TableCell className="font-medium dark:text-gray-200 flex items-center gap-2">
+                        <ShoppingCart className="h-4 w-4 text-[#FF7A45]" />
+                        Total Orders
+                      </TableCell>
+                      <TableCell className="text-right dark:text-gray-300">{stats?.totalOrders || 0}</TableCell>
+                      <TableCell className="text-right">
+                        <span className={`text-sm px-2 py-1 rounded-full font-medium ${stats?.totalOrders > 0 ? 'text-green-600 bg-green-50 dark:bg-green-900/30' : 'text-gray-500 bg-gray-50 dark:bg-gray-700/30'}`}>
+                          {stats?.totalOrders > 0 ? 'Active' : 'No Orders'}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <TableCell className="font-medium dark:text-gray-200 flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-[#FF7A45]" />
+                        Total Revenue
+                      </TableCell>
+                      <TableCell className="text-right dark:text-gray-300 font-bold text-[#FF7A45]">{stats?.totalRevenue || 0} ETB</TableCell>
+                      <TableCell className="text-right">
+                        <span className="text-sm text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full font-medium">
+                          {stats?.totalRevenue > 0 ? 'Earning' : 'No Revenue'}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <TableCell className="font-medium dark:text-gray-200 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-orange-500" />
+                        Low Stock Products
+                      </TableCell>
+                      <TableCell className="text-right dark:text-gray-300">{stats?.lowStockProducts || 0}</TableCell>
+                      <TableCell className="text-right">
+                        <span className={`text-sm px-2 py-1 rounded-full font-medium ${stats?.lowStockProducts > 0 ? 'text-red-600 bg-red-50 dark:bg-red-900/30' : 'text-green-600 bg-green-50 dark:bg-green-900/30'}`}>
+                          {stats?.lowStockProducts > 0 ? '⚠️ Need Restock' : '✅ In Stock'}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -468,7 +518,7 @@ export default function SellerDashboardPage() {
 
     if (activeTab === 'create') {
       return (
-        <Card>
+        <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle>Add New Product</CardTitle>
             <CardDescription>List a new product for sale</CardDescription>
@@ -517,7 +567,6 @@ export default function SellerDashboardPage() {
                 </div>
               </div>
 
-              {/* Phone Number Field - NEW */}
               <div>
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input
@@ -612,7 +661,6 @@ export default function SellerDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-[#1F2937]">
-      {/* Unified Top Header */}
       <DashboardHeader
         user={user}
         logout={logout}
@@ -621,7 +669,6 @@ export default function SellerDashboardPage() {
         roleName="Seller"
       />
 
-      {/* Sidebar */}
       <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <nav className="flex-1 p-4 pt-5 space-y-1">
@@ -650,7 +697,6 @@ export default function SellerDashboardPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content */}
       <div className="lg:ml-72 pt-16 min-h-screen">
         <div className="p-6 md:p-8">
           <div className="mb-7">
@@ -663,9 +709,9 @@ export default function SellerDashboardPage() {
 
       {editingProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6 border-b sticky top-0 bg-white">
-              <h2 className="text-xl font-bold">Edit Product</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-6 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
+              <h2 className="text-xl font-bold dark:text-white">Edit Product</h2>
             </div>
             <div className="p-6">
               <form onSubmit={handleUpdate} className="space-y-4">
@@ -711,7 +757,6 @@ export default function SellerDashboardPage() {
                   </div>
                 </div>
 
-                {/* Phone Number Field - Edit Mode */}
                 <div>
                   <Label htmlFor="edit-phone">Phone Number</Label>
                   <Input
@@ -728,7 +773,7 @@ export default function SellerDashboardPage() {
                   <Label htmlFor="edit-categoryId">Category</Label>
                   <select
                     id="edit-categoryId"
-                    className="w-full border rounded-md px-3 py-2"
+                    className="w-full border rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     value={formData.categoryId || ''}
                     onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                   >
