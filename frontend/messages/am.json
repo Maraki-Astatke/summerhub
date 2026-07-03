@@ -63,10 +63,24 @@
     "title": "ለማን ነው?"
   },
   "shop": {
+    "marketplace": "ገበያ",
+    "title": "የትርፍ ጊዜ ማሳለጫ መሳሪያዎችን ይግዙ",
+    "subtitle": "ለተወዳጅ የትርፍ ጊዜ ማሳለጫዎችዎ መሳሪያዎችን፣ ቁሳቁሶችን እና ሀብቶችን ያግኙ",
+    "searchPlaceholder": "ምርቶችን ፈልግ...",
+    "allCategories": "ሁሉም ምድቦች",
+    "minPrice": "ዝቅተኛ ዋጋ (ብር)",
+    "maxPrice": "ከፍተኛ ዋጋ (ብር)",
+    "clearFilters": "ማጣሪያዎችን አጽዳ",
+    "noProducts": "ከፈለጉት መስፈርት ጋር የሚዛመድ ምርት አልተገኘም",
+    "clearAllFilters": "ሁሉንም ማጣሪያዎች አጽዳ",
     "addToCart": "ወደ ጋሪ ጨምር",
-    "buyNow": "አሁን ግዛ",
+    "addedToCart": "ምርት ወደ ጋሪ ተጨምሯል!",
+    "addToCartFailed": "ወደ ጋሪ መጨመር አልተሳካም",
     "inStock": "ክምችት አለ",
-    "outOfStock": "ክምችት የለም"
+    "outOfStock": "ክምችት የለም",
+    "lowStock": "የተወሰነ ክምችት",
+    "previous": "ቀዳሚ",
+    "next": "ቀጣይ"
   },
   "target": {
     "students": {

@@ -93,15 +93,13 @@ const Button = ({
     type={type}
     onClick={onClick}
     disabled={disabled}
-    className={`px-4 py-2 rounded-lg font-medium transition ${
-      variant === "outline"
-        ? "border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
-        : variant === "destructive"
+    className={`px-4 py-2 rounded-lg font-medium transition ${variant === "outline"
+      ? "border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
+      : variant === "destructive"
         ? "bg-red-500 text-white hover:bg-red-600"
         : "bg-[#FF7A45] text-white hover:bg-[#ff8f61]"
-    } ${
-      size === "sm" ? "px-3 py-1.5 text-sm" : ""
-    } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
+      } ${size === "sm" ? "px-3 py-1.5 text-sm" : ""
+      } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
   >
     {children}
   </button>
@@ -165,6 +163,13 @@ export default function TeacherDashboardPage() {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [customMessage, setCustomMessage] = useState("");
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
+  const [showAICertModal, setShowAICertModal] = useState(false);
+  const [aiCertForm, setAiCertForm] = useState({
+    studentName: "",
+    studentEmail: "",
+    hobbyName: "",
+    teacherName: "",
+  });
 
   const [resourceForm, setResourceForm] = useState({
     title: "",
@@ -308,6 +313,21 @@ export default function TeacherDashboardPage() {
       setSelectedStudent(null);
       setCustomMessage("");
       alert("Certificate issued successfully!");
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.error || "Failed to issue certificate");
+    },
+  });
+
+  const issueAICertificateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await api.post("/certificates/issue", data);
+      return response.data;
+    },
+    onSuccess: (data: any) => {
+      setShowAICertModal(false);
+      setAiCertForm({ studentName: "", studentEmail: "", hobbyName: "", teacherName: "" });
+      alert(`✅ Certificate issued successfully! The certificate has been sent to ${data.studentEmail}.`);
     },
     onError: (error: any) => {
       alert(error.response?.data?.error || "Failed to issue certificate");
@@ -1114,9 +1134,31 @@ export default function TeacherDashboardPage() {
     if (activeTab === "certificates") {
       return (
         <div className="space-y-6">
+
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700 bg-gradient-to-br from-[#FFF2EB] to-white dark:from-gray-800 dark:to-gray-800">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <CardTitle className="text-xl font-bold dark:text-white flex items-center gap-2">
+                    <Award className="h-5 w-5 text-[#FF7A45]" />
+                    Certificate
+                  </CardTitle>
+
+                </div>
+                <Button
+                  onClick={() => setShowAICertModal(true)}
+                  className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white shadow-sm"
+                >
+                  <Award className="h-4 w-4 mr-2" />
+                  Issue Certificate
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
+
           <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
             <CardHeader className="pb-4">
-              <CardTitle className="text-xl font-bold dark:text-white">Upload Certificate</CardTitle>
+              <CardTitle className="text-xl font-bold dark:text-white">Upload Certificate Template</CardTitle>
               <CardDescription className="text-base dark:text-gray-400">Upload a certificate image (JPG, PNG) or PDF</CardDescription>
             </CardHeader>
             <CardContent className="px-6 pb-6">
@@ -1339,11 +1381,10 @@ export default function TeacherDashboardPage() {
                   setActiveTab(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
-                  activeTab === item.id
-                    ? "bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${activeTab === item.id
+                  ? "bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
@@ -1451,6 +1492,90 @@ export default function TeacherDashboardPage() {
                   <Button variant="outline" onClick={() => setEditingLesson(null)}>Cancel</Button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAICertModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl">
+            <div className="p-6 border-b dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#FF7A45]/10 flex items-center justify-center">
+                    <Award className="h-5 w-5 text-[#FF7A45]" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold dark:text-white">Issue Certificate</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Powered by Certifier AI</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAICertModal(false)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <Label htmlFor="ai-student-name">Student Full Name *</Label>
+                <Input
+                  id="ai-student-name"
+                  value={aiCertForm.studentName}
+                  onChange={(e) => setAiCertForm({ ...aiCertForm, studentName: e.target.value })}
+                  placeholder="e.g., Abebe Kebede"
+                />
+              </div>
+              <div>
+                <Label htmlFor="ai-student-email">Student Email *</Label>
+                <Input
+                  id="ai-student-email"
+                  type="email"
+                  value={aiCertForm.studentEmail}
+                  onChange={(e) => setAiCertForm({ ...aiCertForm, studentEmail: e.target.value })}
+                  placeholder="student@example.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="ai-hobby-name">Hobby / Course Name *</Label>
+                <Input
+                  id="ai-hobby-name"
+                  value={aiCertForm.hobbyName}
+                  onChange={(e) => setAiCertForm({ ...aiCertForm, hobbyName: e.target.value })}
+                  placeholder="e.g., Guitar Playing"
+                />
+              </div>
+              <div>
+                <Label htmlFor="ai-teacher-name">Your Name (Instructor)</Label>
+                <Input
+                  id="ai-teacher-name"
+                  value={aiCertForm.teacherName}
+                  onChange={(e) => setAiCertForm({ ...aiCertForm, teacherName: e.target.value })}
+                  placeholder="e.g., Marta Tesfaye"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  onClick={() => {
+                    if (!aiCertForm.studentName || !aiCertForm.studentEmail || !aiCertForm.hobbyName) {
+                      alert("Please fill in student name, email, and hobby name");
+                      return;
+                    }
+                    issueAICertificateMutation.mutate(aiCertForm);
+                  }}
+                  disabled={issueAICertificateMutation.isPending}
+                  className="flex-1"
+                >
+                  <Award className="h-4 w-4 mr-2" />
+                  {issueAICertificateMutation.isPending ? "Issuing..." : "Issue Certificate"}
+                </Button>
+                <Button variant="outline" onClick={() => setShowAICertModal(false)} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
         </div>

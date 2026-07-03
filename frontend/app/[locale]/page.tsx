@@ -476,24 +476,24 @@ export default function Home() {
               <Image
                 src="/logo.png"
                 alt="HobbyHub Education"
-                width={220}
-                height={55}
+                width={350}
+                height={60}
                 className="h-14 w-auto object-contain"
                 priority
               />
-              <p className="text-sm text-[#9CA3AF] leading-relaxed max-w-sm">
+              <p className="text-base text-[#9CA3AF] leading-relaxed max-w-sm">
                 {t("footer.desc")}
               </p>
             </div>
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">
+              <h4 className="text-lg font-bold uppercase tracking-wider text-white mb-6">
                 {t("footer.quickLinks")}
               </h4>
               <ul className="flex flex-col gap-4">
                 <li>
                   <Link
                     href="/"
-                    className="text-sm text-[#9CA3AF] hover:text-white transition-colors"
+                    className="text-base text-[#9CA3AF] hover:text-white transition-colors"
                   >
                     {t("nav.home")}
                   </Link>
@@ -533,14 +533,14 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">
+              <h4 className="text-lg font-bold uppercase tracking-wider text-white mb-6">
                 {t("footer.support")}
               </h4>
               <ul className="flex flex-col gap-4">
                 <li>
                   <Link
                     href="/help"
-                    className="text-sm text-[#9CA3AF] hover:text-white transition-colors"
+                    className="text-base text-[#9CA3AF] hover:text-white transition-colors"
                   >
                     {t("footer.helpCenter")}
                   </Link>
@@ -564,19 +564,19 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white mb-6">
+              <h4 className="text-lg font-bold uppercase tracking-wider text-white mb-6">
                 {t("footer.contact")}
               </h4>
               <ul className="flex flex-col gap-4 mb-6">
-                <li className="flex items-center gap-2 text-sm text-[#9CA3AF]">
+                <li className="flex items-center gap-2 text-base text-[#9CA3AF]">
                   <Phone className="w-4 h-4 text-[#FF7A45]" />
                   +251 911 234 567
                 </li>
-                <li className="flex items-center gap-2 text-sm text-[#9CA3AF]">
+                <li className="flex items-center gap-2 text-base text-[#9CA3AF]">
                   <Mail className="w-4 h-4 text-[#FF7A45]" />
                   info@hobbyhub.et
                 </li>
-                <li className="flex items-center gap-2 text-sm text-[#9CA3AF]">
+                <li className="flex items-center gap-2 text-base text-[#9CA3AF]">
                   <MapPin className="w-4 h-4 text-[#FF7A45]" />
                   {t("footer.address")}
                 </li>

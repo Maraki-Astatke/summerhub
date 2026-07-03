@@ -87,8 +87,8 @@ export default function DashboardHeader({
             <Image
               src="/logo.png"
               alt="HobbyHub Education"
-              width={140}
-              height={36}
+              width={320}
+              height={50}
               priority
               className="h-8 w-auto object-contain"
             />

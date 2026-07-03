@@ -63,10 +63,24 @@
     "title": "Who Is It For?"
   },
   "shop": {
+    "marketplace": "Marketplace",
+    "title": "Shop for Hobby Supplies",
+    "subtitle": "Discover tools, materials, and resources for your favorite hobbies",
+    "searchPlaceholder": "Search products...",
+    "allCategories": "All Categories",
+    "minPrice": "Min Price (ETB)",
+    "maxPrice": "Max Price (ETB)",
+    "clearFilters": "Clear Filters",
+    "noProducts": "No products found matching your criteria",
+    "clearAllFilters": "Clear All Filters",
     "addToCart": "Add to Cart",
-    "buyNow": "Buy Now",
+    "addedToCart": "Product added to cart!",
+    "addToCartFailed": "Failed to add to cart",
     "inStock": "In Stock",
-    "outOfStock": "Out of Stock"
+    "outOfStock": "Out of Stock",
+    "lowStock": "Low Stock",
+    "previous": "Previous",
+    "next": "Next"
   },
   "target": {
     "students": {
@@ -280,5 +294,92 @@
       "selectTeacherPlaceholder": "Select a teacher",
       "selectLessonPlaceholder": "Select a lesson"
     }
+  },
+  "seller": {
+    "dashboardTitle": "Seller Dashboard",
+    "dashboardDesc": "Manage your products and orders",
+    "menu": {
+      "analytics": "Analytics",
+      "addProduct": "Add Product",
+      "myProducts": "My Products",
+      "orders": "Orders"
+    },
+    "stats": {
+      "totalProducts": "Total Products",
+      "totalOrders": "Total Orders",
+      "totalRevenue": "Revenue (ETB)",
+      "lowStock": "Low Stock"
+    },
+    "analyticsTable": {
+      "title": "Sales Analytics",
+      "desc": "Products, Orders, Revenue, and Stock Overview",
+      "metric": "Metric",
+      "value": "Value",
+      "status": "Status",
+      "totalProducts": "Total Products",
+      "totalOrders": "Total Orders",
+      "totalRevenue": "Total Revenue",
+      "lowStockProducts": "Low Stock Products",
+      "active": "Active",
+      "noOrders": "No Orders",
+      "earning": "Earning",
+      "noRevenue": "No Revenue",
+      "needRestock": "⚠️ Need Restock",
+      "inStock": "✅ In Stock"
+    },
+    "noProducts": "No products listed yet",
+    "addFirstProduct": "Add First Product",
+    "lowStock": "Low Stock",
+    "noDescription": "No description",
+    "stockLabel": "Stock",
+    "sold": "Sold",
+    "ordersTitle": "Customer Orders",
+    "ordersDesc": "Orders placed for your products",
+    "noOrders": "No orders yet",
+    "orderNumber": "Order",
+    "statusPending": "Pending",
+    "statusPaid": "Paid",
+    "statusShipped": "Shipped",
+    "markShipped": "Mark as Shipped",
+    "addProductTitle": "Add New Product",
+    "addProductDesc": "List a new product for sale",
+    "editProduct": "Edit Product",
+    "form": {
+      "name": "Product Name",
+      "description": "Description",
+      "price": "Price (ETB)",
+      "stock": "Stock Quantity",
+      "phone": "Phone Number",
+      "phonePlaceholder": "e.g., 0912345678",
+      "phoneHint": "Buyers will see this number to contact you",
+      "category": "Category",
+      "selectCategory": "-- Select Category --",
+      "image": "Product Image",
+      "imagePreview": "Product preview",
+      "uploadFile": "Upload a file",
+      "dragDrop": "or drag and drop",
+      "imageHint": "PNG, JPG, GIF up to 5MB",
+      "uploading": "Uploading...",
+      "addProduct": "Add Product",
+      "adding": "Adding...",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel"
+    },
+    "productCreated": "Product created successfully!",
+    "productUpdated": "Product updated successfully!",
+    "productDeleted": "Product deleted",
+    "orderShipped": "Order marked as shipped",
+    "deleteConfirm": "Delete this product?",
+    "nameRequired": "Product name is required",
+    "priceRequired": "Valid price is required",
+    "stockRequired": "Valid stock count is required",
+    "imageRequired": "Product image is required",
+    "imageTypeError": "Please upload an image file",
+    "imageSizeError": "Image must be less than 5MB",
+    "createError": "Failed to create product",
+    "uploadError": "Failed to upload image"
+  },
+  "common": {
+    "loading": "Loading..."
   }
 }

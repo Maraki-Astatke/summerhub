@@ -76,35 +76,82 @@ res.json({
 export const getDashboardCertificates = async (req: any, res: any) => {
 try {
   const studentId = req.user.userId;
+  const studentEmail = req.user.email;
 
-  const certificates = await prisma.certificate.findMany({
-    where: {
-      studentId: studentId
-    },
-    include: {
-      teacher: {
-        include: {
-          profile: true
-        }
+  // ✅ AUTO-FIX: Update ALL AI certificates with matching email to this studentId
+  try {
+      const updated = await prisma.$executeRaw`
+          UPDATE "CertifierCertificate" 
+          SET "studentId" = ${studentId}
+          WHERE "studentEmail" = ${studentEmail}
+            AND "studentId" != ${studentId}
+      `;
+      if (updated > 0) {
+          console.log(`✅ Auto-fixed ${updated} certificates with studentId ${studentId}`);
       }
-    },
-    orderBy: { issuedAt: 'desc' }
-  });
+  } catch (fixError) {
+      console.log('⚠️ Auto-fix failed (continuing anyway):', fixError);
+  }
 
-  const formattedCertificates = certificates.map(cert => ({
-    id: cert.id,
-    title: 'Certificate of Completion',
-    hobby: 'Course Completion',
-    teacher: cert.teacher?.profile?.firstName 
-      ? `${cert.teacher.profile.firstName} ${cert.teacher.profile.lastName || ''}`
-      : 'HobbyHub Instructor',
-    issuedAt: cert.issuedAt,
-    fileUrl: cert.certificateHtml,
-    customMessage: cert.customMessage
+  // ✅ Get BOTH manual AND AI certificates
+  const [manualCerts, aiCerts] = await Promise.all([
+      prisma.certificate.findMany({
+          where: { studentId: studentId },
+          orderBy: { issuedAt: 'desc' },
+          include: {
+              teacher: { include: { profile: true } },
+              template: true
+          }
+      }),
+      prisma.certifierCertificate.findMany({
+          where: { OR: [{ studentId: studentId }, { studentEmail: studentEmail }] },
+          orderBy: { issuedAt: 'desc' },
+          include: {
+              issuer: { include: { profile: true } }
+          }
+      })
+  ]);
+
+  // Format manual certificates
+  const formattedManual = manualCerts.map((cert: any) => ({
+      id: `manual-${cert.id}`,
+      title: cert.template?.title || 'Certificate',
+      hobby: cert.template?.title || 'Manual Certificate',
+      teacher: cert.teacher?.profile?.firstName 
+          ? `${cert.teacher.profile.firstName} ${cert.teacher.profile.lastName || ''}`.trim()
+          : 'Unknown Teacher',
+      issuedAt: cert.issuedAt,
+      customMessage: cert.customMessage || null,
+      type: 'manual',
+      isAI: false,
+      displayTitle: cert.template?.title || 'Certificate',
+      displayTeacher: cert.teacher?.profile?.firstName 
+          ? `${cert.teacher.profile.firstName} ${cert.teacher.profile.lastName || ''}`.trim()
+          : 'Unknown Teacher',
+      displayHobby: cert.template?.title || 'Manual Certificate'
   }));
 
-  console.log(`Found ${formattedCertificates.length} certificates for student ${studentId}`);
-  res.json(formattedCertificates);
+  // Format AI certificates
+  const formattedAI = aiCerts.map((cert: any) => ({
+      id: `ai-${cert.id}`,
+      title: `${cert.hobbyName} Certificate`,
+      hobby: cert.hobbyName || 'N/A',
+      teacher: cert.teacherName || 'AI Generated',
+      issuedAt: cert.issuedAt,
+      customMessage: `AI-generated certificate for ${cert.hobbyName}`,
+      type: 'ai',
+      isAI: true,
+      credentialId: cert.credentialId,
+      displayTitle: `${cert.hobbyName} Certificate`,
+      displayTeacher: cert.teacherName || 'AI Generated',
+      displayHobby: cert.hobbyName || 'N/A'
+  }));
+
+  const allCertificates = [...formattedManual, ...formattedAI]
+      .sort((a, b) => new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime());
+
+  console.log(`Found ${allCertificates.length} certificates for student ${studentId}`);
+  res.json(allCertificates);
 } catch (error) {
   console.error('Error fetching certificates:', error);
   res.status(500).json({ error: 'Failed to fetch certificates' });

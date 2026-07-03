@@ -62,6 +62,10 @@ import {
   Sparkles,
   Heart,
   TrendingUp,
+  Award,
+  Mail,
+  Calendar,
+  User,
 } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import {
@@ -85,6 +89,18 @@ export default function AdminDashboardPage() {
   const [isQuizDialogOpen, setIsQuizDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<any>(null);
   const [question, setQuestion] = useState('');
+  const [showAdminAICertModal, setShowAdminAICertModal] = useState(false);
+  const [adminAiCertForm, setAdminAiCertForm] = useState({
+    studentName: "",
+    studentEmail: "",
+    hobbyName: "",
+    teacherName: "",
+    studentId: null as number | null,
+  });
+
+  // ✅ State for student dropdown
+  const [students, setStudents] = useState<any[]>([]);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
 
   useEffect(() => {
     if (activeTab === "quiz-responses") {
@@ -103,9 +119,46 @@ export default function AdminDashboardPage() {
     }
   }, [user, authLoading, router]);
 
+  // ✅ Fetch students when the certificate modal opens
+  useEffect(() => {
+    if (showAdminAICertModal) {
+      fetchStudents();
+    }
+  }, [showAdminAICertModal]);
+
   const handleLogout = () => {
     logout();
     router.push("/");
+  };
+
+  // ✅ Fetch all students for dropdown
+  const fetchStudents = async () => {
+    setIsLoadingStudents(true);
+    try {
+      const response = await api.get('/admin/students');
+      if (response.data.success) {
+        setStudents(response.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch students:', error);
+      toast.error('Failed to load students');
+    } finally {
+      setIsLoadingStudents(false);
+    }
+  };
+
+  // ✅ Handle student selection from dropdown - FIXED with functional update
+  const handleStudentSelect = (studentId: string) => {
+    if (!studentId) return;
+    const selectedStudent = students.find(s => String(s.id) === studentId);
+    if (selectedStudent) {
+      setAdminAiCertForm(prev => ({
+        ...prev,
+        studentId: selectedStudent.id,
+        studentName: selectedStudent.name,
+        studentEmail: selectedStudent.email
+      }));
+    }
   };
 
   const { data: stats } = useQuery({
@@ -166,6 +219,16 @@ export default function AdminDashboardPage() {
     queryKey: ["admin-job-posts"],
     queryFn: async () => {
       const response = await api.get("/admin/job-posts");
+      return response.data;
+    },
+    enabled: !!user && user?.roles?.includes("admin"),
+  });
+
+  // ✅ Fetch certificates for the certificates tab
+  const { data: certificates, refetch: refetchCertificates } = useQuery({
+    queryKey: ["admin-certificates"],
+    queryFn: async () => {
+      const response = await api.get("/certificates/all");
       return response.data;
     },
     enabled: !!user && user?.roles?.includes("admin"),
@@ -307,6 +370,22 @@ export default function AdminDashboardPage() {
     },
   });
 
+  const adminIssueAICertificateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await api.post("/certificates/issue", data);
+      return { ...response.data, studentEmail: data.studentEmail };
+    },
+    onSuccess: (data: any) => {
+      setShowAdminAICertModal(false);
+      toast.success(`✅ Certificate issued and sent to ${data.studentEmail}'s dashboard!`);
+      setAdminAiCertForm({ studentName: "", studentEmail: "", hobbyName: "", teacherName: "", studentId: null });
+      refetchCertificates();
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Failed to issue AI certificate");
+    },
+  });
+
   const resetQuizForm = () => {
     setQuestion('');
   };
@@ -392,6 +471,7 @@ export default function AdminDashboardPage() {
     { id: "stats", label: "Analytics", icon: <BarChart3 className="w-5 h-5" /> },
     { id: "content", label: "Content", icon: <BookOpen className="w-5 h-5" /> },
     { id: "users", label: "User Management", icon: <Users className="w-5 h-5" /> },
+    { id: "certificates", label: "Certificates", icon: <Award className="w-5 h-5" /> },
     { id: "quiz", label: "Quiz Management", icon: <GraduationCap className="w-5 h-5" /> },
     { id: "quiz-responses", label: "Quiz Responses", icon: <FileText className="w-5 h-5" /> },
     { id: "talent-events", label: "Manage Talent Events", icon: <Trophy className="w-5 h-5" /> },
@@ -403,6 +483,127 @@ export default function AdminDashboardPage() {
   const renderContent = () => {
     if (activeTab === "quiz-responses" || activeTab === "talent-events") {
       return null;
+    }
+
+    // ============================================
+    // CERTIFICATES TAB - WITH LIST
+    // ============================================
+    if (activeTab === "certificates") {
+      const certificateList = certificates?.data || [];
+
+      return (
+        <div className="space-y-6">
+          {/* AI Issue Certificate Card */}
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700 bg-gradient-to-br from-[#FFF2EB] to-white dark:from-gray-800 dark:to-gray-800">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <CardTitle className="text-xl font-bold dark:text-white flex items-center gap-2">
+                    <Award className="h-5 w-5 text-[#FF7A45]" />
+                    Certificates
+                  </CardTitle>
+
+                </div>
+                <Button
+                  onClick={() => setShowAdminAICertModal(true)}
+                  className="bg-[#FF7A45] hover:bg-[#ff8f61] text-white shadow-sm"
+                >
+                  <Award className="h-4 w-4 mr-2" />
+                  Issue Certificate
+                </Button>
+              </div>
+            </CardHeader>
+
+          </Card>
+
+          {/* ✅ Certificate List */}
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="dark:text-white flex items-center gap-2">
+                    <Award className="h-5 w-5 text-[#FF7A45]" />
+                    Issued Certificates
+                  </CardTitle>
+
+                </div>
+                <Badge className="bg-[#FF7A45] text-white">
+                  {certificateList.length} Total
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {certificateList.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 mx-auto bg-[#FF7A45]/10 rounded-full flex items-center justify-center mb-4">
+                    <Award className="h-8 w-8 text-[#FF7A45]" />
+                  </div>
+                  <p className="text-gray-500 dark:text-gray-400 text-base">No certificates issued yet</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                    Click "Issue AI Certificate" to create your first one
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="dark:text-gray-300">
+                          <div className="flex items-center gap-2">
+                            <User className="h-3 w-3" />
+                            Student
+                          </div>
+                        </TableHead>
+                        <TableHead className="dark:text-gray-300">
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-3 w-3" />
+                            Email
+                          </div>
+                        </TableHead>
+                        <TableHead className="dark:text-gray-300">Hobby / Course</TableHead>
+                        <TableHead className="dark:text-gray-300">Teacher</TableHead>
+                        <TableHead className="dark:text-gray-300">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-3 w-3" />
+                            Issued On
+                          </div>
+                        </TableHead>
+                        <TableHead className="dark:text-gray-300">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {certificateList.map((cert: any) => (
+                        <TableRow key={cert.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                          <TableCell className="font-medium dark:text-gray-100">
+                            {cert.recipient?.name || cert.studentName || "N/A"}
+                          </TableCell>
+                          <TableCell className="dark:text-gray-300">
+                            {cert.recipient?.email || cert.studentEmail || "N/A"}
+                          </TableCell>
+                          <TableCell className="dark:text-gray-300">
+                            {cert.hobbyName || cert.metadata?.hobby || cert.customAttributes?.hobby || "N/A"}
+                          </TableCell>
+                          <TableCell className="dark:text-gray-300">
+                            {cert.teacherName || cert.metadata?.teacher || cert.customAttributes?.teacher || "N/A"}
+                          </TableCell>
+                          <TableCell className="dark:text-gray-300">
+                            {cert.issuedOn ? new Date(cert.issuedOn).toLocaleDateString() : "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={cert.status === "issued" ? "bg-green-500" : "bg-yellow-500"}>
+                              {cert.status || "issued"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      );
     }
 
     if (activeTab === "users") {
@@ -1004,11 +1205,10 @@ export default function AdminDashboardPage() {
                   setActiveTab(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
-                  activeTab === item.id
-                    ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${activeTab === item.id
+                  ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
@@ -1104,6 +1304,127 @@ export default function AdminDashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Admin AI Certificate Modal with Student Dropdown - FIXED */}
+      {showAdminAICertModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl">
+            <div className="p-6 border-b dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#FF7A45]/10 flex items-center justify-center">
+                    <Award className="h-5 w-5 text-[#FF7A45]" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold dark:text-white">Issue AI Certificate</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Powered by Certifier AI</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAdminAICertModal(false)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              {/* ✅ Student Dropdown - FIXED */}
+              <div>
+                <Label htmlFor="admin-ai-student-select">Select Student</Label>
+                <select
+                  id="admin-ai-student-select"
+                  className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF7A45]"
+                  onChange={(e) => {
+                    const studentId = e.target.value;
+                    if (studentId) {
+                      handleStudentSelect(studentId);
+                    }
+                  }}
+                  value={adminAiCertForm.studentEmail ? students.find(s => s.email === adminAiCertForm.studentEmail)?.id || "" : ""}
+                >
+                  <option value="">-- Select a student --</option>
+                  {students.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {student.name} ({student.email})
+                    </option>
+                  ))}
+                </select>
+                {isLoadingStudents && (
+                  <p className="text-xs text-gray-400 mt-1">Loading students...</p>
+                )}
+              </div>
+
+              <div className="border-t dark:border-gray-700 pt-4">
+                <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">Or manually enter details below</p>
+              </div>
+
+              <div>
+                <Label htmlFor="admin-ai-student-name">Student Full Name *</Label>
+                <Input
+                  id="admin-ai-student-name"
+                  value={adminAiCertForm.studentName}
+                  onChange={(e) => setAdminAiCertForm({ ...adminAiCertForm, studentName: e.target.value })}
+                  placeholder="e.g., Abebe Kebede"
+                />
+              </div>
+              <div>
+                <Label htmlFor="admin-ai-student-email">Student Email *</Label>
+                <Input
+                  id="admin-ai-student-email"
+                  type="email"
+                  value={adminAiCertForm.studentEmail}
+                  onChange={(e) => setAdminAiCertForm({ ...adminAiCertForm, studentEmail: e.target.value })}
+                  placeholder="student@example.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="admin-ai-hobby-name">Hobby / Course Name *</Label>
+                <Input
+                  id="admin-ai-hobby-name"
+                  value={adminAiCertForm.hobbyName}
+                  onChange={(e) => setAdminAiCertForm({ ...adminAiCertForm, hobbyName: e.target.value })}
+                  placeholder="e.g., Guitar Playing"
+                />
+              </div>
+              <div>
+                <Label htmlFor="admin-ai-teacher-name">Instructor / Teacher Name</Label>
+                <Input
+                  id="admin-ai-teacher-name"
+                  value={adminAiCertForm.teacherName}
+                  onChange={(e) => setAdminAiCertForm({ ...adminAiCertForm, teacherName: e.target.value })}
+                  placeholder="e.g., Marta Tesfaye"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  onClick={() => {
+                    if (!adminAiCertForm.studentName || !adminAiCertForm.studentEmail || !adminAiCertForm.hobbyName) {
+                      toast.error("Please fill in student name, email, and hobby name");
+                      return;
+                    }
+                    adminIssueAICertificateMutation.mutate({
+                      studentName: adminAiCertForm.studentName,
+                      studentEmail: adminAiCertForm.studentEmail,
+                      hobbyName: adminAiCertForm.hobbyName,
+                      teacherName: adminAiCertForm.teacherName,
+                      studentId: adminAiCertForm.studentId,
+                    });
+                  }}
+                  disabled={adminIssueAICertificateMutation.isPending}
+                  className="flex-1 bg-[#FF7A45] hover:bg-[#ff8f61]"
+                >
+                  <Award className="h-4 w-4 mr-2" />
+                  {adminIssueAICertificateMutation.isPending ? "Issuing..." : "Issue Certificate"}
+                </Button>
+                <Button variant="outline" onClick={() => setShowAdminAICertModal(false)} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

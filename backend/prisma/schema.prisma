@@ -45,6 +45,9 @@ model User {
   receivedResources  Resource[] @relation("ReceivedResources")
   studentCertificates      Certificate[] @relation("StudentCertificates")
   teacherCertificates      Certificate[] @relation("TeacherCertificates")
+
+   certifierStudentCerts   CertifierCertificate[] @relation("CertifierStudent")
+  certifierIssuedCerts    CertifierCertificate[] @relation("CertifierIssuer")
   
   eventPosts        EventPost[]         @relation("EventPostAuthor")
   eventPostComments EventPostComment[]
@@ -455,12 +458,35 @@ model Certificate {
   templateId      Int?
   teacherId       Int?
   issuedAt        DateTime      @default(now())
-  certificateHtml String
+  certificateHtml String?
   customMessage   String?
   
   student         User?         @relation("StudentCertificates", fields: [studentId], references: [id])
   teacher         User?         @relation("TeacherCertificates", fields: [teacherId], references: [id])
   template        CertificateTemplate? @relation(fields: [templateId], references: [id])
+}
+
+
+model CertifierCertificate {
+  id              Int           @id @default(autoincrement())
+  credentialId    String        @unique  // Certifier's credential ID
+  studentId       Int?
+  studentName     String
+  studentEmail    String
+  hobbyName       String
+  teacherName     String?
+  issuedBy        Int?          // Admin or Teacher who issued it
+  issuedAt        DateTime      @default(now())
+  status          String        @default("issued")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  student         User?         @relation("CertifierStudent", fields: [studentId], references: [id])
+  issuer          User?         @relation("CertifierIssuer", fields: [issuedBy], references: [id])
+  
+  @@index([studentId])
+  @@index([issuedBy])
+  @@index([credentialId])
 }
 
 model Resource {

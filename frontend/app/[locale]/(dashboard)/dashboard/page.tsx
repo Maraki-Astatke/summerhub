@@ -385,10 +385,10 @@ export default function DashboardPage() {
     return status;
   };
 
-  const handleDownloadCertificate = (certId: number) => {
+  const handleDownloadCertificate = (certId: number, type: string) => {
     const token = localStorage.getItem("token");
     window.open(
-      `http://localhost:5001/api/certificates/${certId}/download?token=${token}`,
+      `http://localhost:5001/api/certificates/${certId}/download?token=${token}&type=${type}`,
       "_blank",
     );
   };
@@ -662,36 +662,49 @@ export default function DashboardPage() {
             </Card>
           </div>
 
- <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700 mt-6">
-  <CardHeader className="pb-2">
-    <div className="flex items-center justify-between">
-      <div>
-        <CardTitle className="text-xl font-bold dark:text-white">Discover Hobbies</CardTitle>
-        <CardDescription className="text-base dark:text-gray-400">Most loved activities</CardDescription>
-      </div>
-      <Link href="/hobbies">
-        <Button variant="ghost" className="text-[#FF7A45] hover:text-[#ff8f61] text-sm">View All →</Button>
-      </Link>
-    </div>
-  </CardHeader>
-  <CardContent>
-    <div className="flex flex-wrap justify-center gap-4">
-      {(popularHobbies || []).slice(0, 6).map((hobby: any) => (
-        <div
-          key={hobby.id}
-          onClick={() => router.push(`/hobbies/${hobby.id}`)}
-          className="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900/50 cursor-pointer hover:shadow-md transition-shadow flex-1 min-w-[100px] max-w-[200px]"
-        >
-          <div className="w-12 h-12 rounded-xl bg-[#FF7A45]/10 flex items-center justify-center text-[#FF7A45] flex-shrink-0">
-            {getIcon(hobby.icon, "lg")}
-          </div>
-          <p className="text-sm font-semibold text-gray-800 dark:text-white mt-2 line-clamp-1">{hobby.name}</p>
-          <p className="text-xs text-gray-500">{hobby.studentCount || 0} students</p>
-        </div>
-      ))}
-    </div>
-  </CardContent>
-</Card>
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700 mt-6">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl font-bold dark:text-white">
+                    Discover Hobbies
+                  </CardTitle>
+                  <CardDescription className="text-base dark:text-gray-400">
+                    Most loved activities
+                  </CardDescription>
+                </div>
+                <Link href="/hobbies">
+                  <Button
+                    variant="ghost"
+                    className="text-[#FF7A45] hover:text-[#ff8f61] text-sm"
+                  >
+                    View All →
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap justify-center gap-4">
+                {(popularHobbies || []).slice(0, 6).map((hobby: any) => (
+                  <div
+                    key={hobby.id}
+                    onClick={() => router.push(`/hobbies/${hobby.id}`)}
+                    className="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900/50 cursor-pointer hover:shadow-md transition-shadow flex-1 min-w-[100px] max-w-[200px]"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-[#FF7A45]/10 flex items-center justify-center text-[#FF7A45] flex-shrink-0">
+                      {getIcon(hobby.icon, "lg")}
+                    </div>
+                    <p className="text-sm font-semibold text-gray-800 dark:text-white mt-2 line-clamp-1">
+                      {hobby.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {hobby.studentCount || 0} students
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </>
       );
     }
@@ -785,59 +798,130 @@ export default function DashboardPage() {
       );
     }
 
+    // ============================================
+    // CERTIFICATES TAB - BOTH MANUAL AND AI - FIXED
+    // ============================================
     if (activeTab === "certificates") {
+      // Debug logging
+      console.log("📊 Certificates data:", certificates);
+      console.log("📊 Is array?", Array.isArray(certificates));
+      console.log("📊 Length:", certificates?.length);
+
+      // Use certificates directly - they already have the right fields
+      const allCertificates = (certificates || []).map((cert: any) => ({
+        ...cert,
+        // Ensure we have the fields we need
+        displayTitle: cert.title || cert.displayTitle || 'Certificate',
+        displayHobby: cert.hobby || cert.displayHobby || 'N/A',
+        displayTeacher: cert.teacher || cert.displayTeacher || 'Unknown Teacher'
+      })).sort((a, b) => new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime());
+
       return (
-        <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
-          <CardHeader className="p-6">
-            <CardTitle className="text-xl font-bold dark:text-white">
-              Your Certificates
-            </CardTitle>
-            <CardDescription className="dark:text-gray-400">
-              Certificates you've earned from your teachers
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 pt-0">
-            {certificates?.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                No certificates earned yet. Complete courses to get certified!
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {certificates?.map((cert: any) => (
-                  <div
-                    key={cert.id}
-                    className="flex justify-between items-center p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50"
-                  >
-                    <div>
-                      <p className="font-semibold text-gray-800 dark:text-gray-100">
-                        {cert.title}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        {cert.hobby} • {cert.teacher}
-                      </p>
-                      {cert.customMessage && (
-                        <p className="text-xs text-[#FF7A45] dark:text-[#FF7A45] mt-1 italic">
-                          "{cert.customMessage}"
-                        </p>
-                      )}
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                        Issued: {new Date(cert.issuedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-lg"
-                      onClick={() => handleDownloadCertificate(cert.id)}
-                    >
-                      Download
-                    </Button>
+        <div className="space-y-6">
+          {/* Header card */}
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700 bg-gradient-to-br from-[#FFF2EB] to-white dark:from-gray-800 dark:to-gray-800">
+            <CardHeader className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-[#FF7A45]/10 flex items-center justify-center flex-shrink-0">
+                    <Award className="h-7 w-7 text-[#FF7A45]" />
                   </div>
-                ))}
+                  <div>
+                    <CardTitle className="text-xl font-bold dark:text-white">
+                      My Certificates
+                    </CardTitle>
+                    <CardDescription className="dark:text-gray-400 mt-0.5">
+                      Certificates issued by your teachers
+                    </CardDescription>
+                  </div>
+                </div>
+                <Badge className="bg-[#FF7A45] text-white">
+                  {allCertificates.length} Total
+                </Badge>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardHeader>
+          </Card>
+
+          {/* Certificates list */}
+          <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
+            <CardContent className="p-6">
+              {allCertificates.length === 0 ? (
+                <div className="text-center py-16 space-y-4">
+                  <div className="w-20 h-20 rounded-2xl bg-[#FF7A45]/10 flex items-center justify-center mx-auto">
+                    <Award className="h-10 w-10 text-[#FF7A45]" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                      No certificates yet
+                    </p>
+                    <p className="text-base text-gray-500 dark:text-gray-400 mt-1">
+                      Complete courses and your teacher will issue certificates here!
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {allCertificates.map((cert: any) => (
+                    <div
+                      key={cert.id}
+                      className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 border rounded-xl hover:shadow-md transition-all duration-300 ${cert.type === 'ai'
+                        ? 'border-[#FF7A45]/30 bg-gradient-to-br from-[#FFF2EB]/30 to-white dark:from-[#FF7A45]/10 dark:to-gray-800'
+                        : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800/50'
+                        }`}
+                    >
+                      <div className="flex items-start gap-4 flex-1 min-w-0">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${cert.type === 'ai'
+                          ? 'bg-[#FF7A45]/20 text-[#FF7A45]'
+                          : 'bg-[#FF7A45]/10 text-[#FF7A45]'
+                          }`}>
+                          {cert.type === 'ai' ? (
+                            <Sparkles className="h-6 w-6" />
+                          ) : (
+                            <Award className="h-6 w-6" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-bold text-gray-800 dark:text-gray-100 text-base">
+                              {cert.displayTitle}
+                            </p>
+                            {cert.type === 'ai' && (
+                              <Badge className="bg-[#FF7A45]/20 text-[#FF7A45] border-0 text-xs">
+                                AI-Generated
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                            {cert.displayHobby && <span className="mr-2">🎯 {cert.displayHobby}</span>}
+                            {cert.displayTeacher && <span>👨‍🏫 {cert.displayTeacher}</span>}
+                          </p>
+                          {cert.customMessage && (
+                            <p className="text-sm text-[#FF7A45] dark:text-[#ff8f61] mt-1.5 italic bg-[#FF7A45]/5 px-3 py-1.5 rounded-lg inline-block">
+                              "{cert.customMessage}"
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 flex items-center gap-1">
+                            <CheckCircle className="h-3 w-3 text-green-500" />
+                            Issued: {new Date(cert.issuedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-lg border-[#FF7A45]/30 text-[#FF7A45] hover:bg-[#FF7A45]/5 flex-shrink-0"
+                        onClick={() => handleDownloadCertificate(cert.id, cert.type || 'manual')}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       );
     }
 
@@ -1406,11 +1490,10 @@ export default function DashboardPage() {
                     setActiveTab(item.id);
                     setSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${
-                    activeTab === item.id
-                      ? "bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${activeTab === item.id
+                    ? "bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    }`}
                 >
                   {item.icon}
                   <span>{item.label}</span>

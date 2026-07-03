@@ -9,9 +9,9 @@ import { useAuth } from '@/providers/auth-provider';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
-import { 
-  ShoppingBag, LogOut, Menu, X, LayoutDashboard, User, 
-  BookOpen, MessageSquare 
+import {
+  ShoppingBag, LogOut, Menu, X, LayoutDashboard, User,
+  BookOpen, MessageSquare
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -60,7 +60,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
     { label: t('nav.courses'), href: `/${locale}/hobbies` },
     { label: t('nav.lessons'), href: `/${locale}/lessons` },
     { label: t('nav.events'), href: `/${locale}/events` },
-    { label: 'Talent Events', href: `/${locale}/talent-events` },
+
     { label: t('nav.about'), href: `/${locale}/about` },
   ];
 
@@ -68,38 +68,36 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
   const isWhite = alwaysWhite || scrolled;
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isWhite 
-        ? 'h-20 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 text-[#1F2937]' 
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isWhite
+        ? 'h-20 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 text-[#1F2937]'
         : 'h-20 bg-transparent text-[#1F2937]'
-    }`}>
+      }`}>
       <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-14 h-full flex justify-between items-center">
-        
-        {}
+
+        { }
         <Link href={`/${locale}`} className="flex items-center focus:outline-none">
-          <Image 
-            src="/logo.png" 
-            alt="HobbyHub Education" 
-            width={160} 
-            height={40} 
-            priority 
+          <Image
+            src="/logo.png"
+            alt="HobbyHub Education"
+            width={160}
+            height={40}
+            priority
             className="h-10 w-auto object-contain"
           />
         </Link>
-        
-        {}
+
+        { }
         <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                className={`text-sm font-semibold transition-colors duration-200 ${
-                  isActive 
-                    ? 'text-[#FF7A45]' 
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm font-semibold transition-colors duration-200 ${isActive
+                    ? 'text-[#FF7A45]'
                     : 'text-gray-500 hover:text-[#FF7A45]'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
@@ -107,28 +105,26 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
           })}
         </nav>
 
-        {}
+        { }
         <div className="hidden lg:flex items-center gap-4">
-          
-          {}
+
+          { }
           <div className="flex items-center bg-gray-100/80 rounded-xl p-0.5 border border-gray-200/50 mr-2">
-            <button 
+            <button
               onClick={() => switchLanguage('en')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
-                locale === 'en' 
-                  ? 'bg-white text-[#FF7A45] shadow-sm' 
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${locale === 'en'
+                  ? 'bg-white text-[#FF7A45] shadow-sm'
                   : 'text-gray-500 hover:text-gray-800'
-              }`}
+                }`}
             >
               EN
             </button>
-            <button 
+            <button
               onClick={() => switchLanguage('am')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
-                locale === 'am' 
-                  ? 'bg-white text-[#FF7A45] shadow-sm' 
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${locale === 'am'
+                  ? 'bg-white text-[#FF7A45] shadow-sm'
                   : 'text-gray-500 hover:text-gray-800'
-              }`}
+                }`}
             >
               አማ
             </button>
@@ -136,7 +132,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
 
           {user ? (
             <>
-              {}
+              { }
               {(hasRole('student') || hasRole('scholar')) && (
                 <Link href={`/${locale}/cart`} className="relative p-2 rounded-xl text-gray-500 hover:text-[#FF7A45] hover:bg-[#FFF2EB] transition-all">
                   <ShoppingBag className="w-5.5 h-5.5" />
@@ -148,7 +144,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                 </Link>
               )}
 
-              {}
+              { }
               <div className="flex items-center gap-2 border border-gray-100 bg-gray-50/50 rounded-2xl p-1.5 pl-3">
                 <div className="text-right pr-2">
                   <p className="text-xs font-bold text-[#1F2937] leading-tight">
@@ -158,7 +154,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                     {hasRole('admin') ? 'Admin' : hasRole('teacher') ? 'Teacher' : hasRole('seller') ? 'Seller' : hasRole('parent') ? 'Parent' : hasRole('scholarship_giver') ? 'Scholar Provider' : 'Student'}
                   </p>
                 </div>
-                
+
                 <div className="flex gap-1.5">
                   {hasRole('admin') && (
                     <Link href={`/${locale}/admin`}>
@@ -181,7 +177,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                       </Button>
                     </Link>
                   )}
-                  
+
                   <Link href={`/${locale}/dashboard`}>
                     <Button size="sm" className="h-8 text-xs font-bold bg-[#1F2937] hover:bg-[#FF7A45] text-white rounded-lg px-3">
                       Workspace
@@ -210,8 +206,8 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
           )}
         </div>
 
-        {}
-        <button 
+        { }
+        <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="lg:hidden p-2 rounded-xl text-[#1F2937] hover:bg-gray-100 focus:outline-none"
           aria-label="Toggle Menu"
@@ -220,25 +216,25 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
         </button>
       </div>
 
-      {}
+      { }
       {isMenuOpen && (
         <div className="lg:hidden bg-white border-t py-4 px-6 absolute top-20 left-0 right-0 shadow-lg">
           <div className="flex flex-col gap-4">
             {navLinks.map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href} 
+              <Link
+                key={link.href}
+                href={link.href}
                 onClick={() => setIsMenuOpen(false)}
                 className="text-lg font-bold text-[#1F2937] border-b border-gray-100 pb-2.5"
               >
                 {link.label}
               </Link>
             ))}
-            
+
             {user && (
               <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Workspace</p>
-                
+
                 <Link href={`/${locale}/dashboard`} onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 text-base font-bold text-[#1F2937] hover:text-[#FF7A45]">
                   <LayoutDashboard className="w-5 h-5 text-[#FF7A45]" />
                   Dashboard
@@ -278,7 +274,7 @@ export default function Navbar({ alwaysWhite = false }: NavbarProps) {
                 </Link>
               </div>
             )}
-            
+
             <div className="py-4 border-t border-gray-100">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm font-semibold text-gray-500">Language</span>

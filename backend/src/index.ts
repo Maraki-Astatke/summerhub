@@ -41,6 +41,8 @@ import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/orders.js';
 import eventPostRoutes from './routes/event-posts.js';
 import scholarshipGiverRoutes from './routes/scholarshipGiver.js';
+import certificateRoutes from './routes/certificateRoutes.js';
+
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -76,7 +78,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api', adminQuizRoutes);
-// PUBLIC ROUTES (no authentication required)
+
 app.use('/api/auth', authRoutes);
 app.use('/api', googleAuthRoutes);
 app.use('/api', hobbyRoutes);
@@ -105,6 +107,7 @@ app.use('/api', roleRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', cartRoutes);
 app.use('/api', orderRoutes);
+app.use('/api', certificateRoutes);
 
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
@@ -135,7 +138,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Create HTTP server for Socket.io
+
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -144,7 +147,7 @@ const io = new Server(server, {
   }
 });
 
-// Socket.io authentication middleware
+
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) {
@@ -160,7 +163,7 @@ io.use((socket, next) => {
   }
 });
 
-// Socket.io connection handling
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.data.user?.userId);
 
