@@ -10,7 +10,7 @@ import { AuthProvider } from "../../providers/auth-provider";
 import { ThemeProvider } from "../../providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
@@ -34,7 +34,7 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  
+
   if (!routing.locales.includes(locale as any)) {
     notFound();
   }
@@ -42,7 +42,7 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="scroll-smooth">
+    <html lang={locale} className="scroll-smooth" suppressHydrationWarning>
       <body className={`${poppins.variable} ${inter.variable} font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>

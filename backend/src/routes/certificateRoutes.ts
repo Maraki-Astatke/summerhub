@@ -648,7 +648,7 @@ router.get('/certificates/:id/download', authenticateToken, async (req: any, res
     try {
         const { id } = req.params;
         const studentId = Number(req.user.userId);
-        
+
         // Strip prefixes to get the actual numeric ID
         const isAI = id.startsWith('ai-');
         const isManual = id.startsWith('manual-');
@@ -669,7 +669,7 @@ router.get('/certificates/:id/download', authenticateToken, async (req: any, res
                     return res.status(403).json({ error: 'Unauthorized' });
                 }
 
-            const html = `
+                const html = `
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -703,11 +703,10 @@ router.get('/certificates/:id/download', authenticateToken, async (req: any, res
                 </html>
             `;
 
-            res.setHeader('Content-Type', 'text/html');
-            res.setHeader('Content-Disposition', `attachment; filename=certificate-${aiCert.id}.html`);
-            return res.send(html);
-        }
-
+                res.setHeader('Content-Type', 'text/html');
+                res.setHeader('Content-Disposition', `attachment; filename=certificate-${aiCert.id}.html`);
+                return res.send(html);
+            }
         }
 
         // Check if it's a manual certificate
@@ -726,35 +725,36 @@ router.get('/certificates/:id/download', authenticateToken, async (req: any, res
                     return res.status(403).json({ error: 'Unauthorized' });
                 }
 
-            const html = manualCert.certificateHtml || `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-                        .certificate { border: 5px solid #FF7A45; padding: 40px; max-width: 600px; margin: 0 auto; border-radius: 10px; }
-                        h1 { color: #FF7A45; font-size: 2.5em; }
-                        .name { font-size: 2em; margin: 20px 0; font-weight: bold; }
-                        .details { font-size: 1.2em; color: #666; }
-                    </style>
-                </head>
-                <body>
-                    <div class="certificate">
-                        <h1>🎓 Certificate</h1>
-                        <p>This certifies that</p>
-                        <div class="name">${manualCert.student?.profile?.firstName || 'Student'}</div>
-                        <p>has successfully completed</p>
-                        <div class="details">${manualCert.template?.title || 'Course'}</div>
-                        ${manualCert.customMessage ? `<p style="font-style: italic;">${manualCert.customMessage}</p>` : ''}
-                        <p>Issued on: ${new Date(manualCert.issuedAt).toLocaleDateString()}</p>
-                    </div>
-                </body>
-                </html>
-            `;
+                const html = manualCert.certificateHtml || `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                            .certificate { border: 5px solid #FF7A45; padding: 40px; max-width: 600px; margin: 0 auto; border-radius: 10px; }
+                            h1 { color: #FF7A45; font-size: 2.5em; }
+                            .name { font-size: 2em; margin: 20px 0; font-weight: bold; }
+                            .details { font-size: 1.2em; color: #666; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="certificate">
+                            <h1>🎓 Certificate</h1>
+                            <p>This certifies that</p>
+                            <div class="name">${manualCert.student?.profile?.firstName || 'Student'}</div>
+                            <p>has successfully completed</p>
+                            <div class="details">${manualCert.template?.title || 'Course'}</div>
+                            ${manualCert.customMessage ? `<p style="font-style: italic;">${manualCert.customMessage}</p>` : ''}
+                            <p>Issued on: ${new Date(manualCert.issuedAt).toLocaleDateString()}</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
 
-            res.setHeader('Content-Type', 'text/html');
-            res.setHeader('Content-Disposition', `attachment; filename=certificate-${manualCert.id}.html`);
-            return res.send(html);
+                res.setHeader('Content-Type', 'text/html');
+                res.setHeader('Content-Disposition', `attachment; filename=certificate-${manualCert.id}.html`);
+                return res.send(html);
+            }
         }
 
         return res.status(404).json({ error: 'Certificate not found' });
