@@ -53,6 +53,11 @@ import {
   Users,
   TrendingUp,
   CheckCircle,
+  Pencil,
+  Mic,
+  Headphones,
+  Brush,
+  Newspaper,
 } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import MessagesPanel from "@/components/MessagesPanel";
@@ -90,6 +95,39 @@ export default function DashboardPage() {
     phone: "",
     description: "",
     cv: null as File | null,
+  });
+
+  // ✅ Practice state
+  const [selectedPracticeHobby, setSelectedPracticeHobby] = useState<string>("");
+  const [practiceCanvas, setPracticeCanvas] = useState<HTMLCanvasElement | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [lastX, setLastX] = useState(0);
+  const [lastY, setLastY] = useState(0);
+  const [selectedColor, setSelectedColor] = useState("#FF7A45");
+  const [brushSize, setBrushSize] = useState(5);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+
+  // ✅ Fetch hobbies for practice dropdown
+  const { data: practiceHobbies } = useQuery({
+    queryKey: ["practice-hobbies"],
+    queryFn: async () => {
+      try {
+        const response = await api.get("/hobbies?limit=50");
+        return response.data?.data || [];
+      } catch {
+        return [
+          { id: 1, name: "Music", category: { name: "Music" }, icon: "music" },
+          { id: 2, name: "Drawing", category: { name: "Art" }, icon: "palette" },
+          { id: 3, name: "Coding", category: { name: "Coding" }, icon: "code2" },
+          { id: 4, name: "Poetry", category: { name: "Writing" }, icon: "penTool" },
+          { id: 5, name: "Photography", category: { name: "Photography" }, icon: "camera" },
+          { id: 6, name: "Gaming", category: { name: "Gaming" }, icon: "gamepad2" },
+        ];
+      }
+    },
+    enabled: !!user,
   });
 
   useEffect(() => {
@@ -266,42 +304,42 @@ export default function DashboardPage() {
             name: "Music Production",
             category: { name: "Music" },
             icon: "music",
-            studentCount: 234,
+            studentCount: 0,
           },
           {
             id: 2,
             name: "Digital Art",
             category: { name: "Art" },
             icon: "palette",
-            studentCount: 189,
+            studentCount: 3,
           },
           {
             id: 3,
             name: "Web Development",
             category: { name: "Coding" },
             icon: "code2",
-            studentCount: 456,
+            studentCount: 0,
           },
           {
             id: 4,
             name: "Photography",
             category: { name: "Photography" },
             icon: "camera",
-            studentCount: 167,
+            studentCount: 0,
           },
           {
             id: 5,
             name: "Creative Writing",
             category: { name: "Writing" },
             icon: "penTool",
-            studentCount: 123,
+            studentCount: 1,
           },
           {
             id: 6,
             name: "Game Design",
             category: { name: "Gaming" },
             icon: "gamepad2",
-            studentCount: 98,
+            studentCount: 0,
           },
         ];
       }
@@ -424,6 +462,98 @@ export default function DashboardPage() {
     submitAssignmentMutation.mutate(formData);
   };
 
+  // ✅ Practice: Canvas drawing functions
+  const initCanvas = (canvas: HTMLCanvasElement | null) => {
+    if (!canvas) return;
+    setPracticeCanvas(canvas);
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = selectedColor;
+      ctx.lineWidth = brushSize;
+    }
+  };
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!practiceCanvas) return;
+    const rect = practiceCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setIsDrawing(true);
+    setLastX(x);
+    setLastY(y);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !practiceCanvas) return;
+    const rect = practiceCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const ctx = practiceCanvas.getContext('2d');
+    if (ctx) {
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = selectedColor;
+      ctx.lineWidth = brushSize;
+      ctx.stroke();
+    }
+    setLastX(x);
+    setLastY(y);
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+  };
+
+  const clearCanvas = () => {
+    if (!practiceCanvas) return;
+    const ctx = practiceCanvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, practiceCanvas.width, practiceCanvas.height);
+    }
+  };
+
+  // ✅ Practice: Audio recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioChunks(chunks);
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.play();
+        toast.success('Recording saved!');
+      };
+
+      recorder.start();
+      setAudioRecorder(recorder);
+      setIsRecording(true);
+      toast.info('Recording started...');
+    } catch (error) {
+      toast.error('Microphone access denied');
+    }
+  };
+
+  const stopRecording = () => {
+    if (audioRecorder && isRecording) {
+      audioRecorder.stop();
+      setIsRecording(false);
+      audioRecorder.stream.getTracks().forEach(track => track.stop());
+    }
+  };
+
   const isRedirecting =
     user &&
     (user.roles?.includes("admin") ||
@@ -480,10 +610,22 @@ export default function DashboardPage() {
       label: t("menu.jobs"),
       icon: <Briefcase className="w-5 h-5" />,
     },
+    // ✅ NEW: Blog menu item - links to /blog (same as home page)
+    {
+      id: "blog",
+      label: t("menu.blog"),
+      icon: <Newspaper className="w-5 h-5" />,
+    },
     {
       id: "messages",
       label: t("menu.messages"),
       icon: <MessageSquare className="w-5 h-5" />,
+    },
+    // ✅ Practice menu item
+    {
+      id: "practice",
+      label: t("menu.practice"),
+      icon: <Brush className="w-5 h-5" />,
     },
   ];
 
@@ -799,18 +941,11 @@ export default function DashboardPage() {
     }
 
     // ============================================
-    // CERTIFICATES TAB - BOTH MANUAL AND AI - FIXED
+    // CERTIFICATES TAB - BOTH MANUAL AND AI
     // ============================================
     if (activeTab === "certificates") {
-      // Debug logging
-      console.log("📊 Certificates data:", certificates);
-      console.log("📊 Is array?", Array.isArray(certificates));
-      console.log("📊 Length:", certificates?.length);
-
-      // Use certificates directly - they already have the right fields
       const allCertificates = (certificates || []).map((cert: any) => ({
         ...cert,
-        // Ensure we have the fields we need
         displayTitle: cert.title || cert.displayTitle || 'Certificate',
         displayHobby: cert.hobby || cert.displayHobby || 'N/A',
         displayTeacher: cert.teacher || cert.displayTeacher || 'Unknown Teacher'
@@ -818,7 +953,6 @@ export default function DashboardPage() {
 
       return (
         <div className="space-y-6">
-          {/* Header card */}
           <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700 bg-gradient-to-br from-[#FFF2EB] to-white dark:from-gray-800 dark:to-gray-800">
             <CardHeader className="p-6">
               <div className="flex items-center justify-between">
@@ -842,7 +976,6 @@ export default function DashboardPage() {
             </CardHeader>
           </Card>
 
-          {/* Certificates list */}
           <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
             <CardContent className="p-6">
               {allCertificates.length === 0 ? (
@@ -1318,10 +1451,202 @@ export default function DashboardPage() {
       );
     }
 
+    // ✅ NEW: BLOG TAB - Redirects to home page blog
+    if (activeTab === "blog") {
+      // Redirect to the home page blog section
+      router.push("/blog");
+      return null;
+    }
+
     if (activeTab === "messages") {
       return (
         <div className="space-y-5">
           <MessagesPanel />
+        </div>
+      );
+    }
+
+    // ============================================
+    // ✅ PRACTICE TAB
+    // ============================================
+    if (activeTab === "practice") {
+      const selectedHobby = practiceHobbies?.find((h: any) => h.id === parseInt(selectedPracticeHobby));
+
+      return (
+        <div className="space-y-6">
+          {/* Welcome Card */}
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700 bg-gradient-to-br from-[#FFF2EB] to-white dark:from-gray-800 dark:to-gray-800">
+            <CardContent className="p-8 text-center">
+              <div className="w-20 h-20 rounded-2xl bg-[#FF7A45]/10 flex items-center justify-center mx-auto mb-4">
+                <Brush className="h-10 w-10 text-[#FF7A45]" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                Welcome to Practice Area! 🎯
+              </h2>
+              <p className="text-base text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">
+                Select a hobby below and start practicing hands-on. Draw, record, or play - it's your creative space!
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Hobby Selector */}
+          <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold dark:text-white">Choose Your Hobby</CardTitle>
+              <CardDescription className="dark:text-gray-400">
+                Select a hobby to start practicing
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <select
+                className="w-full max-w-md border dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF7A45]"
+                value={selectedPracticeHobby}
+                onChange={(e) => setSelectedPracticeHobby(e.target.value)}
+              >
+                <option value="">-- Select a hobby --</option>
+                {practiceHobbies?.map((hobby: any) => (
+                  <option key={hobby.id} value={hobby.id}>
+                    {hobby.name} {hobby.category?.name && `(${hobby.category.name})`}
+                  </option>
+                ))}
+              </select>
+            </CardContent>
+          </Card>
+
+          {/* Practice Area - Only show when a hobby is selected */}
+          {selectedPracticeHobby && selectedHobby && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Practice Tools */}
+              <Card className="lg:col-span-1 border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-lg font-bold dark:text-white">
+                    🛠️ Practice Tools
+                  </CardTitle>
+                  <CardDescription className="dark:text-gray-400">
+                    {selectedHobby.name} - Let's get creative!
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Color Picker (for art) */}
+                  <div>
+                    <Label>Color</Label>
+                    <div className="flex gap-2 mt-1">
+                      {['#FF7A45', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#000000'].map((color) => (
+                        <button
+                          key={color}
+                          className={`w-8 h-8 rounded-full border-2 ${selectedColor === color ? 'border-[#FF7A45]' : 'border-gray-300'} hover:scale-110 transition-transform`}
+                          style={{ backgroundColor: color }}
+                          onClick={() => setSelectedColor(color)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Brush Size */}
+                  <div>
+                    <Label>Brush Size: {brushSize}px</Label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="20"
+                      value={brushSize}
+                      onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={clearCanvas}
+                      className="flex-1"
+                    >
+                      Clear Canvas
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const canvas = document.getElementById('practice-canvas') as HTMLCanvasElement;
+                        if (canvas) {
+                          const link = document.createElement('a');
+                          link.download = 'my-practice.png';
+                          link.href = canvas.toDataURL();
+                          link.click();
+                        }
+                      }}
+                      className="flex-1"
+                    >
+                      Download
+                    </Button>
+                  </div>
+
+                  {/* Audio Recording */}
+                  <div className="border-t dark:border-gray-700 pt-4">
+                    <Label>🎤 Audio Recording</Label>
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        size="sm"
+                        className={`flex-1 ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-[#FF7A45] hover:bg-[#ff8f61]'}`}
+                        onClick={isRecording ? stopRecording : startRecording}
+                      >
+                        {isRecording ? '⏹️ Stop Recording' : '🎙️ Start Recording'}
+                      </Button>
+                    </div>
+                    {audioChunks.length > 0 && (
+                      <div className="mt-2">
+                        <audio controls className="w-full">
+                          <source src={URL.createObjectURL(new Blob(audioChunks, { type: 'audio/webm' }))} type="audio/webm" />
+                        </audio>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Canvas Area */}
+              <Card className="lg:col-span-2 border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-lg font-bold dark:text-white">
+                    🎨 Practice Canvas
+                  </CardTitle>
+                  <CardDescription className="dark:text-gray-400">
+                    Draw, sketch, or doodle - it's your practice space!
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="border-2 border-[#FF7A45]/20 rounded-xl overflow-hidden bg-white">
+                    <canvas
+                      id="practice-canvas"
+                      width={800}
+                      height={500}
+                      className="w-full cursor-crosshair touch-none"
+                      style={{ touchAction: 'none' }}
+                      onMouseDown={startDrawing}
+                      onMouseMove={draw}
+                      onMouseUp={stopDrawing}
+                      onMouseLeave={stopDrawing}
+                      ref={initCanvas}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* No hobby selected message */}
+          {!selectedPracticeHobby && (
+            <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+              <CardContent className="p-12 text-center">
+                <Brush className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-lg text-gray-500 dark:text-gray-400">
+                  Select a hobby from the dropdown above to start practicing!
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       );
     }

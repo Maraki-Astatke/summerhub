@@ -192,7 +192,9 @@
       "certificates": "ሰርተፊኬቶች",
       "orders": "የትዕዛዝ ታሪክ",
       "jobs": "የስራ እድሎች",
-      "messages": "መልዕክቶች"
+      "messages": "መልዕክቶች",
+      "practice": "ልምምድ",
+      "blog": "ብሎግ"
     },
     "stats": {
       "hobbiesDiscovered": "የተገኙ ትርፍ ጊዜ ማሳለፊያዎች",

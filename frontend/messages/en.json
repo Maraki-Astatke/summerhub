@@ -192,7 +192,9 @@
       "certificates": "Certificates",
       "orders": "Order History",
       "jobs": "Job Opportunities",
-      "messages": "Messages"
+      "messages": "Messages",
+      "practice": "Practice",
+      "blog": "Blog"
     },
     "stats": {
       "hobbiesDiscovered": "Hobbies Discovered",
