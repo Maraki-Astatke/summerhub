@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -25,10 +25,11 @@ import {
   Phone, TrendingUp,
 } from 'lucide-react';
 import DashboardHeader from '@/components/DashboardHeader';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export default function SellerDashboardPage() {
-  const { t } = useTranslation();
+  const t = useTranslations(); // ✅ Global translations for nav
+  const ts = useTranslations('seller'); // ✅ Seller-specific translations
   const router = useRouter();
   const { user, logout, isLoading: authLoading } = useAuth();
   const queryClient = useQueryClient();
@@ -105,7 +106,7 @@ export default function SellerDashboardPage() {
       return response.data.imageUrl;
     },
     onError: (error: any) => {
-      alert(t('seller.uploadError') || 'Failed to upload image: ' + (error.response?.data?.error || 'Unknown error'));
+      alert(ts('uploadError') || 'Failed to upload image: ' + (error.response?.data?.error || 'Unknown error'));
     },
   });
 
@@ -127,10 +128,10 @@ export default function SellerDashboardPage() {
         imageUrl: '',
         phone: '',
       });
-      alert(t('seller.productCreated'));
+      alert(ts('productCreated'));
     },
     onError: (error: any) => {
-      const message = error.response?.data?.error || error.response?.data?.message || t('seller.createError');
+      const message = error.response?.data?.error || error.response?.data?.message || ts('createError');
       alert(message);
     },
   });
@@ -143,7 +144,7 @@ export default function SellerDashboardPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seller-products'] });
       setEditingProduct(null);
-      alert(t('seller.productUpdated'));
+      alert(ts('productUpdated'));
     },
   });
 
@@ -154,7 +155,7 @@ export default function SellerDashboardPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seller-products'] });
       queryClient.invalidateQueries({ queryKey: ['seller-stats'] });
-      alert(t('seller.productDeleted'));
+      alert(ts('productDeleted'));
     },
   });
 
@@ -164,7 +165,7 @@ export default function SellerDashboardPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seller-orders'] });
-      alert(t('seller.orderShipped'));
+      alert(ts('orderShipped'));
     },
   });
 
@@ -173,12 +174,12 @@ export default function SellerDashboardPage() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert(t('seller.imageTypeError'));
+      alert(ts('imageTypeError'));
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert(t('seller.imageSizeError'));
+      alert(ts('imageSizeError'));
       return;
     }
 
@@ -197,22 +198,22 @@ export default function SellerDashboardPage() {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      alert(t('seller.nameRequired'));
+      alert(ts('nameRequired'));
       return;
     }
 
     if (!formData.price || parseFloat(formData.price) <= 0) {
-      alert(t('seller.priceRequired'));
+      alert(ts('priceRequired'));
       return;
     }
 
     if (!formData.stockCount || parseInt(formData.stockCount) < 0) {
-      alert(t('seller.stockRequired'));
+      alert(ts('stockRequired'));
       return;
     }
 
     if (!formData.imageUrl) {
-      alert(t('seller.imageRequired'));
+      alert(ts('imageRequired'));
       return;
     }
 
@@ -261,7 +262,7 @@ export default function SellerDashboardPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">{t('common.loading')}</div>
+        <div className="text-center">Loading...</div>
       </div>
     );
   }
@@ -271,10 +272,10 @@ export default function SellerDashboardPage() {
   }
 
   const menuItems = [
-    { id: 'stats', label: t('seller.menu.analytics'), icon: <BarChart3 className="w-5 h-5" /> },
-    { id: 'create', label: t('seller.menu.addProduct'), icon: <Plus className="w-5 h-5" /> },
-    { id: 'products', label: t('seller.menu.myProducts'), icon: <Package className="w-5 h-5" /> },
-    { id: 'orders', label: t('seller.menu.orders'), icon: <ShoppingCart className="w-5 h-5" /> },
+    { id: 'stats', label: ts('menu.analytics'), icon: <BarChart3 className="w-5 h-5" /> },
+    { id: 'create', label: ts('menu.addProduct'), icon: <Plus className="w-5 h-5" /> },
+    { id: 'products', label: ts('menu.myProducts'), icon: <Package className="w-5 h-5" /> },
+    { id: 'orders', label: ts('menu.orders'), icon: <ShoppingCart className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
@@ -286,8 +287,8 @@ export default function SellerDashboardPage() {
               <Card className="border-0 shadow-sm">
                 <CardContent className="text-center py-16">
                   <Package className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-                  <p className="text-lg text-gray-500 font-medium">{t('seller.noProducts')}</p>
-                  <Button className="mt-4 bg-[#FF7A45] hover:bg-[#ff8f61]" onClick={() => setActiveTab('create')}>{t('seller.addFirstProduct')}</Button>
+                  <p className="text-lg text-gray-500 font-medium">{ts('noProducts')}</p>
+                  <Button className="mt-4 bg-[#FF7A45] hover:bg-[#ff8f61]" onClick={() => setActiveTab('create')}>{ts('addFirstProduct')}</Button>
                 </CardContent>
               </Card>
             </div>
@@ -309,7 +310,7 @@ export default function SellerDashboardPage() {
                   )}
                   {product.stockCount < 10 && (
                     <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
-                      {t('seller.lowStock')}
+                      {ts('lowStock')}
                     </div>
                   )}
                   <div className="absolute top-3 right-3 flex gap-1">
@@ -331,7 +332,7 @@ export default function SellerDashboardPage() {
                       <Edit className="h-4 w-4 text-gray-700" />
                     </button>
                     <button
-                      onClick={() => { if (confirm(t('seller.deleteConfirm'))) { deleteProductMutation.mutate(product.id); } }}
+                      onClick={() => { if (confirm(ts('deleteConfirm'))) { deleteProductMutation.mutate(product.id); } }}
                       className="bg-white/90 hover:bg-white p-1.5 rounded-lg shadow"
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
@@ -341,7 +342,7 @@ export default function SellerDashboardPage() {
 
                 <CardContent className="p-5">
                   <h3 className="text-base font-bold text-gray-800 dark:text-white mb-1 truncate">{product.name}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{product.description || t('seller.noDescription')}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{product.description || ts('noDescription')}</p>
 
                   {product.phone && (
                     <div className="flex items-center gap-1.5 mb-3 text-sm text-gray-600 dark:text-gray-400">
@@ -360,9 +361,9 @@ export default function SellerDashboardPage() {
 
                   <div className="flex justify-between items-center text-sm mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                     <span className={`font-semibold ${product.stockCount < 10 ? 'text-red-500' : 'text-gray-600 dark:text-gray-400'}`}>
-                      {t('seller.stockLabel')}: {product.stockCount}
+                      {ts('stockLabel')}: {product.stockCount}
                     </span>
-                    <span className="text-gray-400">{t('seller.sold')}: {product.totalSold || 0}</span>
+                    <span className="text-gray-400">{ts('sold')}: {product.totalSold || 0}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -376,23 +377,23 @@ export default function SellerDashboardPage() {
       return (
         <Card className="border-0 shadow-sm">
           <CardHeader>
-            <CardTitle>{t('seller.ordersTitle')}</CardTitle>
-            <CardDescription>{t('seller.ordersDesc')}</CardDescription>
+            <CardTitle>{ts('ordersTitle')}</CardTitle>
+            <CardDescription>{ts('ordersDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             {orders?.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">{t('seller.noOrders')}</p>
+              <p className="text-center text-gray-500 py-8">{ts('noOrders')}</p>
             ) : (
               <div className="space-y-4">
                 {orders?.map((order: any) => (
                   <div key={order.orderId} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <p className="font-semibold">{t('seller.orderNumber')} #{order.orderId}</p>
+                        <p className="font-semibold">{ts('orderNumber')} #{order.orderId}</p>
                         <p className="text-sm text-gray-500">{order.customerName} ({order.customerEmail})</p>
                       </div>
                       <span className={`text-sm px-2 py-1 rounded ${order.orderStatus === 'pending' ? 'bg-yellow-100 text-yellow-700' : order.orderStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                        {order.orderStatus === 'pending' ? t('seller.statusPending') : order.orderStatus === 'paid' ? t('seller.statusPaid') : t('seller.statusShipped')}
+                        {order.orderStatus === 'pending' ? ts('statusPending') : order.orderStatus === 'paid' ? ts('statusPaid') : ts('statusShipped')}
                       </span>
                     </div>
                     <div className="space-y-2 mb-3">
@@ -405,7 +406,7 @@ export default function SellerDashboardPage() {
                     </div>
                     {order.orderStatus === 'paid' && (
                       <Button size="sm" onClick={() => fulfillOrderMutation.mutate(order.orderId)}>
-                        {t('seller.markShipped')}
+                        {ts('markShipped')}
                       </Button>
                     )}
                   </div>
@@ -422,10 +423,10 @@ export default function SellerDashboardPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {[
-              { label: t('seller.stats.totalProducts'), value: stats?.totalProducts || 0, icon: <Package className="h-6 w-6 text-[#FF7A45]" /> },
-              { label: t('seller.stats.totalOrders'), value: stats?.totalOrders || 0, icon: <ShoppingCart className="h-6 w-6 text-[#FF7A45]" /> },
-              { label: t('seller.stats.totalRevenue'), value: stats?.totalRevenue || 0, icon: <DollarSign className="h-6 w-6 text-[#FF7A45]" /> },
-              { label: t('seller.stats.lowStock'), value: stats?.lowStockProducts || 0, icon: <AlertTriangle className="h-6 w-6 text-orange-500" /> },
+              { label: ts('stats.totalProducts'), value: stats?.totalProducts || 0, icon: <Package className="h-6 w-6 text-[#FF7A45]" /> },
+              { label: ts('stats.totalOrders'), value: stats?.totalOrders || 0, icon: <ShoppingCart className="h-6 w-6 text-[#FF7A45]" /> },
+              { label: ts('stats.totalRevenue'), value: stats?.totalRevenue || 0, icon: <DollarSign className="h-6 w-6 text-[#FF7A45]" /> },
+              { label: ts('stats.lowStock'), value: stats?.lowStockProducts || 0, icon: <AlertTriangle className="h-6 w-6 text-orange-500" /> },
             ].map((stat, i) => (
               <Card key={i} className="border-0 shadow-sm">
                 <CardContent className="p-5">
@@ -443,65 +444,65 @@ export default function SellerDashboardPage() {
 
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-4">
-              <CardTitle className="text-xl font-bold dark:text-white">{t('seller.analyticsTable.title')}</CardTitle>
-              <CardDescription className="text-base dark:text-gray-400">{t('seller.analyticsTable.desc')}</CardDescription>
+              <CardTitle className="text-xl font-bold dark:text-white">{ts('analyticsTable.title')}</CardTitle>
+              <CardDescription className="text-base dark:text-gray-400">{ts('analyticsTable.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="dark:text-gray-300">{t('seller.analyticsTable.metric')}</TableHead>
-                      <TableHead className="dark:text-gray-300 text-right">{t('seller.analyticsTable.value')}</TableHead>
-                      <TableHead className="dark:text-gray-300 text-right">{t('seller.analyticsTable.status')}</TableHead>
+                      <TableHead className="dark:text-gray-300">{ts('analyticsTable.metric')}</TableHead>
+                      <TableHead className="dark:text-gray-300 text-right">{ts('analyticsTable.value')}</TableHead>
+                      <TableHead className="dark:text-gray-300 text-right">{ts('analyticsTable.status')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <TableCell className="font-medium dark:text-gray-200 flex items-center gap-2">
                         <Package className="h-4 w-4 text-[#FF7A45]" />
-                        {t('seller.analyticsTable.totalProducts')}
+                        {ts('analyticsTable.totalProducts')}
                       </TableCell>
                       <TableCell className="text-right dark:text-gray-300">{stats?.totalProducts || 0}</TableCell>
                       <TableCell className="text-right">
                         <span className="text-sm text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-full font-medium">
-                          {t('seller.analyticsTable.active')}
+                          {ts('analyticsTable.active')}
                         </span>
                       </TableCell>
                     </TableRow>
                     <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <TableCell className="font-medium dark:text-gray-200 flex items-center gap-2">
                         <ShoppingCart className="h-4 w-4 text-[#FF7A45]" />
-                        {t('seller.analyticsTable.totalOrders')}
+                        {ts('analyticsTable.totalOrders')}
                       </TableCell>
                       <TableCell className="text-right dark:text-gray-300">{stats?.totalOrders || 0}</TableCell>
                       <TableCell className="text-right">
                         <span className={`text-sm px-2 py-1 rounded-full font-medium ${stats?.totalOrders > 0 ? 'text-green-600 bg-green-50 dark:bg-green-900/30' : 'text-gray-500 bg-gray-50 dark:bg-gray-700/30'}`}>
-                          {stats?.totalOrders > 0 ? t('seller.analyticsTable.active') : t('seller.analyticsTable.noOrders')}
+                          {stats?.totalOrders > 0 ? ts('analyticsTable.active') : ts('analyticsTable.noOrders')}
                         </span>
                       </TableCell>
                     </TableRow>
                     <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <TableCell className="font-medium dark:text-gray-200 flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-[#FF7A45]" />
-                        {t('seller.analyticsTable.totalRevenue')}
+                        {ts('analyticsTable.totalRevenue')}
                       </TableCell>
                       <TableCell className="text-right dark:text-gray-300 font-bold text-[#FF7A45]">{stats?.totalRevenue || 0} ETB</TableCell>
                       <TableCell className="text-right">
                         <span className="text-sm text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full font-medium">
-                          {stats?.totalRevenue > 0 ? t('seller.analyticsTable.earning') : t('seller.analyticsTable.noRevenue')}
+                          {stats?.totalRevenue > 0 ? ts('analyticsTable.earning') : ts('analyticsTable.noRevenue')}
                         </span>
                       </TableCell>
                     </TableRow>
                     <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <TableCell className="font-medium dark:text-gray-200 flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4 text-orange-500" />
-                        {t('seller.analyticsTable.lowStockProducts')}
+                        {ts('analyticsTable.lowStockProducts')}
                       </TableCell>
                       <TableCell className="text-right dark:text-gray-300">{stats?.lowStockProducts || 0}</TableCell>
                       <TableCell className="text-right">
                         <span className={`text-sm px-2 py-1 rounded-full font-medium ${stats?.lowStockProducts > 0 ? 'text-red-600 bg-red-50 dark:bg-red-900/30' : 'text-green-600 bg-green-50 dark:bg-green-900/30'}`}>
-                          {stats?.lowStockProducts > 0 ? t('seller.analyticsTable.needRestock') : t('seller.analyticsTable.inStock')}
+                          {stats?.lowStockProducts > 0 ? ts('analyticsTable.needRestock') : ts('analyticsTable.inStock')}
                         </span>
                       </TableCell>
                     </TableRow>
@@ -518,13 +519,13 @@ export default function SellerDashboardPage() {
       return (
         <Card className="border-0 shadow-sm">
           <CardHeader>
-            <CardTitle>{t('seller.addProductTitle')}</CardTitle>
-            <CardDescription>{t('seller.addProductDesc')}</CardDescription>
+            <CardTitle>{ts('addProductTitle')}</CardTitle>
+            <CardDescription>{ts('addProductDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="name">{t('seller.form.name')} *</Label>
+                <Label htmlFor="name">{ts('form.name')} *</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -533,7 +534,7 @@ export default function SellerDashboardPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="description">{t('seller.form.description')}</Label>
+                <Label htmlFor="description">{ts('form.description')}</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -543,7 +544,7 @@ export default function SellerDashboardPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="price">{t('seller.form.price')} *</Label>
+                  <Label htmlFor="price">{ts('form.price')} *</Label>
                   <Input
                     id="price"
                     type="number"
@@ -554,7 +555,7 @@ export default function SellerDashboardPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="stockCount">{t('seller.form.stock')} *</Label>
+                  <Label htmlFor="stockCount">{ts('form.stock')} *</Label>
                   <Input
                     id="stockCount"
                     type="number"
@@ -566,26 +567,26 @@ export default function SellerDashboardPage() {
               </div>
 
               <div>
-                <Label htmlFor="phone">{t('seller.form.phone')}</Label>
+                <Label htmlFor="phone">{ts('form.phone')}</Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder={t('seller.form.phonePlaceholder')}
+                  placeholder={ts('form.phonePlaceholder')}
                 />
-                <p className="text-xs text-gray-400 mt-1">{t('seller.form.phoneHint')}</p>
+                <p className="text-xs text-gray-400 mt-1">{ts('form.phoneHint')}</p>
               </div>
 
               <div>
-                <Label htmlFor="categoryId">{t('seller.form.category')}</Label>
+                <Label htmlFor="categoryId">{ts('form.category')}</Label>
                 <select
                   id="categoryId"
-                  className="w-full border rounded-md px-3 py-2"
+                  className="w-full border rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   value={formData.categoryId || ''}
                   onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                 >
-                  <option value="">{t('seller.form.selectCategory')}</option>
+                  <option value="">{ts('form.selectCategory')}</option>
                   {categories?.map((cat: any) => (
                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
@@ -593,7 +594,7 @@ export default function SellerDashboardPage() {
               </div>
 
               <div>
-                <Label>{t('seller.form.image')} *</Label>
+                <Label>{ts('form.image')} *</Label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                   <div className="space-y-1 text-center">
                     {formData.imageUrl ? (
@@ -601,7 +602,7 @@ export default function SellerDashboardPage() {
                         <div className="w-40 h-40 relative">
                           <img
                             src={formData.imageUrl}
-                            alt={t('seller.form.imagePreview')}
+                            alt={ts('form.imagePreview')}
                             className="w-full h-full object-cover rounded-lg"
                             style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                           />
@@ -622,7 +623,7 @@ export default function SellerDashboardPage() {
                             htmlFor="image-upload"
                             className="relative cursor-pointer bg-white rounded-md font-medium text-[#FF7A45] hover:text-[#ff8f61] focus-within:outline-none"
                           >
-                            <span>{t('seller.form.uploadFile')}</span>
+                            <span>{ts('form.uploadFile')}</span>
                             <input
                               id="image-upload"
                               name="image-upload"
@@ -633,20 +634,20 @@ export default function SellerDashboardPage() {
                               disabled={uploadingImage}
                             />
                           </label>
-                          <p className="pl-1">{t('seller.form.dragDrop')}</p>
+                          <p className="pl-1">{ts('form.dragDrop')}</p>
                         </div>
-                        <p className="text-xs text-gray-500">{t('seller.form.imageHint')}</p>
+                        <p className="text-xs text-gray-500">{ts('form.imageHint')}</p>
                       </>
                     )}
                     {uploadingImage && (
-                      <p className="text-sm text-[#FF7A45]">{t('seller.form.uploading')}</p>
+                      <p className="text-sm text-[#FF7A45]">{ts('form.uploading')}</p>
                     )}
                   </div>
                 </div>
               </div>
 
               <Button type="submit" disabled={createProductMutation.isPending || uploadingImage} className="w-full">
-                {createProductMutation.isPending ? t('seller.form.adding') : t('seller.form.addProduct')}
+                {createProductMutation.isPending ? ts('form.adding') : ts('form.addProduct')}
               </Button>
             </form>
           </CardContent>
@@ -664,7 +665,7 @@ export default function SellerDashboardPage() {
         logout={logout}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
-        roleName={t('nav.seller')}
+        roleName={t('nav.seller')} // ✅ Uses global nav.seller
       />
 
       <div className={`fixed top-16 bottom-0 left-0 z-30 w-72 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -678,8 +679,8 @@ export default function SellerDashboardPage() {
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${activeTab === item.id
-                    ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                   }`}
               >
                 {item.icon}
@@ -697,8 +698,8 @@ export default function SellerDashboardPage() {
       <div className="lg:ml-72 pt-16 min-h-screen">
         <div className="p-6 md:p-8">
           <div className="mb-7">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{t('seller.dashboardTitle')}</h1>
-            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">{t('seller.dashboardDesc')}</p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{ts('dashboardTitle')}</h1>
+            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">{ts('dashboardDesc')}</p>
           </div>
           {renderContent()}
         </div>
@@ -708,12 +709,12 @@ export default function SellerDashboardPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
             <div className="p-6 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
-              <h2 className="text-xl font-bold dark:text-white">{t('seller.editProduct')}</h2>
+              <h2 className="text-xl font-bold dark:text-white">{ts('editProduct')}</h2>
             </div>
             <div className="p-6">
               <form onSubmit={handleUpdate} className="space-y-4">
                 <div>
-                  <Label htmlFor="edit-name">{t('seller.form.name')}</Label>
+                  <Label htmlFor="edit-name">{ts('form.name')}</Label>
                   <Input
                     id="edit-name"
                     value={formData.name}
@@ -722,7 +723,7 @@ export default function SellerDashboardPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="edit-description">{t('seller.form.description')}</Label>
+                  <Label htmlFor="edit-description">{ts('form.description')}</Label>
                   <Textarea
                     id="edit-description"
                     value={formData.description}
@@ -732,7 +733,7 @@ export default function SellerDashboardPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="edit-price">{t('seller.form.price')}</Label>
+                    <Label htmlFor="edit-price">{ts('form.price')}</Label>
                     <Input
                       id="edit-price"
                       type="number"
@@ -743,7 +744,7 @@ export default function SellerDashboardPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="edit-stockCount">{t('seller.form.stock')}</Label>
+                    <Label htmlFor="edit-stockCount">{ts('form.stock')}</Label>
                     <Input
                       id="edit-stockCount"
                       type="number"
@@ -755,26 +756,26 @@ export default function SellerDashboardPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="edit-phone">{t('seller.form.phone')}</Label>
+                  <Label htmlFor="edit-phone">{ts('form.phone')}</Label>
                   <Input
                     id="edit-phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder={t('seller.form.phonePlaceholder')}
+                    placeholder={ts('form.phonePlaceholder')}
                   />
-                  <p className="text-xs text-gray-400 mt-1">{t('seller.form.phoneHint')}</p>
+                  <p className="text-xs text-gray-400 mt-1">{ts('form.phoneHint')}</p>
                 </div>
 
                 <div>
-                  <Label htmlFor="edit-categoryId">{t('seller.form.category')}</Label>
+                  <Label htmlFor="edit-categoryId">{ts('form.category')}</Label>
                   <select
                     id="edit-categoryId"
                     className="w-full border rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     value={formData.categoryId || ''}
                     onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                   >
-                    <option value="">{t('seller.form.selectCategory')}</option>
+                    <option value="">{ts('form.selectCategory')}</option>
                     {categories?.map((cat: any) => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
@@ -782,7 +783,7 @@ export default function SellerDashboardPage() {
                 </div>
 
                 <div>
-                  <Label>{t('seller.form.image')}</Label>
+                  <Label>{ts('form.image')}</Label>
                   <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                     <div className="space-y-1 text-center">
                       {formData.imageUrl ? (
@@ -790,7 +791,7 @@ export default function SellerDashboardPage() {
                           <div className="w-40 h-40 relative">
                             <img
                               src={formData.imageUrl}
-                              alt={t('seller.form.imagePreview')}
+                              alt={ts('form.imagePreview')}
                               className="w-full h-full object-cover rounded-lg"
                               style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                             />
@@ -811,7 +812,7 @@ export default function SellerDashboardPage() {
                               htmlFor="edit-image-upload"
                               className="relative cursor-pointer bg-white rounded-md font-medium text-[#FF7A45] hover:text-[#ff8f61]"
                             >
-                              <span>{t('seller.form.uploadFile')}</span>
+                              <span>{ts('form.uploadFile')}</span>
                               <input
                                 id="edit-image-upload"
                                 name="edit-image-upload"
@@ -822,13 +823,13 @@ export default function SellerDashboardPage() {
                                 disabled={uploadingImage}
                               />
                             </label>
-                            <p className="pl-1">{t('seller.form.dragDrop')}</p>
+                            <p className="pl-1">{ts('form.dragDrop')}</p>
                           </div>
-                          <p className="text-xs text-gray-500">{t('seller.form.imageHint')}</p>
+                          <p className="text-xs text-gray-500">{ts('form.imageHint')}</p>
                         </>
                       )}
                       {uploadingImage && (
-                        <p className="text-sm text-[#FF7A45]">{t('seller.form.uploading')}</p>
+                        <p className="text-sm text-[#FF7A45]">{ts('form.uploading')}</p>
                       )}
                     </div>
                   </div>
@@ -836,10 +837,10 @@ export default function SellerDashboardPage() {
 
                 <div className="flex gap-2 pt-4">
                   <Button type="submit" disabled={updateProductMutation.isPending || uploadingImage}>
-                    {t('seller.form.saveChanges')}
+                    {ts('form.saveChanges')}
                   </Button>
                   <Button variant="outline" onClick={() => setEditingProduct(null)}>
-                    {t('seller.form.cancel')}
+                    {ts('form.cancel')}
                   </Button>
                 </div>
               </form>

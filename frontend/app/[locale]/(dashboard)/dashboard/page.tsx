@@ -92,7 +92,7 @@ function ARPractice() {
           document.head.appendChild(arScript);
         };
       } catch (error) {
-        console.error('Error loading AR scripts:', error);
+
       }
     };
 
@@ -106,7 +106,7 @@ function ARPractice() {
       <Card className="border-0 shadow-sm dark:bg-gray-800 bg-gradient-to-br from-[#FFF2EB] to-white dark:from-gray-800 dark:to-gray-800">
         <CardHeader>
           <CardTitle className="text-xl font-bold dark:text-white flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-[#FF7A45]" />
+
             AR Practice Studio
           </CardTitle>
           <CardDescription className="text-base dark:text-gray-400">
@@ -202,19 +202,7 @@ function ARPractice() {
               </Button>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                📸 Print or display the Hiro marker on your screen. Point your camera at it to see the AR scene!
-              </p>
-              <a
-                href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.jpg"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-[#FF7A45] hover:underline mt-1 inline-block"
-              >
-                Download Hiro Marker →
-              </a>
-            </div>
+
           </div>
         </CardContent>
       </Card>
@@ -598,11 +586,12 @@ export default function DashboardPage() {
       label: t("menu.messages"),
       icon: <MessageSquare className="w-5 h-5" />,
     },
-    // ✅ NEW: AR Practice Menu Item
+
     {
       id: "arpractice",
       label: "AR Practice",
       icon: <Sparkles className="w-5 h-5" />,
+      href: "/arpractice", // ✅ Add this to navigate to the page
     },
   ];
 
@@ -1433,11 +1422,10 @@ export default function DashboardPage() {
       );
     }
 
-    // ============================================
-    // ✅ AR PRACTICE TAB
-    // ============================================
+
     if (activeTab === "arpractice") {
-      return <ARPractice />;
+      router.push('/arpractice');
+      return null;
     }
 
     return null;
