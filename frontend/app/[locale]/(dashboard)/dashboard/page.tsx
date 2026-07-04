@@ -53,6 +53,9 @@ import {
   Users,
   TrendingUp,
   CheckCircle,
+  Brush,
+  Eraser,
+  Undo2,
 } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import MessagesPanel from "@/components/MessagesPanel";
@@ -65,6 +68,159 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+
+// ✅ AR Practice Component
+function ARPractice() {
+  const [isARReady, setIsARReady] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("#FF7A45");
+  const [brushSize, setBrushSize] = useState(5);
+  const [isRecording, setIsRecording] = useState(false);
+
+  useEffect(() => {
+    const loadARScripts = async () => {
+      try {
+        // Load A-Frame
+        const aframeScript = document.createElement('script');
+        aframeScript.src = 'https://aframe.io/releases/1.4.0/aframe.min.js';
+        document.head.appendChild(aframeScript);
+
+        aframeScript.onload = () => {
+          // Load AR.js
+          const arScript = document.createElement('script');
+          arScript.src = 'https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js';
+          arScript.onload = () => setIsARReady(true);
+          document.head.appendChild(arScript);
+        };
+      } catch (error) {
+        console.error('Error loading AR scripts:', error);
+      }
+    };
+
+    loadARScripts();
+  }, []);
+
+  const colors = ['#FF7A45', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#000000'];
+
+  return (
+    <div className="space-y-6">
+      <Card className="border-0 shadow-sm dark:bg-gray-800 bg-gradient-to-br from-[#FFF2EB] to-white dark:from-gray-800 dark:to-gray-800">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold dark:text-white flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-[#FF7A45]" />
+            AR Practice Studio
+          </CardTitle>
+          <CardDescription className="text-base dark:text-gray-400">
+            Practice your hobby in augmented reality! Point your camera at the marker.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="relative w-full bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden" style={{ height: '450px' }}>
+            {isARReady ? (
+              <a-scene embedded arjs="trackingMethod: best; debugUIEnabled: false;">
+                <a-marker preset="hiro">
+                  <a-plane position="0 0 -0.5" width="2" height="2" color="#FFF" opacity="0.8" material="side: double" />
+                  <a-box
+                    position="0 0.5 0"
+                    width="0.5"
+                    height="0.05"
+                    depth="0.5"
+                    color={selectedColor}
+                    animation="property: rotation; to: 0 360 0; dur: 5000; loop: true;"
+                  />
+                  <a-text
+                    value="🎨 Practice Here!"
+                    position="0 1.2 0"
+                    color={selectedColor}
+                    align="center"
+                    scale="1.5 1.5 1.5"
+                  />
+                </a-marker>
+                <a-entity camera></a-entity>
+              </a-scene>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="w-16 h-16 border-4 border-[#FF7A45] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-500 dark:text-gray-400">Loading AR Studio...</p>
+                  <p className="text-sm text-gray-400 mt-2">Please allow camera access</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Controls */}
+          <div className="mt-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Color</label>
+              <div className="flex gap-2 flex-wrap">
+                {colors.map((color) => (
+                  <button
+                    key={color}
+                    className={`w-8 h-8 rounded-full border-2 ${selectedColor === color ? 'border-[#FF7A45]' : 'border-gray-300'} hover:scale-110 transition-transform`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setSelectedColor(color)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Brush Size: {brushSize}px
+              </label>
+              <input
+                type="range"
+                min="1"
+                max="20"
+                value={brushSize}
+                onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                className="w-full"
+              />
+            </div>
+
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsRecording(!isRecording)}
+                className={isRecording ? 'bg-red-500 hover:bg-red-600 text-white' : ''}
+              >
+                <Video className="h-4 w-4 mr-2" />
+                {isRecording ? 'Stop Recording' : 'Start Recording'}
+              </Button>
+              <Button size="sm" variant="outline">
+                <Undo2 className="h-4 w-4 mr-2" />
+                Undo
+              </Button>
+              <Button size="sm" variant="outline">
+                <Eraser className="h-4 w-4 mr-2" />
+                Clear
+              </Button>
+              <Button size="sm" variant="outline">
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                📸 Print or display the Hiro marker on your screen. Point your camera at it to see the AR scene!
+              </p>
+              <a
+                href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.jpg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-[#FF7A45] hover:underline mt-1 inline-block"
+              >
+                Download Hiro Marker →
+              </a>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -260,50 +416,7 @@ export default function DashboardPage() {
         const response = await api.get("/hobbies?limit=6&sort=popular");
         return response.data?.data || [];
       } catch {
-        return [
-          {
-            id: 1,
-            name: "Music Production",
-            category: { name: "Music" },
-            icon: "music",
-            studentCount: 234,
-          },
-          {
-            id: 2,
-            name: "Digital Art",
-            category: { name: "Art" },
-            icon: "palette",
-            studentCount: 189,
-          },
-          {
-            id: 3,
-            name: "Web Development",
-            category: { name: "Coding" },
-            icon: "code2",
-            studentCount: 456,
-          },
-          {
-            id: 4,
-            name: "Photography",
-            category: { name: "Photography" },
-            icon: "camera",
-            studentCount: 167,
-          },
-          {
-            id: 5,
-            name: "Creative Writing",
-            category: { name: "Writing" },
-            icon: "penTool",
-            studentCount: 123,
-          },
-          {
-            id: 6,
-            name: "Game Design",
-            category: { name: "Gaming" },
-            icon: "gamepad2",
-            studentCount: 98,
-          },
-        ];
+        return [];
       }
     },
     enabled: !!user,
@@ -484,6 +597,12 @@ export default function DashboardPage() {
       id: "messages",
       label: t("menu.messages"),
       icon: <MessageSquare className="w-5 h-5" />,
+    },
+    // ✅ NEW: AR Practice Menu Item
+    {
+      id: "arpractice",
+      label: "AR Practice",
+      icon: <Sparkles className="w-5 h-5" />,
     },
   ];
 
@@ -697,9 +816,6 @@ export default function DashboardPage() {
                     <p className="text-sm font-semibold text-gray-800 dark:text-white mt-2 line-clamp-1">
                       {hobby.name}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      {hobby.studentCount || 0} students
-                    </p>
                   </div>
                 ))}
               </div>
@@ -799,18 +915,11 @@ export default function DashboardPage() {
     }
 
     // ============================================
-    // CERTIFICATES TAB - BOTH MANUAL AND AI - FIXED
+    // CERTIFICATES TAB - BOTH MANUAL AND AI
     // ============================================
     if (activeTab === "certificates") {
-      // Debug logging
-      console.log("📊 Certificates data:", certificates);
-      console.log("📊 Is array?", Array.isArray(certificates));
-      console.log("📊 Length:", certificates?.length);
-
-      // Use certificates directly - they already have the right fields
       const allCertificates = (certificates || []).map((cert: any) => ({
         ...cert,
-        // Ensure we have the fields we need
         displayTitle: cert.title || cert.displayTitle || 'Certificate',
         displayHobby: cert.hobby || cert.displayHobby || 'N/A',
         displayTeacher: cert.teacher || cert.displayTeacher || 'Unknown Teacher'
@@ -818,7 +927,6 @@ export default function DashboardPage() {
 
       return (
         <div className="space-y-6">
-          {/* Header card */}
           <Card className="border-0 shadow-sm dark:bg-gray-800 dark:border-gray-700 bg-gradient-to-br from-[#FFF2EB] to-white dark:from-gray-800 dark:to-gray-800">
             <CardHeader className="p-6">
               <div className="flex items-center justify-between">
@@ -842,7 +950,6 @@ export default function DashboardPage() {
             </CardHeader>
           </Card>
 
-          {/* Certificates list */}
           <Card className="border border-gray-100 dark:border-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden">
             <CardContent className="p-6">
               {allCertificates.length === 0 ? (
@@ -1324,6 +1431,13 @@ export default function DashboardPage() {
           <MessagesPanel />
         </div>
       );
+    }
+
+    // ============================================
+    // ✅ AR PRACTICE TAB
+    // ============================================
+    if (activeTab === "arpractice") {
+      return <ARPractice />;
     }
 
     return null;
