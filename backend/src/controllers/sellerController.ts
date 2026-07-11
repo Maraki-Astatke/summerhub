@@ -6,15 +6,15 @@ export const getSellerStats = async (req: any, res: any) => {
 const sellerId = req.user.userId;
 
 const [totalProducts, totalOrders, totalRevenue, lowStockProducts] = await Promise.all([
-  prisma.product.count({ where: { sellerId } }),
+  prisma.product.count({ where: { sellerId, isActive: true } }),
   prisma.orderItem.count({
     where: {
-      product: { sellerId }
+      product: { sellerId, isActive: true }
     }
   }),
   prisma.orderItem.aggregate({
     where: {
-      product: { sellerId },
+      product: { sellerId, isActive: true },
       order: {
         status: 'paid'
       }
@@ -26,6 +26,7 @@ const [totalProducts, totalOrders, totalRevenue, lowStockProducts] = await Promi
   prisma.product.count({
     where: {
       sellerId,
+      isActive: true,
       stockCount: { lt: 10 }
     }
   })
@@ -42,7 +43,7 @@ export const getSellerProducts = async (req: any, res: any) => {
 const sellerId = req.user.userId;
 
 const products = await prisma.product.findMany({
-  where: { sellerId },
+  where: { sellerId, isActive: true },
   include: {
     category: true,
     reviews: true,
@@ -144,6 +145,7 @@ const sellerId = req.user.userId;
 const lowStock = await prisma.product.findMany({
   where: {
     sellerId,
+    isActive: true,
     stockCount: { lt: 10 }
   },
   orderBy: { stockCount: 'asc' }
@@ -152,6 +154,7 @@ const lowStock = await prisma.product.findMany({
 const outOfStock = await prisma.product.findMany({
   where: {
     sellerId,
+    isActive: true,
     stockCount: 0
   }
 });

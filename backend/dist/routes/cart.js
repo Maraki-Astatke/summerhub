@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { authenticateToken } from '../middleware/auth.js';
+import { getCart, postCartAdd, putCartUpdate, deleteCartRemoveProductId, deleteCartClear } from "../controllers/cartController.js";
+const router = Router();
+router.get('/cart', authenticateToken, getCart);
+router.post('/cart/add', authenticateToken, postCartAdd);
+router.put('/cart/update', authenticateToken, putCartUpdate);
+router.delete('/cart/remove/:productId', authenticateToken, deleteCartRemoveProductId);
+router.delete('/cart/clear', authenticateToken, deleteCartClear);
+export default router;

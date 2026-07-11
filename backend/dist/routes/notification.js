@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { param } from 'express-validator';
+import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { postNotificationsSendLessonreminder, postNotificationsSendOrderconfirmation, postNotificationsSendWelcome, postNotificationsSendScholarshipapproved, postNotificationsSendCertificateearned, postNotificationsSendEventreminder, getNotificationsHistoryUserId, putNotificationsIdRead } from "../controllers/notificationController.js";
+const router = Router();
+router.post('/notifications/send/lesson-reminder', authenticateToken, requireRole(['teacher', 'admin']), [param('lessonId').isInt()], postNotificationsSendLessonreminder);
+router.post('/notifications/send/order-confirmation', authenticateToken, [param('orderId').isInt()], postNotificationsSendOrderconfirmation);
+router.post('/notifications/send/welcome', authenticateToken, requireRole(['admin']), [param('userId').isInt()], postNotificationsSendWelcome);
+router.post('/notifications/send/scholarship-approved', authenticateToken, requireRole(['scholarship_giver', 'admin']), [param('applicationId').isInt()], postNotificationsSendScholarshipapproved);
+router.post('/notifications/send/certificate-earned', authenticateToken, [param('registrationId').isInt()], postNotificationsSendCertificateearned);
+router.post('/notifications/send/event-reminder', authenticateToken, [param('eventId').isInt()], postNotificationsSendEventreminder);
+router.get('/notifications/history/:userId', authenticateToken, [param('userId').isInt()], getNotificationsHistoryUserId);
+router.put('/notifications/:id/read', authenticateToken, [param('id').isInt()], putNotificationsIdRead);
+export default router;

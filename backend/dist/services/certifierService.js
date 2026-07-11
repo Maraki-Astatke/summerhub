@@ -2,13 +2,8 @@ import axios from 'axios';
 import dns from 'dns';
 import http from 'http';
 import https from 'https';
-
-
 dns.setDefaultResultOrder('ipv4first');
-
 const CERTIFIER_API_URL = 'https://api.certifier.io/v1';
-
-
 function getCertifierApi() {
     const CERTIFIER_API_KEY = process.env.CERTIFIER_API_KEY;
     if (!CERTIFIER_API_KEY) {
@@ -26,24 +21,10 @@ function getCertifierApi() {
         httpsAgent: new https.Agent({ family: 4 })
     });
 }
-
-export async function generateCertificate({
-    studentName,
-    studentEmail,
-    hobbyName,
-    teacherName,
-    credentialGroupId
-}: {
-    studentName: string;
-    studentEmail: string;
-    hobbyName: string;
-    teacherName: string;
-    credentialGroupId: string;
-}) {
+export async function generateCertificate({ studentName, studentEmail, hobbyName, teacherName, credentialGroupId }) {
     try {
         console.log('📤 Creating certificate for:', studentName);
         console.log('📤 Data:', { studentName, studentEmail, hobbyName, teacherName, credentialGroupId });
-
         // ✅ FIXED: Using metadata instead of customAttributes
         const requestData = {
             groupId: credentialGroupId,
@@ -58,30 +39,25 @@ export async function generateCertificate({
                 teacher: teacherName
             }
         };
-
         console.log('📤 Request Data:', JSON.stringify(requestData, null, 2));
-
         const response = await getCertifierApi().post('/credentials', requestData);
-
         console.log('✅ Certificate created:', response.data.id);
         console.log('✅ Full response:', JSON.stringify(response.data, null, 2));
-
-
         try {
             await getCertifierApi().post(`/credentials/${response.data.id}/send`);
             console.log('✅ Email sent to student');
-        } catch (emailError: any) {
+        }
+        catch (emailError) {
             console.log('⚠️ Email sending failed, but certificate was created');
             console.log('Email error:', emailError.response?.data);
         }
-
         return {
             success: true,
             credentialId: response.data.id,
             message: `Certificate generated for ${studentName} (${studentEmail})`
         };
-
-    } catch (error: any) {
+    }
+    catch (error) {
         console.error('❌ Certifier API Error:');
         console.error('Status:', error.response?.status);
         console.error('Data:', JSON.stringify(error.response?.data, null, 2));
@@ -89,94 +65,67 @@ export async function generateCertificate({
         throw error;
     }
 }
-
-
-export async function createCertifierCredential(credentialData: {
-    groupId: string;
-    recipient: {
-        name: string;
-        email: string;
-    };
-    issuedOn: string;
-    status: 'draft' | 'issued';
-    metadata?: {
-        hobby?: string;
-        teacher?: string;
-        [key: string]: any;
-    };
-}) {
+export async function createCertifierCredential(credentialData) {
     try {
         const response = await getCertifierApi().post('/credentials', credentialData);
         return response.data;
-    } catch (error: any) {
+    }
+    catch (error) {
         console.error('❌ Create credential error:', error.response?.data || error.message);
         throw error;
     }
 }
-
 // ============================================
 // ISSUE CREDENTIAL
 // ============================================
-export async function issueCertifierCredential(credentialId: string) {
+export async function issueCertifierCredential(credentialId) {
     try {
         const response = await getCertifierApi().put(`/credentials/${credentialId}`, {
             status: 'issued'
         });
         return response.data;
-    } catch (error: any) {
+    }
+    catch (error) {
         console.error('❌ Issue credential error:', error.response?.data || error.message);
         throw error;
     }
 }
-
-
-export async function sendCredentialByEmail(credentialId: string) {
+export async function sendCredentialByEmail(credentialId) {
     try {
         const response = await getCertifierApi().post(`/credentials/${credentialId}/send`);
         return response.data;
-    } catch (error: any) {
+    }
+    catch (error) {
         console.error('❌ Send email error:', error.response?.data || error.message);
         throw error;
     }
 }
-
-
 export async function getAllCredentials() {
     try {
         const response = await getCertifierApi().get('/credentials');
         return response.data;
-    } catch (error: any) {
+    }
+    catch (error) {
         console.error('❌ Get credentials error:', error.response?.data || error.message);
         throw error;
     }
 }
-
 // ============================================
 // GET CREDENTIAL BY ID (Optional - for testing)
 // ============================================
-export async function getCredentialById(credentialId: string) {
+export async function getCredentialById(credentialId) {
     try {
         const response = await getCertifierApi().get(`/credentials/${credentialId}`);
         return response.data;
-    } catch (error: any) {
+    }
+    catch (error) {
         console.error('❌ Get credential error:', error.response?.data || error.message);
         throw error;
     }
 }
-
-
-export async function generateCertificateSimple({
-    studentName,
-    studentEmail,
-    credentialGroupId
-}: {
-    studentName: string;
-    studentEmail: string;
-    credentialGroupId: string;
-}) {
+export async function generateCertificateSimple({ studentName, studentEmail, credentialGroupId }) {
     try {
         console.log('📤 Creating certificate for:', studentName);
-
         const requestData = {
             groupId: credentialGroupId,
             recipient: {
@@ -186,20 +135,16 @@ export async function generateCertificateSimple({
             issuedOn: new Date().toISOString().split('T')[0],
             status: 'issued'
         };
-
         console.log('📤 Request Data:', JSON.stringify(requestData, null, 2));
-
         const response = await getCertifierApi().post('/credentials', requestData);
-
         console.log('✅ Certificate created:', response.data.id);
-
         return {
             success: true,
             credentialId: response.data.id,
             message: `Certificate generated for ${studentName} (${studentEmail})`
         };
-
-    } catch (error: any) {
+    }
+    catch (error) {
         console.error('❌ Certifier API Error:');
         console.error('Status:', error.response?.status);
         console.error('Data:', JSON.stringify(error.response?.data, null, 2));

@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 dotenv.config();
-
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -42,43 +41,32 @@ import orderRoutes from './routes/orders.js';
 import eventPostRoutes from './routes/event-posts.js';
 import scholarshipGiverRoutes from './routes/scholarshipGiver.js';
 import certificateRoutes from './routes/certificateRoutes.js';
-
-
 const app = express();
 const PORT = process.env.PORT || 5001;
-
 app.use(helmet());
-
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
-  credentials: true,
-  exposedHeaders: ['Cross-Origin-Resource-Policy']
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+    exposedHeaders: ['Cross-Origin-Resource-Policy']
 }));
-
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { error: 'Too many requests. Please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { error: 'Too many requests. Please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
 });
-
 app.use(globalLimiter);
-
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-session-secret',
-  resave: false,
-  saveUninitialized: false,
+    secret: process.env.SESSION_SECRET || 'your-session-secret',
+    resave: false,
+    saveUninitialized: false,
 }));
-
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use('/api', adminQuizRoutes);
-
 app.use('/api/auth', authRoutes);
 app.use('/api', googleAuthRoutes);
 app.use('/api', hobbyRoutes);
@@ -89,7 +77,6 @@ app.use('/api', scholarshipRoutes);
 app.use('/api/scholarship-giver', scholarshipGiverRoutes);
 app.use('/api', eventRoutes);
 app.use('/api', eventPostRoutes);
-
 app.use('/api', adminRoutes);
 app.use('/api', quizRoutes);
 app.use('/api', lessonRoutes);
@@ -108,117 +95,98 @@ app.use('/api', paymentRoutes);
 app.use('/api', cartRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', certificateRoutes);
-
-
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
-  setHeaders: (res, filePath, stat) => {
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
-  }
+    setHeaders: (res, filePath, stat) => {
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
 }));
 app.use('/api', uploadRoutes);
-
-
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'HobbyHub Backend is running!',
-    timestamp: new Date().toISOString()
-  });
+    res.json({
+        status: 'OK',
+        message: 'HobbyHub Backend is running!',
+        timestamp: new Date().toISOString()
+    });
 });
-
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+    res.status(404).json({ error: 'Route not found' });
 });
-
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Global error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+app.use((err, req, res, next) => {
+    console.error('Global error:', err);
+    res.status(500).json({ error: 'Internal server error' });
 });
-
-
 const server = createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
-    credentials: true
-  }
-});
-
-
-io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
-  if (!token) {
-    return next(new Error('Authentication required'));
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    socket.data.user = decoded;
-    next();
-  } catch (err) {
-    next(new Error('Invalid token'));
-  }
-});
-
-
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.data.user?.userId);
-
-  socket.on('join-room', (roomId) => {
-    socket.join(roomId);
-    console.log(`User ${socket.data.user?.userId} joined room ${roomId}`);
-  });
-
-  socket.on('leave-room', (roomId) => {
-    socket.leave(roomId);
-  });
-
-  socket.on('send-message', async (data) => {
-    const { roomId, message, receiverId } = data;
-
-    try {
-      const savedMessage = await prisma.message.create({
-        data: {
-          senderId: socket.data.user.userId,
-          receiverId: receiverId,
-          content: message,
-          isRead: false
-        },
-        include: {
-          sender: {
-            include: { profile: true }
-          },
-          receiver: {
-            include: { profile: true }
-          }
-        }
-      });
-
-      io.to(`user-${receiverId}`).emit('new-message', savedMessage);
-      socket.emit('message-sent', savedMessage);
-    } catch (error) {
-      console.error('Error saving message:', error);
+    cors: {
+        origin: ['http://localhost:3000', 'http://localhost:5173'],
+        credentials: true
     }
-  });
-
-  socket.on('typing', ({ receiverId, isTyping }) => {
-    socket.to(`user-${receiverId}`).emit('user-typing', {
-      userId: socket.data.user.userId,
-      isTyping
-    });
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.data.user?.userId);
-  });
 });
-
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    if (!token) {
+        return next(new Error('Authentication required'));
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        socket.data.user = decoded;
+        next();
+    }
+    catch (err) {
+        next(new Error('Invalid token'));
+    }
+});
+io.on('connection', (socket) => {
+    console.log('User connected:', socket.data.user?.userId);
+    socket.on('join-room', (roomId) => {
+        socket.join(roomId);
+        console.log(`User ${socket.data.user?.userId} joined room ${roomId}`);
+    });
+    socket.on('leave-room', (roomId) => {
+        socket.leave(roomId);
+    });
+    socket.on('send-message', async (data) => {
+        const { roomId, message, receiverId } = data;
+        try {
+            const savedMessage = await prisma.message.create({
+                data: {
+                    senderId: socket.data.user.userId,
+                    receiverId: receiverId,
+                    content: message,
+                    isRead: false
+                },
+                include: {
+                    sender: {
+                        include: { profile: true }
+                    },
+                    receiver: {
+                        include: { profile: true }
+                    }
+                }
+            });
+            io.to(`user-${receiverId}`).emit('new-message', savedMessage);
+            socket.emit('message-sent', savedMessage);
+        }
+        catch (error) {
+            console.error('Error saving message:', error);
+        }
+    });
+    socket.on('typing', ({ receiverId, isTyping }) => {
+        socket.to(`user-${receiverId}`).emit('user-typing', {
+            userId: socket.data.user.userId,
+            isTyping
+        });
+    });
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.data.user?.userId);
+    });
+});
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📁 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📝 Register: POST http://localhost:${PORT}/api/auth/register`);
-  console.log(`🔌 Socket.io ready`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📁 Health check: http://localhost:${PORT}/api/health`);
+    console.log(`📝 Register: POST http://localhost:${PORT}/api/auth/register`);
+    console.log(`🔌 Socket.io ready`);
 });

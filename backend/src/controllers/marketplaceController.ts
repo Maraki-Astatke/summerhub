@@ -52,7 +52,8 @@ const limitNum = parseInt(limit);
 const skip = (pageNum - 1) * limitNum;
 
 const where: any = {
-  stockCount: { gt: 0 }
+  stockCount: { gt: 0 },
+  isActive: true
 };
 
 if (categoryId) where.categoryId = parseInt(categoryId);
@@ -105,10 +106,11 @@ if (!errors.isEmpty()) {
 
 const { id } = req.params;
 
-const product = await prisma.product.findUnique({
+const product = await prisma.product.findFirst({
   where: { 
     id: parseInt(id),
-    stockCount: { gt: 0 }
+    stockCount: { gt: 0 },
+    isActive: true
   },
   include: {
     category: true,
@@ -146,8 +148,8 @@ const { id } = req.params;
 const { name, description, price, stockCount, categoryId, imageUrl, phone } = req.body;
 const userId = req.user.userId;
 
-const existingProduct = await prisma.product.findUnique({
-  where: { id: parseInt(id) }
+const existingProduct = await prisma.product.findFirst({
+  where: { id: parseInt(id), isActive: true }
 });
 
 if (!existingProduct) {
@@ -191,8 +193,8 @@ if (!errors.isEmpty()) {
 const { id } = req.params;
 const userId = req.user.userId;
 
-const existingProduct = await prisma.product.findUnique({
-  where: { id: parseInt(id) }
+const existingProduct = await prisma.product.findFirst({
+  where: { id: parseInt(id), isActive: true }
 });
 
 if (!existingProduct) {
@@ -210,7 +212,18 @@ if (!isAdmin && existingProduct.sellerId !== userId) {
   return res.status(403).json({ error: 'You can only delete your own products' });
 }
 
-await prisma.product.delete({ where: { id: parseInt(id) } });
+await prisma.product.update({
+  where: { id: parseInt(id) },
+  data: { isActive: false }
+});
+
+await prisma.cartItem.deleteMany({
+  where: { productId: parseInt(id) }
+});
+
+await prisma.productReview.deleteMany({
+  where: { productId: parseInt(id) }
+});
 
 res.status(204).send();
 };

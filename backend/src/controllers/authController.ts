@@ -6,7 +6,7 @@ import rateLimit from "express-rate-limit";
 import prisma from "../lib/prisma.js";
 import { sendVerificationEmail, generateVerificationToken } from "../services/email.js";
 export const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
+  windowMs: 15 * 60 * 1000,
   max: 5,
   message: { error: 'Too many registration attempts. Please try again after an hour.' },
   skipSuccessfulRequests: true,

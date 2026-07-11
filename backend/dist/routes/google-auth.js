@@ -1,0 +1,58 @@
+import dotenv from 'dotenv';
+dotenv.config();
+import { Router } from 'express';
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import prisma from '../lib/prisma.js';
+import bcrypt from 'bcrypt';
+import { getAuthGoogleCallback } from "../controllers/google-authController.js";
+const router = Router();
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: '/api/auth/google/callback',
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        let user = await prisma.user.findUnique({
+            where: { email: profile.emails?.[0].value },
+            include: { roles: { include: { role: true } } }
+        });
+        if (!user) {
+            const hashedPassword = await bcrypt.hash(Math.random().toString(36), 10);
+            user = await prisma.user.create({
+                data: {
+                    email: profile.emails?.[0].value,
+                    password: hashedPassword,
+                    isVerified: true,
+                    profile: {
+                        create: {
+                            firstName: profile.name?.givenName || '',
+                            lastName: profile.name?.familyName || '',
+                        }
+                    }
+                },
+                include: { roles: { include: { role: true } } }
+            });
+            const studentRole = await prisma.role.findUnique({ where: { name: 'student' } });
+            if (studentRole) {
+                await prisma.userRole.create({
+                    data: { userId: user.id, roleId: studentRole.id }
+                });
+            }
+        }
+        return done(null, user);
+    }
+    catch (error) {
+        return done(error);
+    }
+}));
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+passport.deserializeUser(async (id, done) => {
+    const user = await prisma.user.findUnique({ where: { id } });
+    done(null, user);
+});
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), getAuthGoogleCallback);
+export default router;

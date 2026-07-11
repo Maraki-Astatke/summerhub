@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { authenticateToken } from '../middleware/auth.js';
+import { getHobbies, getHobbiesId, getHobbiesIdIsregistered, postHobbiesIdRegister, deleteHobbiesIdUnregister, getCategories, getCategoriesCategoryIdHobbies } from "../controllers/hobbyController.js";
+const router = Router();
+router.get('/hobbies', getHobbies);
+router.get('/hobbies/:id', getHobbiesId);
+router.get('/hobbies/:id/is-registered', authenticateToken, getHobbiesIdIsregistered);
+router.post('/hobbies/:id/register', authenticateToken, postHobbiesIdRegister);
+router.delete('/hobbies/:id/unregister', authenticateToken, deleteHobbiesIdUnregister);
+router.get('/categories', getCategories);
+router.get('/categories/:categoryId/hobbies', getCategoriesCategoryIdHobbies);
+export default router;
