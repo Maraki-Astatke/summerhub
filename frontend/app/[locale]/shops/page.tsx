@@ -164,9 +164,9 @@ export default function ShopPage() {
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {productsData?.data?.map((product: any) => (
-                <Card key={product.id} className="border border-gray-100 bg-white rounded-[24px] hover:translate-y-[-6px] hover:shadow-xl hover:shadow-[#FF7A45]/5 transition-all duration-300 flex flex-col overflow-hidden shadow-sm">
+                <Card key={product.id} className="border border-gray-100 bg-white rounded-[24px] hover:translate-y-[-6px] hover:shadow-xl hover:shadow-[#FF7A45]/5 transition-all duration-300 flex flex-col overflow-hidden shadow-sm pt-0 gap-0">
                   {}
-                  <div className="relative w-full aspect-square bg-gray-100 overflow-hidden">
+                  <div className="relative w-full h-80 bg-gray-100 overflow-hidden">
                     {product.imageUrl ? (
                       <img
                         src={product.imageUrl}
@@ -205,7 +205,7 @@ export default function ShopPage() {
                   </div>
 
                   {}
-                  <div className="p-4 flex flex-col flex-1">
+                  <div className="p-6 pb-8 flex flex-col flex-1">
                     <CardTitle className="text-lg font-bold text-[#1F2937] leading-snug tracking-tight mb-1 line-clamp-1">
                       {product.name}
                     </CardTitle>

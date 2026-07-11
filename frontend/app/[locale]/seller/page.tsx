@@ -294,8 +294,8 @@ export default function SellerDashboardPage() {
             </div>
           ) : (
             products?.map((product: any) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 border-0 shadow-sm group">
-                <div className="relative w-full h-52 bg-gray-100 overflow-hidden">
+              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 border-0 shadow-sm group flex flex-col pt-0 gap-0">
+                <div className="relative w-full h-80 bg-gray-100 overflow-hidden">
                   {product.imageUrl ? (
                     <img
                       src={product.imageUrl}
@@ -340,30 +340,34 @@ export default function SellerDashboardPage() {
                   </div>
                 </div>
 
-                <CardContent className="p-5">
-                  <h3 className="text-base font-bold text-gray-800 dark:text-white mb-1 truncate">{product.name}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{product.description || ts('noDescription')}</p>
+                <CardContent className="p-6 pb-8 flex flex-col justify-between flex-1 min-h-[190px]">
+                  <div>
+                    <h3 className="text-base font-bold text-gray-800 dark:text-white mb-1 truncate">{product.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{product.description || ts('noDescription')}</p>
 
-                  {product.phone && (
-                    <div className="flex items-center gap-1.5 mb-3 text-sm text-gray-600 dark:text-gray-400">
-                      <Phone className="h-3.5 w-3.5 text-[#FF7A45]" />
-                      <span>{product.phone}</span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-[#FF7A45]">{product.price} ETB</span>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium text-gray-600">{product.averageRating?.toFixed(1) || '0'}</span>
-                    </div>
+                    {product.phone && (
+                      <div className="flex items-center gap-1.5 mb-3 text-sm text-gray-600 dark:text-gray-400">
+                        <Phone className="h-3.5 w-3.5 text-[#FF7A45]" />
+                        <span>{product.phone}</span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex justify-between items-center text-sm mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <span className={`font-semibold ${product.stockCount < 10 ? 'text-red-500' : 'text-gray-600 dark:text-gray-400'}`}>
-                      {ts('stockLabel')}: {product.stockCount}
-                    </span>
-                    <span className="text-gray-400">{ts('sold')}: {product.totalSold || 0}</span>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl font-bold text-[#FF7A45]">{product.price} ETB</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-medium text-gray-600">{product.averageRating?.toFixed(1) || '0'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center text-sm mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                      <span className={`font-semibold ${product.stockCount < 10 ? 'text-red-500' : 'text-gray-600 dark:text-gray-400'}`}>
+                        {ts('stockLabel')}: {product.stockCount}
+                      </span>
+                      <span className="text-gray-400">{ts('sold')}: {product.totalSold || 0}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
