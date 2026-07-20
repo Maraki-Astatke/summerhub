@@ -371,8 +371,8 @@ export default function ScholarshipGiverDashboard() {
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-base font-medium ${activeTab === item.id
-                    ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  ? 'bg-[#FF7A45]/10 text-[#FF7A45] shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                   }`}
               >
                 {item.icon}
